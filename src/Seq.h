@@ -3,7 +3,7 @@
 //  ancientSequencer
 //
 //  Created by Nunja on 7/14/12.
-//  Copyright 2012 ISM. All rights reserved.
+//  Copyright 2012 Nunja. All rights reserved.
 //
 #ifndef SEQ
 #define SEQ

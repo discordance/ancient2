@@ -36,6 +36,7 @@ class Trak {
         void set_xor_variation(float ratio, bool mode);
         void set_jaccard_variation(float thres);
         void set_euclidian_variation(float thres);
+    
         void set_pitch(int pitch);
         int  get_size();
         int  get_pitch();
@@ -57,8 +58,8 @@ class Trak {
     protected:
         int m_pitch; // pitch of the current track
         int m_size; // max steps in the Trak
-        int m_level;
-        int m_variat;
+        float m_level;
+        float m_variat;
         vector<float> m_groove;
         vector<Step> m_current; // current form of the track after lot of transforms
         vector<Step>* m_vanilla; // original form of the track that is written, links to the matrix[2][0];

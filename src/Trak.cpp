@@ -3,7 +3,7 @@
 //  ancientSequencer
 //
 //  Created by Nunja on 8/12/12.
-//  Copyright 2012 ISM. All rights reserved.
+//  Copyright 2012 Nunja. All rights reserved.
 //
 
 #include "Trak.h"
@@ -19,14 +19,14 @@ Trak::Trak(int mode, int size){
     }
     
     // init groove
-    for(int g = 0; g < 4; ++g)
+    for(int g = 0; g < size; ++g)
     {
         m_groove.push_back(0.);
     }
     
     // init levels and variat
-    m_level = 2;
-    m_variat = 0;
+    m_level = 0.5;
+    m_variat = 0.;
     
     // init pitch
     m_pitch = 0;
@@ -44,16 +44,16 @@ Trak::Trak(int mode, int size){
         zero_phr.push_back(st);
     }
     // init the matrix
-    for (int m = 0; m < 5; ++m)
+    for (int m = 0; m < 3; ++m)
     {
         vector< vector<Step> > line;
         m_matrix.push_back(line);
-        for (int n = 0; n < 5; ++n)
+        for (int n = 0; n < 3; ++n)
         {
             m_matrix.at(m).push_back(zero_phr);
         }
     }
-    m_vanilla = &m_matrix.at(2).at(0); // update vanilla pointer
+    m_vanilla = &m_matrix.at(1).at(0); // update vanilla pointer
     m_current = *m_vanilla; // copy vanilla to current;
     
     // update and check the size
@@ -73,7 +73,7 @@ void Trak::set_vanilla(vector<Step> phr)
 void Trak::set_matrix(vector< vector < vector<Step> > > matrix)
 {
     m_matrix = matrix;
-    m_vanilla = &m_matrix.at(2).at(0);
+    m_vanilla = &m_matrix.at(1).at(0);
     set_size(m_vanilla->size());
     update_groove();
     update_current();
@@ -98,8 +98,8 @@ int Trak::get_pitch()
 
 void Trak::set_vanilla(vector<Step> phr, int mode = -1)
 {
-    m_matrix.at(2).at(0) = phr;
-    m_vanilla = &m_matrix.at(2).at(0);
+    m_matrix.at(1).at(0) = phr;
+    m_vanilla = &m_matrix.at(1).at(0);
     set_size(phr.size());
     if(mode >= 0)
     {
@@ -143,10 +143,7 @@ void Trak::set_size(int size)
 {
     // size check
     m_size = size;
-    if(m_size % 2 != 0)
-    {
-        m_size = m_size + (m_size % 2);
-    }
+
     if(m_size < 4 || m_size > 128)
     {
         m_size = 16;

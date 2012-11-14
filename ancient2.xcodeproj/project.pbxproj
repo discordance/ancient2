@@ -20,6 +20,7 @@
 		2dd351486a76bed6cfb0ea8478489bb8 /* hAlert.cpp in Sources */ = {isa = PBXBuildFile; fileRef = e3da76d2666c458fd6b7812c6f79cde6 /* hAlert.cpp */; };
 		335b3ec9493302d41ac879457d11d521 /* hGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1fb00a178f84f5d45adfa9e40170f7b8 /* hGui.cpp */; };
 		337d2ec7aa8bdca7d6597bdf6fd620ce /* hTScrollBar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 68511cae82dff28d56bcfad9750420d3 /* hTScrollBar.cpp */; };
+		3F262A7416527EBD00195C69 /* Euclid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F262A7216527EBD00195C69 /* Euclid.cpp */; };
 		3F80037D1647F3AF006F8AAB /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F80037C1647F3AF006F8AAB /* CoreMIDI.framework */; };
 		3F80039216480CC0006F8AAB /* Seq.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F80039016480CC0006F8AAB /* Seq.cpp */; };
 		3F8003961648101E006F8AAB /* Trak.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F8003941648101E006F8AAB /* Trak.cpp */; };
@@ -150,6 +151,8 @@
 		315140373598de4c4400d6b69843386f /* hDialog.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = hDialog.h; path = ../../../addons/ofxhGui/src/hDialog.h; sourceTree = SOURCE_ROOT; };
 		344f6431004f1d4b12c9db0b088dd899 /* hScrollButton.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = hScrollButton.h; path = ../../../addons/ofxhGui/src/hScrollButton.h; sourceTree = SOURCE_ROOT; };
 		3628e44fe5c7f90e46bcfda9900ac07d /* hTable.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = hTable.cpp; path = ../../../addons/ofxhUtils/src/hTable/hTable.cpp; sourceTree = SOURCE_ROOT; };
+		3F262A7216527EBD00195C69 /* Euclid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Euclid.cpp; sourceTree = "<group>"; };
+		3F262A7316527EBD00195C69 /* Euclid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Euclid.h; sourceTree = "<group>"; };
 		3F80037C1647F3AF006F8AAB /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
 		3F80039016480CC0006F8AAB /* Seq.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Seq.cpp; sourceTree = "<group>"; };
 		3F80039116480CC0006F8AAB /* Seq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Seq.h; sourceTree = "<group>"; };
@@ -621,6 +624,8 @@
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1E0A3A1BDC003C02F2 /* testApp.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* testApp.h */,
+				3F262A7216527EBD00195C69 /* Euclid.cpp */,
+				3F262A7316527EBD00195C69 /* Euclid.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -882,6 +887,7 @@
 				3F8003961648101E006F8AAB /* Trak.cpp in Sources */,
 				3F80039A16481043006F8AAB /* Gaia.cpp in Sources */,
 				3F80039D1648108B006F8AAB /* Ancient.cpp in Sources */,
+				3F262A7416527EBD00195C69 /* Euclid.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
