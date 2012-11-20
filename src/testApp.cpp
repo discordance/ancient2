@@ -124,6 +124,64 @@ void testApp::setup()
     evts->addListener("onSwing", this, &testApp::el_onSwing);
     slider_swing->setMessage("testApp.onSwing");
     
+    
+    
+    //vector<int> test = Gaia::str_to_vel("fffffff000000000");
+    vector<int> test = Gaia::str_to_vel("ff00f00000000000");
+    //sofLog(OF_LOG_NOTICE, ofToString(Euclid::evenness(test)));
+    
+    /*
+    vector<bool> testb = Euclid::bjorklund(13, 9);
+    string res = "[";
+    for(vector<bool>::iterator t = testb.begin(); t != testb.end(); ++t)
+    {
+        res += ofToString(*t);
+        if((t-testb.begin()) < testb.size()-1)
+        {
+            res +=  ", ";
+        }
+    }
+    res += "]";
+    ofLog(OF_LOG_NOTICE, res);
+     */
+    /*
+    vector<int> prefix;
+    vector< vector<int> > res;
+    Euclid::partitions(60, 13, 10, res, prefix);
+    
+    
+    for(vector< vector<int> >::iterator it = res.begin(); it != res.end(); ++it)
+    {
+        string line = "[";
+        for(vector<int>::iterator itt = it->begin(); itt != it->end(); ++itt)
+        {
+            line += ofToString(*itt) + " ";
+        }
+        line += "] : " + ofToString(accumulate(it->begin(), it->end(), 0));
+        ofLog(OF_LOG_NOTICE, line);
+    }
+    ofLog(OF_LOG_NOTICE, ofToString(res.size()));
+     */
+    
+    for(int x = 0; x < 100; ++x)
+    {
+        
+    
+    vector<int> testb = Euclid::rnd_parts(60,14);//Euclid::generate_velocities(240,7);
+    string res = "[";
+    for(vector<int>::iterator t = testb.begin(); t != testb.end(); ++t)
+    {
+        res += ofToString(*t);
+        if((t-testb.begin()) < testb.size()-1)
+        {
+            res +=  ", ";
+        }
+    }
+    res += "]" + ofToString(accumulate(testb.begin(), testb.end(), 0));
+    ofLog(OF_LOG_NOTICE, res);
+    ofLog(OF_LOG_NOTICE, "den "+ofToString(Euclid::density(testb)));
+        
+    }
 }
 
 //--------------------------------------------------------------

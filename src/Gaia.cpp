@@ -42,7 +42,8 @@ vector<Step> Gaia::vel_to_phr(vector<int> ins)
         st.dur = 1;
         st.lock = FALSE;
         st.drift = 0;
-        st.ctrl = vector<float>(4,0.);
+        st.ctrl = map<int,float>();
+        st.chance = 1.;
         
         res.push_back(st);
     }
@@ -99,7 +100,8 @@ vector<Step> Gaia::str_to_phr(string str)
         st.dur = 1;
         st.lock = FALSE;
         st.drift = 0;
-        st.ctrl = vector<float>(4,0.);
+        st.ctrl = map<int,float>();
+        st.chance = 1.;
         
         res.push_back(st);
     }

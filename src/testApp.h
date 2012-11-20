@@ -6,6 +6,10 @@
 #include "hObject.h"
 #include "hWidget.h"
 
+// test
+#include "Gaia.h"
+#include "Euclid.h"
+
 class testApp : public ofBaseApp, public hObject {
 
 	public:

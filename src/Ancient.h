@@ -11,6 +11,7 @@
 #include <vector>
 #include "ofTypes.h"
 #include "Gaia.h"
+#include "Euclid.h"
 #include "Trak.h"
 class Seq; 
 #include "Seq.h"

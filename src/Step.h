@@ -1,7 +1,7 @@
 #ifndef STEP
 #define STEP
 
-#include <vector>
+#include <map>
 
 using namespace std;
 
@@ -10,7 +10,8 @@ struct Step {
     int dur;
     bool lock;
     float drift;
-    vector<float> ctrl; 
+    float chance;
+    map<int,float> ctrl;
 };
 
 #endif

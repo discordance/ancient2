@@ -39,8 +39,9 @@ Trak::Trak(int mode, int size){
         st.vel = 0;
         st.dur = 1;
         st.lock = FALSE;
-        st.ctrl = vector<float>(4,0.);
+        st.ctrl = map<int,float>();
         st.drift = 0.0;
+        st.chance = 1.;
         zero_phr.push_back(st);
     }
     // init the matrix
@@ -369,7 +370,8 @@ void Trak::update_size()
                     st.vel = 0;
                     st.dur = 1;
                     st.lock = FALSE;
-                    st.ctrl = vector<float>(4,0.);
+                    st.ctrl = map<int,float>();
+                    st.chance = 1;
                     variat->push_back(st);
                 }
             }
