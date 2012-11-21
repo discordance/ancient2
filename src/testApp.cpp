@@ -124,14 +124,29 @@ void testApp::setup()
     evts->addListener("onSwing", this, &testApp::el_onSwing);
     slider_swing->setMessage("testApp.onSwing");
     
+    Euclid::gen_permuted_intervals(16, 8, 0.8);
     
-    
+    /*
+    vector<int> test = Euclid::non_even_ivals(32, 8, 0.66);
+    string res = "[";
+    for(vector<int>::iterator t = test.begin(); t != test.end(); ++t)
+    {
+        res += ofToString(*t);
+        if((t-test.begin()) < test.size()-1)
+        {
+            res +=  ", ";
+        }
+    }
+    res += "]";
+    ofLog(OF_LOG_NOTICE, res);
+    */
     //vector<int> test = Gaia::str_to_vel("fffffff000000000");
-    vector<int> test = Gaia::str_to_vel("ff00f00000000000");
+    //vector<int> test = Gaia::str_to_vel("ff00f00000000000");
     //sofLog(OF_LOG_NOTICE, ofToString(Euclid::evenness(test)));
     
     /*
-    vector<bool> testb = Euclid::bjorklund(13, 9);
+    
+    vector<bool> testb = Euclid::bjorklund(16, 4);
     string res = "[";
     for(vector<bool>::iterator t = testb.begin(); t != testb.end(); ++t)
     {
@@ -141,14 +156,29 @@ void testApp::setup()
             res +=  ", ";
         }
     }
+    
     res += "]";
     ofLog(OF_LOG_NOTICE, res);
+     */
+    //ofLog(OF_LOG_NOTICE, ofToString(Euclid::evenness(testb)));
+    /*int st = ofGetElapsedTimeMicros();
+    vector<int> a = Euclid::gen_intervals(32, 8, 0.95);
+    vector<int> b = Euclid::gen_intervals(32, 8, 0.95);
+    vector<int> AB;
+    AB.reserve( a.size() + b.size() ); // preallocate memory
+    AB.insert( AB.end(), a.begin(), a.end() );
+    AB.insert( AB.end(), b.begin(), b.end() );
+    
+    ofLog(OF_LOG_NOTICE, "time " + ofToString(ofGetElapsedTimeMicros() - st));
+    ofLog(OF_LOG_NOTICE, "eveness " + ofToString(Euclid::evenness(AB, 64)));
      */
     /*
     vector<int> prefix;
     vector< vector<int> > res;
-    Euclid::partitions(60, 13, 10, res, prefix);
-    
+    int st = ofGetElapsedTimeMicros();
+    Euclid::asc_partitions(1, 48, 16, res, prefix);
+    ofLog(OF_LOG_NOTICE, ofToString(ofGetElapsedTimeMicros() - st));
+     
     
     for(vector< vector<int> >::iterator it = res.begin(); it != res.end(); ++it)
     {
@@ -161,8 +191,8 @@ void testApp::setup()
         ofLog(OF_LOG_NOTICE, line);
     }
     ofLog(OF_LOG_NOTICE, ofToString(res.size()));
-     */
-    
+    */
+    /*
     for(int x = 0; x < 100; ++x)
     {
         
@@ -182,6 +212,7 @@ void testApp::setup()
     ofLog(OF_LOG_NOTICE, "den "+ofToString(Euclid::density(testb)));
         
     }
+     */
 }
 
 //--------------------------------------------------------------
