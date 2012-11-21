@@ -110,6 +110,58 @@ float Euclid::weighted_density(vector<int> & target)
     return accumulate(densities.begin(), densities.end(), 0.)/4.;
 }
 
+vector<int> Euclid::discrete_line(int size, int max, int min, bool asc)
+{
+    if(max<min) max = min;
+    vector<int> res;
+    for(int i = 0; i < size; ++i)
+    {
+        float rate = 0.;
+        if(asc){ rate = (i+1)/(float)size; } else { rate = 1-(i/(float)size); }
+        
+        res.push_back(ofMap(rate,0,1,min,max));
+    }
+    return res;
+}
+vector<int> Euclid::discrete_sine(int size, int max, int min)
+{
+    if(max<min) max = min;
+    vector<int> res;
+    for(int i = 0; i < size; ++i)
+    {
+        float rate = 0.;
+        rate = abs(cos(i*size));
+        res.push_back(ofMap(rate,0,1,min,max));
+    }
+    return res;
+}
+vector<int> Euclid::discrete_ramp(int size, int max, int min, bool asc)
+{
+    if(max<min) max = min;
+    vector<int> res;
+    for(int i = 0; i < size; ++i)
+    {
+        float rate = 0.;
+        float maxrate = (size-1)/(float)size;
+        maxrate = (4*maxrate) - floor(4*maxrate);
+        if(asc){ rate = i/(float)size; } else { rate = 1-((i+1)/(float)size); }
+        rate = (4*rate) - floor(4*rate);
+        rate = ofMap(rate, 0, maxrate, 0, 1);
+        res.push_back(ofMap(rate,0,1,min,max));
+    }
+    return res;
+}
+vector<int> Euclid::discrete_random(int size, int max, int min)
+{
+    if(max<min) max = min;
+    vector<int> res;
+    for(int i = 0; i < size; ++i)
+    {
+        res.push_back(ofRandom(min, max));
+    }
+    return res;
+}
+
 
 /**
  * Returns the evenness of a interval vector

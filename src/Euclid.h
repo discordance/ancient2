@@ -40,10 +40,10 @@ class Euclid {
         // non-euclid, best match to eveness
         static vector<bool> gen_permuted_intervals(int size, int onsets, float evenness = 0.9);
         
-        // generate velocities
-        static vector<int> discrete_line(int size, int max, int min);
+        // generate discrete sequences from waveforms
+        static vector<int> discrete_line(int size, int max, int min, bool asc = true);
         static vector<int> discrete_sine(int size, int max, int min);
-        static vector<int> discrete_ramp(int size, int max, int min);
+        static vector<int> discrete_ramp(int size, int max, int min, bool asc = false);
         static vector<int> discrete_random(int size, int max, int min);
         
         // euclid modifiers // shadowbeat

@@ -124,10 +124,9 @@ void testApp::setup()
     evts->addListener("onSwing", this, &testApp::el_onSwing);
     slider_swing->setMessage("testApp.onSwing");
     
-    Euclid::gen_permuted_intervals(16, 8, 0.8);
+    Euclid::gen_permuted_intervals(13, 5, 0.96);
     
-    /*
-    vector<int> test = Euclid::non_even_ivals(32, 8, 0.66);
+    vector<int> test = Euclid::discrete_random(32, 15, 0);
     string res = "[";
     for(vector<int>::iterator t = test.begin(); t != test.end(); ++t)
     {
@@ -139,7 +138,7 @@ void testApp::setup()
     }
     res += "]";
     ofLog(OF_LOG_NOTICE, res);
-    */
+    
     //vector<int> test = Gaia::str_to_vel("fffffff000000000");
     //vector<int> test = Gaia::str_to_vel("ff00f00000000000");
     //sofLog(OF_LOG_NOTICE, ofToString(Euclid::evenness(test)));
