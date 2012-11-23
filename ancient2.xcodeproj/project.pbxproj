@@ -152,6 +152,7 @@
 		315140373598de4c4400d6b69843386f /* hDialog.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = hDialog.h; path = ../../../addons/ofxhGui/src/hDialog.h; sourceTree = SOURCE_ROOT; };
 		344f6431004f1d4b12c9db0b088dd899 /* hScrollButton.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = hScrollButton.h; path = ../../../addons/ofxhGui/src/hScrollButton.h; sourceTree = SOURCE_ROOT; };
 		3628e44fe5c7f90e46bcfda9900ac07d /* hTable.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = hTable.cpp; path = ../../../addons/ofxhUtils/src/hTable/hTable.cpp; sourceTree = SOURCE_ROOT; };
+		3F1D1723165E34E7007F2072 /* ConfTrack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ConfTrack.h; sourceTree = "<group>"; };
 		3F262A7216527EBD00195C69 /* Euclid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Euclid.cpp; sourceTree = "<group>"; };
 		3F262A7316527EBD00195C69 /* Euclid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Euclid.h; sourceTree = "<group>"; };
 		3F80037C1647F3AF006F8AAB /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
@@ -631,6 +632,7 @@
 				3F262A7316527EBD00195C69 /* Euclid.h */,
 				3FB11C24165BA59400493DEA /* DTrack.cpp */,
 				3FB11C25165BA59400493DEA /* DTrack.h */,
+				3F1D1723165E34E7007F2072 /* ConfTrack.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;

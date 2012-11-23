@@ -24,10 +24,10 @@ class Euclid {
     public:
     
         // modes
-        static const unsigned int VEL_LINE = 0;
-        static const unsigned int VEL_SINE = 1;
-        static const unsigned int VEL_RAMP = 2;
-        static const unsigned int VEL_RAND = 3;
+        static const unsigned int VEL_LINE = 1;
+        static const unsigned int VEL_SINE = 2;
+        static const unsigned int VEL_RAMP = 3;
+        static const unsigned int VEL_RAND = 4;
     
         // euclid heuristics
         // faster and more robust than Gaia.
@@ -47,9 +47,9 @@ class Euclid {
         static vector<int> discrete_random(int size, int max, int min);
         
         // euclid modifiers // shadowbeat
-        static vector<bool> shadow(vector<bool> & beat);
+        static vector<bool> shadow(vector<bool> & beat, float bias = 0.);
         // euclid modifiers // alternation 
-        static vector<bool> pruning(vector<bool> & beat);
+        static vector<bool> alternation(vector<bool> & beat, int first, int order);
         
         // combinatorics utils
         inline static void desc_partitions(int num, int largest, int max, vector< vector<int> > & result,  vector<int> & prefix);
@@ -69,8 +69,10 @@ class Euclid {
         // interval utils
         static vector<int> non_even_ivals(int size, int onsets, float evenness = 1.);
         // utils
-        static vector<int> get_ivals(vector<bool> & target);
-        static vector<bool> get_beat(vector<int> & ivals, int size);
+        static vector<int>  get_ivals(vector<bool> & target); // get intervals from a beat
+        static vector<bool> get_beat(vector<int> & ivals, int size); // get beat from intervals and size
+        static vector<int>  get_positions(vector<bool> & target);
+        static vector<int>  assemble(vector<bool> beat, vector<int> vels);
         
 };
 

@@ -124,11 +124,24 @@ void testApp::setup()
     evts->addListener("onSwing", this, &testApp::el_onSwing);
     slider_swing->setMessage("testApp.onSwing");
     
-    Euclid::gen_permuted_intervals(13, 5, 0.96);
+    vector<bool> test = Euclid::gen_bjorklund(17, 8);//Euclid::gen_permuted_intervals(16, 4, 1);
     
-    vector<int> test = Euclid::discrete_random(32, 15, 0);
     string res = "[";
-    for(vector<int>::iterator t = test.begin(); t != test.end(); ++t)
+    for(vector<bool>::iterator t = test.begin(); t != test.end(); ++t)
+    {
+        res += ofToString(*t);
+        if((t-test.begin()) < test.size()-1)
+        {
+            res +=  ", ";
+        }
+    }
+    res += "]";
+    ofLog(OF_LOG_NOTICE, res);
+    
+    //test = Euclid::shadow(test,0.);
+    test = Euclid::alternation(test,0,3);
+    res = "[";
+    for(vector<bool>::iterator t = test.begin(); t != test.end(); ++t)
     {
         res += ofToString(*t);
         if((t-test.begin()) < test.size()-1)

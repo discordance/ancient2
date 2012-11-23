@@ -70,21 +70,7 @@ vector<bool> Euclid::gen_permuted_intervals(int size, int onsets, float evenness
     
     // shuffle
     random_shuffle(ivals.begin(), ivals.end());
-    
-    
-    string r = "[";
-    for(vector<int>::iterator t = ivals.begin(); t != ivals.end(); ++t)
-    {
-        r += ofToString(*t);
-        if((t-ivals.begin()) < ivals.size()-1)
-        {
-            r +=  ", ";
-        }
-    }
-    r += "]"+ofToString(Euclid::evenness(ivals, size));
-    ofLog(OF_LOG_NOTICE, r);
-    
-    get_beat(ivals, size);
+    res = Euclid::get_beat(ivals, size);
     return res;
 }
 
@@ -108,6 +94,44 @@ float Euclid::weighted_density(vector<int> & target)
         densities.push_back( (onsets/(float)target.size()) * (1+i) );
     }
     return accumulate(densities.begin(), densities.end(), 0.)/4.;
+}
+
+vector<bool> Euclid::shadow(vector<bool> & beat, float bias)
+{
+    vector<bool> res(beat.size(),false);
+    vector<int> ivals = get_ivals(beat);
+    int pos = 0;
+    int shade = 0;
+    vector<int>::iterator ival;
+    for(ival = ivals.begin(); ival != ivals.end(); ++ival)
+    {
+        pos += *ival+1;
+        shade = pos-ceil((*ival+1)/2.) + (shade*bias);
+        shade %= beat.size();
+        if(!beat.at(shade))
+        {
+            res.at(shade) = true;
+        }
+        
+    }
+    
+    return res;
+}
+
+vector<bool> Euclid::alternation(vector<bool> & beat, int first, int order)
+{
+    vector<bool> res(beat.size(),false);
+    vector<int> poss = Euclid::get_positions(beat);
+    vector<int>::iterator pos = poss.begin();
+    int k, j, c;
+    j = first;
+    c = order;
+    k = poss.size();
+    for(j; j < k; j += c)
+    {
+        res.at(poss.at(j)) = true;
+    }
+    return res;
 }
 
 vector<int> Euclid::discrete_line(int size, int max, int min, bool asc)
@@ -428,25 +452,12 @@ vector<bool> Euclid::get_beat(vector<int> & ivals, int size)
         pos += *ival+1;
         res.at(pos) = true;
     }
-    
-    string r = "[";
-    for(vector<bool>::iterator t = res.begin(); t != res.end(); ++t)
-    {
-        r += ofToString(*t);
-        if((t-res.begin()) < res.size()-1)
-        {
-            r +=  ", ";
-        }
-    }
-    r += "]";
-    ofLog(OF_LOG_NOTICE, r);
-    
     return res;
 }
 
 /**
  * Get intervals on a sequence of beat
- *
+ * @TODO too long !!!!
  */
 vector<int> Euclid::get_ivals(vector<bool> & target)
 {
@@ -487,4 +498,26 @@ vector<int> Euclid::get_ivals(vector<bool> & target)
         }
     }
     return ivals;
+}
+
+vector<int> Euclid::get_positions(vector<bool> & target)
+{
+    vector<int> res;
+    vector<bool>::iterator pos;
+    for(pos = target.begin(); pos != target.end(); ++pos)
+    {
+        if(*pos)
+        {
+            res.push_back(pos-target.begin());
+        }
+    }
+    return res;
+}
+
+/**
+ * Assemble Beats and velocities
+ */
+vector<int> Euclid::assemble(vector<bool> beat, vector<int> vels)
+{
+    
 }
