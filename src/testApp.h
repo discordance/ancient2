@@ -9,6 +9,7 @@
 // test
 #include "Gaia.h"
 #include "Euclid.h"
+#include "ConfTrack.h"
 
 class testApp : public ofBaseApp, public hObject {
 
@@ -33,11 +34,18 @@ class testApp : public ofBaseApp, public hObject {
         void el_onBpm(hEventArgs& args);
         void el_onMidDelay(hEventArgs& args);
         void el_onSwing(hEventArgs& args);
+        // vars
+        void el_onVarHold(hEventArgs& args);
+        void el_onSxor(hEventArgs& args);
+        void el_onHxor(hEventArgs& args);
+        void el_onSjak(hEventArgs& args);
+        void el_onHjak(hEventArgs& args);
     
         // constants
-        static int const ON_MAIN_COLOR = 0x56CAC6;
-        static int const ON_SECOND_COLOR = 0x1D7571;
+        static int const ON_MAIN_COLOR = 0x3AA6D0;//
+        static int const ON_SECOND_COLOR = 0xFFA340;
         static int const ON_GREY_COLOR = 0xEEEEEE;
+        static int const ON_VAR_COLOR = 0x071871;
     
     protected:
         ofTrueTypeFont * m_font;
@@ -46,15 +54,18 @@ class testApp : public ofBaseApp, public hObject {
         map< string, hWidget * > m_ui_elements;
     
         // states
+        
+        int m_selected_track;
         bool m_synced;
         bool m_playing;
         int  m_mid_delay;
         int  m_bpm;
         float m_swing;
-        bool m_autovar_generate;
-        bool m_autovar_set;
+        bool m_var_hold;
         float m_xorvar_ratio;
         float m_jakvar_ratio;
         
+        // conf of current track
+        ConfTrack m_conf;
 		
 };

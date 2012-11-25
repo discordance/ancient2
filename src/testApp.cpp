@@ -14,10 +14,23 @@ void testApp::setup()
     m_synced = false;
     m_bpm = 120;
     m_swing = 0.;
-    m_autovar_generate = false;
-    m_autovar_set = false;
     m_xorvar_ratio = 0.;
     m_jakvar_ratio = 0.;
+    m_var_hold = false;
+    m_selected_track = 0;
+    
+    // fake conf
+    m_conf = ConfTrack();
+    m_conf.track_onsets = 0;
+    m_conf.track_rotation = 0.;
+    m_conf.track_size = 16;
+    m_conf.track_evenness = 1.;
+    m_conf.euclid_bias = 0.;
+    m_conf.euclid_density = 0.5;
+    m_conf.euclid_permutation = 0.;
+    m_conf.euclid_evolution_rate = 1.;
+    m_conf.euclid_permutation_rate = 1.;
+    
     
     // gui
     hGui * gui = hGui::getInstance();
@@ -40,7 +53,7 @@ void testApp::setup()
     int panelW = ofGetWidth() - gui->margin1*2;
     
     hPanel * panel_global =
-    gui->addPanel("", mainPanel, HGUI_TOP_LEFT, 0, 0, panelW, 160, true);
+    gui->addPanel("", mainPanel, HGUI_TOP_LEFT, 0, 0, panelW, 116, true);
 
     hPanel * panel_transport = gui->addPanel("", panel_global, HGUI_TOP_LEFT, gui->margin1, gui->margin1, panelW/4 - gui->margin1, panel_global->getHeight()-gui->margin1*2, true);
     hLabel * label_transport = gui->addLabel("", panel_transport, HGUI_TOP_LEFT, 2, 0, "TRANSPORT");
@@ -55,7 +68,7 @@ void testApp::setup()
     hCheckBox* ctrl_play = gui->addCheckBox("play_ctrl", panel_transport, HGUI_TOP_LEFT, gui->margin3, gui->margin1*2);
     ctrl_play->setSelected(false);
     ctrl_play->setBoolVar(&m_playing);
-    ctrl_play->setColor(ON_MAIN_COLOR);
+    
     // store
     m_ui_elements["play_ctrl"] = ctrl_play;
     // event listener
@@ -66,7 +79,7 @@ void testApp::setup()
     hCheckBox* ctrl_sync = gui->addCheckBox("sync_ctrl", panel_transport, HGUI_NEXT_ROW, gui->margin3, gui->margin3);
     ctrl_sync->setSelected(false);
     ctrl_sync->setBoolVar(&m_synced);
-    ctrl_sync->setColor(ON_MAIN_COLOR);
+
     hLabel * label_sync = gui->addLabel("", panel_transport, HGUI_RIGHT, gui->margin3 ,0, "sync");
     // store
     m_ui_elements["sync_ctrl"] = ctrl_sync;
@@ -78,7 +91,6 @@ void testApp::setup()
     hSlider* slider_bpm = gui->addSlider("bpm_slider", panel_transport, HGUI_NEXT_ROW, gui->margin3, gui->margin3, 100);
     slider_bpm->setRange(30, 250);
     slider_bpm->setIntVar(&m_bpm);
-    slider_bpm->setColor(ON_MAIN_COLOR);
     
     hNumberBox * number_bpm = gui->addNumberBox("bpm_number", panel_transport, HGUI_RIGHT, gui->margin3, 0, 20, "120");
     number_bpm->setRange(30, 250);
@@ -116,115 +128,85 @@ void testApp::setup()
     button_random_swing->setHeight(slider_swing->getHeight());
     slider_swing->setRange(-0.9, 0.9,2);
     slider_swing->setFloatVar(&m_swing);
-    slider_swing->setColor(ON_MAIN_COLOR);
-    hLabel * moving_label_swing = gui->addLabel("", panel_groove_var, HGUI_RIGHT, 0, 0, "");
-    slider_swing->setLinkedLabel(moving_label_swing, true);
+    
     hLabel * label_swing = gui->addLabel("", panel_groove_var, HGUI_RIGHT, gui->margin3 ,0, "SWING");
     
     evts->addListener("onSwing", this, &testApp::el_onSwing);
     slider_swing->setMessage("testApp.onSwing");
     
-    vector<bool> test = Euclid::gen_bjorklund(17, 8);//Euclid::gen_permuted_intervals(16, 4, 1);
+    // variations
     
-    string res = "[";
-    for(vector<bool>::iterator t = test.begin(); t != test.end(); ++t)
-    {
-        res += ofToString(*t);
-        if((t-test.begin()) < test.size()-1)
-        {
-            res +=  ", ";
-        }
-    }
-    res += "]";
-    ofLog(OF_LOG_NOTICE, res);
+    // XOR AND JAK // /// /./
+    hButton* button_smooth_xor = gui->addButton("smooth_xor_button", panel_groove_var, HGUI_NEXT_ROW, gui->margin3, gui->margin2, 30, "Sxor");
+    button_smooth_xor->setHeight(slider_swing->getHeight());
+    hButton* button_hard_xor = gui->addButton("hard_xor_button", panel_groove_var, HGUI_RIGHT, gui->margin3, 0, 30, "Hxor");
+    button_hard_xor->setHeight(slider_swing->getHeight());
+    hButton* button_smooth_jak = gui->addButton("smooth_jak_button", panel_groove_var, HGUI_NEXT_ROW, gui->margin3, gui->margin2, 30, "Sjak");
+    button_smooth_jak->setHeight(slider_swing->getHeight());
+    hButton* button_hard_jak = gui->addButton("hard_jak_button", panel_groove_var, HGUI_RIGHT, gui->margin3, 0, 30, "Hjak");
+    button_hard_jak->setHeight(slider_swing->getHeight());
+    m_ui_elements["smooth_xor_ctrl"] = button_smooth_xor;
+    m_ui_elements["hard_xor_ctrl"] = button_hard_xor;
+    m_ui_elements["smooth_jak_ctrl"] = button_smooth_jak;
+    m_ui_elements["hard_jak_ctrl"] = button_hard_jak;
+    evts->addListener("onSxor", this, &testApp::el_onSxor);
+    evts->addListener("onHxor", this, &testApp::el_onHxor);
+    evts->addListener("onSjak", this, &testApp::el_onSjak);
+    evts->addListener("onHjak", this, &testApp::el_onHjak);
+    button_smooth_xor->setMessage("testApp.onSxor");
+    button_hard_xor->setMessage("testApp.onHxor");
+    button_smooth_jak->setMessage("testApp.onSjak");
+    button_hard_jak->setMessage("testApp.onHjak");
     
-    //test = Euclid::shadow(test,0.);
-    test = Euclid::alternation(test,0,3);
-    res = "[";
-    for(vector<bool>::iterator t = test.begin(); t != test.end(); ++t)
-    {
-        res += ofToString(*t);
-        if((t-test.begin()) < test.size()-1)
-        {
-            res +=  ", ";
-        }
-    }
-    res += "]";
-    ofLog(OF_LOG_NOTICE, res);
+    // HOLD // /// /./
+    hCheckBox* ctrl_var_hold = gui->addCheckBox("var_hold_ctrl", panel_groove_var, HGUI_RIGHT, gui->margin3, 0);
+    ctrl_var_hold->setSelected(false);
+    ctrl_var_hold->setBoolVar(&m_var_hold);
+    m_ui_elements["var_hold_ctrl"] = ctrl_var_hold;
+    evts->addListener("onVarHold", this, &testApp::el_onVarHold);
+    ctrl_var_hold->setMessage("testApp.onVarHold");
+    hLabel * label_hold = gui->addLabel("", panel_groove_var, HGUI_RIGHT, gui->margin3 ,0, "hold");
     
-    //vector<int> test = Gaia::str_to_vel("fffffff000000000");
-    //vector<int> test = Gaia::str_to_vel("ff00f00000000000");
-    //sofLog(OF_LOG_NOTICE, ofToString(Euclid::evenness(test)));
+    // GENERATE
+    hPanel * panel_generate =
+    gui->addPanel("", mainPanel, HGUI_TOP_LEFT, 0, panel_global->getHeight() + (gui->margin1*2), panelW, 137, true);
     
-    /*
+    hPanel * panel_euclid = gui->addPanel("", panel_generate, HGUI_TOP_LEFT, gui->margin1, gui->margin1, panelW/4 - gui->margin1, panel_generate->getHeight()-gui->margin1*2, true);
+    hLabel * label_euclid = gui->addLabel("", panel_euclid, HGUI_TOP_LEFT, 2, 0, "EUCLIDEAN");
     
-    vector<bool> testb = Euclid::bjorklund(16, 4);
-    string res = "[";
-    for(vector<bool>::iterator t = testb.begin(); t != testb.end(); ++t)
-    {
-        res += ofToString(*t);
-        if((t-testb.begin()) < testb.size()-1)
-        {
-            res +=  ", ";
-        }
-    }
+    hSlider* slider_evenness = gui->addSlider("evenness_slider", panel_euclid, HGUI_TOP_LEFT, gui->margin3, gui->margin1*2, 100);
+    slider_evenness->setRange(0., 1., 2. );
+    slider_evenness->setFloatVar(&m_conf.track_evenness);
+    hLabel * label_evenness = gui->addLabel("", panel_euclid, HGUI_RIGHT, gui->margin3 ,0, "evenness");
     
-    res += "]";
-    ofLog(OF_LOG_NOTICE, res);
-     */
-    //ofLog(OF_LOG_NOTICE, ofToString(Euclid::evenness(testb)));
-    /*int st = ofGetElapsedTimeMicros();
-    vector<int> a = Euclid::gen_intervals(32, 8, 0.95);
-    vector<int> b = Euclid::gen_intervals(32, 8, 0.95);
-    vector<int> AB;
-    AB.reserve( a.size() + b.size() ); // preallocate memory
-    AB.insert( AB.end(), a.begin(), a.end() );
-    AB.insert( AB.end(), b.begin(), b.end() );
+    hSlider* slider_onsets = gui->addSlider("onsets_slider", panel_euclid, HGUI_NEXT_ROW, gui->margin3, gui->margin3, 100);
+    slider_onsets->setRange(0, 64);
+    slider_onsets->setIntVar(&m_conf.track_onsets);
+    hLabel * label_onsets = gui->addLabel("", panel_euclid, HGUI_RIGHT, gui->margin3 ,0, "onsets");
     
-    ofLog(OF_LOG_NOTICE, "time " + ofToString(ofGetElapsedTimeMicros() - st));
-    ofLog(OF_LOG_NOTICE, "eveness " + ofToString(Euclid::evenness(AB, 64)));
-     */
-    /*
-    vector<int> prefix;
-    vector< vector<int> > res;
-    int st = ofGetElapsedTimeMicros();
-    Euclid::asc_partitions(1, 48, 16, res, prefix);
-    ofLog(OF_LOG_NOTICE, ofToString(ofGetElapsedTimeMicros() - st));
-     
+    hSlider* slider_size = gui->addSlider("size_slider", panel_euclid, HGUI_NEXT_ROW, gui->margin3,  gui->margin3, 100);
+    slider_size->setRange(0, 64);
+    slider_size->setIntVar(&m_conf.track_size);
+    hLabel * label_size = gui->addLabel("", panel_euclid, HGUI_RIGHT, gui->margin3 ,0, "size");
     
-    for(vector< vector<int> >::iterator it = res.begin(); it != res.end(); ++it)
-    {
-        string line = "[";
-        for(vector<int>::iterator itt = it->begin(); itt != it->end(); ++itt)
-        {
-            line += ofToString(*itt) + " ";
-        }
-        line += "] : " + ofToString(accumulate(it->begin(), it->end(), 0));
-        ofLog(OF_LOG_NOTICE, line);
-    }
-    ofLog(OF_LOG_NOTICE, ofToString(res.size()));
-    */
-    /*
-    for(int x = 0; x < 100; ++x)
-    {
-        
+    hSlider* slider_rotation = gui->addSlider("rotation_slider", panel_euclid, HGUI_NEXT_ROW, gui->margin3,  gui->margin3, 100);
+    slider_rotation->setRange(0., 1., 2);
+    slider_rotation->setFloatVar(&m_conf.track_rotation);
+    hLabel * label_rotation = gui->addLabel("", panel_euclid, HGUI_RIGHT, gui->margin3 ,0, "rotation");
     
-    vector<int> testb = Euclid::rnd_parts(60,14);//Euclid::generate_velocities(240,7);
-    string res = "[";
-    for(vector<int>::iterator t = testb.begin(); t != testb.end(); ++t)
-    {
-        res += ofToString(*t);
-        if((t-testb.begin()) < testb.size()-1)
-        {
-            res +=  ", ";
-        }
-    }
-    res += "]" + ofToString(accumulate(testb.begin(), testb.end(), 0));
-    ofLog(OF_LOG_NOTICE, res);
-    ofLog(OF_LOG_NOTICE, "den "+ofToString(Euclid::density(testb)));
-        
-    }
-     */
+    hSlider* slider_bias = gui->addSlider("bias_slider", panel_euclid, HGUI_NEXT_ROW, gui->margin3,  gui->margin3, 100);
+    slider_bias->setRange(0., 1., 2);
+    slider_bias->setFloatVar(&m_conf.euclid_bias);
+    hLabel * label_bias = gui->addLabel("", panel_euclid, HGUI_RIGHT, gui->margin3 ,0, "bias");
+    
+    hPanel * panel_mixer =
+    gui->addPanel("", mainPanel, HGUI_TOP_LEFT, 0, mainPanel->getHeight() - 116, panelW, 116, true);
+
+    // color shit
+    gui->checkBoxColor = ON_MAIN_COLOR;
+    gui->sliderColor = ON_SECOND_COLOR;
+    gui->editBackColor = ON_GREY_COLOR;
+    gui->editTextColor = ON_VAR_COLOR;
 }
 
 //--------------------------------------------------------------
@@ -236,9 +218,10 @@ void testApp::update()
 //--------------------------------------------------------------
 void testApp::draw()
 {
-    ofBackground(220, 220, 220);
+    ofBackground(240, 240, 240);
     ofSetColor(0, 0, 0);
     m_font->drawString("ANCIENT SEQ", 10, 25);
+    m_font->drawString("TRACK "+ofToString(m_selected_track), 10, 161);
 }
 
 // EVENT LISTENERS
@@ -299,21 +282,122 @@ void testApp::el_onSwing(hEventArgs &args)
         
     }
 }
-//--------------------------------------------------------------
-//--------------------------------------------------------------
-//--------------------------------------------------------------
-//--------------------------------------------------------------
-//--------------------------------------------------------------
-//--------------------------------------------------------------
-//--------------------------------------------------------------
-//--------------------------------------------------------------
-void testApp::keyPressed(int key){
 
+void testApp::el_onVarHold(hEventArgs &args)
+{
+    if(args.values.size() > 0)
+    {
+        //cout << "LOL" << endl;
+    }
+}
+
+void testApp::el_onSxor(hEventArgs& args)
+{
+    if(args.values.size() > 0)
+    {
+        //cout << "LOL" << endl;
+    }
+}
+void testApp::el_onHxor(hEventArgs& args)
+{
+    if(args.values.size() > 0)
+    {
+        //cout << "LOL" << endl;
+    }
+}
+void testApp::el_onSjak(hEventArgs& args)
+{
+    if(args.values.size() > 0)
+    {
+        //cout << "LOL" << endl;
+    }
+}
+void testApp::el_onHjak(hEventArgs& args)
+{
+    if(args.values.size() > 0)
+    {
+        //cout << "LOL" << endl;
+    }
 }
 
 //--------------------------------------------------------------
-void testApp::keyReleased(int key){
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+void testApp::keyPressed(int key)
+{
+    hButton * b;
+    switch (key)
+    {
+        case 32: // space bar for play
+            if(!m_synced)
+            {
+                m_playing = !m_playing;
+            }
+            break;
+            
+        case 45: // minus
+            b = (hButton*)m_ui_elements["smooth_xor_ctrl"];
+            b->setPressed(true);
+            b->bang();
+            break;
+            
+        case 61: // equal
+            b = (hButton*)m_ui_elements["hard_xor_ctrl"];
+            b->setPressed(true);
+            b->bang();
+            break;
+            
+        case 91: // left square bracket
+            b = (hButton*)m_ui_elements["smooth_jak_ctrl"];
+            b->setPressed(true);
+            b->bang();
+            break;
+            
+        case 93: // right square bracket
+            b = (hButton*)m_ui_elements["hard_jak_ctrl"];
+            b->setPressed(true);
+            b->bang();
+            break;
+            
+        default:
+            break;
+    }
+    //cout << key << endl;
+}
 
+//--------------------------------------------------------------
+void testApp::keyReleased(int key)
+{
+    hButton * b;
+    switch (key)
+    {
+        case 45: // minus
+            b = (hButton*)m_ui_elements["smooth_xor_ctrl"];
+            b->setPressed(false);
+            break;
+            
+        case 61: // equal
+            b = (hButton*)m_ui_elements["hard_xor_ctrl"];
+            b->setPressed(false);
+            break;
+            
+        case 91: // left square bracket
+            b = (hButton*)m_ui_elements["smooth_jak_ctrl"];
+            b->setPressed(false);
+            break;
+            
+        case 93: // right square bracket
+            b = (hButton*)m_ui_elements["hard_jak_ctrl"];
+            b->setPressed(false);
+            break;
+        default:
+            break;
+    }
 }
 
 //--------------------------------------------------------------
