@@ -222,6 +222,7 @@ void Ancient::threadedFunction()
                     }
                     else if(task == "swing")
                     {
+                        cout << "swing lol" << endl;
                         track->set_swing(m_swing);
                     }
                     else if(task == "groove")

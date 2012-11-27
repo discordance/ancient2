@@ -176,7 +176,6 @@ vector<int> Euclid::discrete_ramp(int size, int max, int min, bool asc)
         maxrate = (4*maxrate) - floor(4*maxrate);
         if(asc){ rate = i/(float)size; } else { rate = 1-((i+1)/(float)size); }
         rate = (4*rate) - floor(4*rate);
-        rate = ofMap(rate, 0, maxrate, 0, 1);
         res.push_back(ofMap(rate,0,1,min,max));
     }
     return res;
@@ -462,14 +461,19 @@ void Euclid::desc_partitions(int num, int largest, int maxsize, vector< vector<i
  */
 vector<bool> Euclid::get_beat(vector<int> & ivals, int size)
 {
-    vector<bool> res(size,false);
-    //cout << res.size() << endl;
+    vector<bool> res;//(size,false);
+    if(!accumulate(ivals.begin(), ivals.end(), 0))
+    {
+        res = vector<bool>(size,true);
+        return res;
+    }
+    res = vector<bool>(size,false);
     res.at(0) = true;
     vector<int>::iterator ival;
     int pos = 0;
     for(ival = ivals.begin(); ival != ivals.end()-1; ++ival)
     {
-        pos += *ival+1;
+        pos += (*ival)+1;
         res.at(pos) = true;
     }
     return res;

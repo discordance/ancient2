@@ -91,7 +91,8 @@ class testApp : public ofBaseApp, public hObject {
     
         //utils OBJC
         KeyModifier m_modifiers;
-    
+        
+        void update_mutes();
         void update_selection();
         void update_conf(ConfTrack conf);
         void drawTracks();

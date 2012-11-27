@@ -51,6 +51,7 @@ void DTrack::set_conf(ConfTrack conf)
     m_track_rotation = conf.track_rotation;
     m_track_size = conf.track_size;
     m_track_evenness = conf.track_evenness;
+    m_velocity_mode = conf.velocity_mode;
     m_velocity_max = conf.velocity_max;
     m_velocity_min = conf.velocity_min;
     m_euclid_bias = conf.euclid_bias;
@@ -68,6 +69,7 @@ ConfTrack DTrack::get_conf()
     conf.track_rotation = m_track_rotation;
     conf.track_size = m_track_size;
     conf.track_evenness = m_track_evenness;
+    conf.velocity_mode = m_velocity_mode;
     conf.velocity_max = m_velocity_max;
     conf.velocity_min = m_velocity_min;
     conf.euclid_bias = m_euclid_bias;
@@ -186,7 +188,11 @@ void DTrack::set_jaccard_variation(float thres, bool mode)
 
 void DTrack::update_groove()
 {
-    
+    vector<Step>::iterator step;
+    for(step = m_track_current.begin(); step != m_track_current.end(); ++step)
+    {
+        step->drift = m_track_groove.at((step - m_track_current.begin())%4);
+    }
 }
 
 vector<Step> DTrack::generate_phr(vector<int> & vels, vector<float> & groove)

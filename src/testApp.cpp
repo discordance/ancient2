@@ -275,6 +275,7 @@ void testApp::setup()
         ctrl_mute->setHeight(ww/16);
         ctrl_mute->setColor(ON_SECOND_COLOR);
         ctrl_mute->setBoolVar(&m_mutes[i]);
+        ctrl_mute->setMessage("testApp.onMute");
         m_ui_elements["mute_"+ofToString(i)+"_panel"] = pane;
         
         if(m_selected_track == i)
@@ -371,7 +372,7 @@ void testApp::el_onSwing(hEventArgs &args)
 {
     if(args.values.size() > 0)
     {
-        
+        m_ancient.set_swing(m_swing);
     }
 }
 
@@ -432,41 +433,43 @@ void testApp::el_onVelocities(hEventArgs& args)
         {
             m_conf.velocity_max = m_conf.velocity_min;
         }
+        m_ancient.generate(m_conf);
     }
 }
 
 void testApp::el_onVelFlat(hEventArgs& args)
 {
     m_conf.velocity_mode = Euclid::VEL_STATIC;
+    m_ancient.generate(m_conf);
 }
 
 void testApp::el_onVelLine(hEventArgs& args)
 {
     m_conf.velocity_mode = Euclid::VEL_LINE;
+    m_ancient.generate(m_conf);
 }
 
 void testApp::el_onVelSine(hEventArgs& args)
 {
     m_conf.velocity_mode = Euclid::VEL_SINE;
+    m_ancient.generate(m_conf);
 }
 
 void testApp::el_onVelSaw(hEventArgs& args)
 {
     m_conf.velocity_mode = Euclid::VEL_RAMP;
+    m_ancient.generate(m_conf);
 }
 
 void testApp::el_onVelRnd(hEventArgs& args)
 {
     m_conf.velocity_mode = Euclid::VEL_RAND;
+    m_ancient.generate(m_conf);
 }
 
 void testApp::el_onMute(hEventArgs& args)
 {
-    map<int,bool>::iterator mute;
-    for(mute = m_mutes.begin(); mute != m_mutes.end(); ++mute)
-    {
-        
-    }
+    update_mutes();
 }
 
 //--------------------------------------------------------------
@@ -546,6 +549,7 @@ void testApp::keyPressed(int key)
         else
         {
             m_mutes[idx] = !m_mutes[idx];
+            update_mutes();
         }
     }
     
@@ -664,6 +668,7 @@ void testApp::update_conf(ConfTrack conf)
     m_conf.track_rotation = conf.track_rotation;
     m_conf.track_size = conf.track_size;
     m_conf.track_evenness = conf.track_evenness;
+    m_conf.velocity_mode = conf.velocity_mode;
     m_conf.velocity_max = conf.velocity_max;
     m_conf.velocity_min = conf.velocity_min;
     m_conf.euclid_bias = conf.euclid_bias;
@@ -671,6 +676,15 @@ void testApp::update_conf(ConfTrack conf)
     m_conf.euclid_permutation = conf.euclid_permutation;
     m_conf.euclid_evolution_rate = conf.euclid_evolution_rate;
     m_conf.euclid_permutation_rate = conf.euclid_permutation_rate;
+}
+
+void testApp::update_mutes()
+{
+    map<int,bool>::iterator mute;
+    for(mute = m_mutes.begin(); mute != m_mutes.end(); ++mute)
+    {
+        m_seq.toggle_mute(mute->first, !mute->second);
+    }
 }
 
 void testApp::update_selection()
