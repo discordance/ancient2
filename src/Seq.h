@@ -15,7 +15,7 @@
 #include "utils/ofUtils.h"
 class Ancient;
 #include "Ancient.h"
-#include "Trak.h"
+#include "DTrack.h"
 
 using namespace std;
 
@@ -27,7 +27,7 @@ class Seq : public ofxMidiListener, public ofThread
         int get_ticks();
         void set_midi_delay(int dly);
         void exit();
-        void update_drum_tracks(vector<Trak> *tracks);
+        void update_drum_tracks(vector<DTrack> *tracks);
         void set_ancient(Ancient * anc);
         void toggle_mute(int track, bool status);
     

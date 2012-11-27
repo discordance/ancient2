@@ -7,9 +7,12 @@
 #include "hWidget.h"
 
 // test
+#include "Ancient.h"
+#include "Seq.h"
 #include "Gaia.h"
 #include "Euclid.h"
 #include "ConfTrack.h"
+#include "KeyModifier.h"
 
 class testApp : public ofBaseApp, public hObject {
 
@@ -40,15 +43,31 @@ class testApp : public ofBaseApp, public hObject {
         void el_onHxor(hEventArgs& args);
         void el_onSjak(hEventArgs& args);
         void el_onHjak(hEventArgs& args);
+        // generation
+        void el_onGenerate(hEventArgs& args);
+        void el_onVelocities(hEventArgs& args);
+        //vels
+        void el_onVelFlat(hEventArgs& args);
+        void el_onVelLine(hEventArgs& args);
+        void el_onVelSine(hEventArgs& args);
+        void el_onVelSaw(hEventArgs& args);
+        void el_onVelRnd(hEventArgs& args);
+    
+        void el_onMute(hEventArgs& args);
     
         // constants
-        static int const ON_MAIN_COLOR = 0x3AA6D0;//
+        static int const ON_VAR_COLOR = 0xAAAAAA;//
         static int const ON_SECOND_COLOR = 0xFFA340;
-        static int const ON_GREY_COLOR = 0xEEEEEE;
-        static int const ON_VAR_COLOR = 0x071871;
+        static int const ON_GREY_COLOR = 0xDDDDDD;
+        static int const ON_MAIN_COLOR = 0x000000;
     
     protected:
+        // sequencer
+        Seq m_seq;
+        Ancient m_ancient;
+    
         ofTrueTypeFont * m_font;
+        ofTrueTypeFont * m_big_font;
         
         // ui to be stored
         map< string, hWidget * > m_ui_elements;
@@ -64,8 +83,15 @@ class testApp : public ofBaseApp, public hObject {
         bool m_var_hold;
         float m_xorvar_ratio;
         float m_jakvar_ratio;
+        map<int,bool> m_mutes;
         
         // conf of current track
         ConfTrack m_conf;
+    
+        //utils OBJC
+        KeyModifier m_modifiers;
+    
+        void update_selection();
+        void drawTracks();
 		
 };

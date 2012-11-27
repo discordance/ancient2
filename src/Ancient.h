@@ -12,7 +12,7 @@
 #include "ofTypes.h"
 #include "Gaia.h"
 #include "Euclid.h"
-#include "Trak.h"
+#include "DTrack.h"
 class Seq; 
 #include "Seq.h"
 
@@ -23,38 +23,35 @@ class Ancient : public ofThread
     public:
         Ancient();
         void set_seq(Seq *seq);
-        void set_level_variat(int level, int variat);
+        void set_level_variat(float level, float variat);
         void set_swing(float swg);
         void set_groove(vector<float> groove);
         void set_xor_variation(float ratio);
-        void set_xor_mode(bool mode);
         void set_jaccard_variation(float thres);
         bool is_processing();
-        int get_track_pitch(int track);
-        void assign_pitchmap(vector<int> pitchmap);
-        void assign_typemap(vector<int> typemap);
-        void notify_bar(); // be informed that a bar is going on
-        vector<Trak>* get_tracks();
-        void ga(int track, int size, float den, float rpv, float syn, float rep);
-        
+        void notify(int bar, int beat, int tick); // be informed that a bar is going on
+        vector<DTrack>* get_tracks();
         bool m_auto_variation;
     
     protected:
         bool m_processing;
-        vector<Trak> m_tracks;
+        vector<DTrack> m_tracks;
         Seq *m_seq;
         float m_swing;
         vector<float> m_groove;
         float m_xor_variation;
-        bool  m_xor_mode;
         float m_jacc_variation;
         float m_level;
         float m_variat;
+    
+        int m_bar, m_beat, m_tick;
         
         // queue handling
         vector<string> m_tasks;
+        vector<ConfTrack> m_generations;
+    
         // GA
-        map<int, vector<float> > m_ga_tasks;
+        //map<int, vector<float> > m_ga_tasks;
         
         // thread
         void threadedFunction();

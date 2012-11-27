@@ -15,11 +15,14 @@ using namespace std;
 
 struct ConfTrack {
     // PARAMETTERS
+    int track_id;
     int track_size; // conf: disk + iface
     int track_onsets; // conf: disk + iface
     float track_rotation; // conf: disk + iface
     float track_evenness;
     unsigned int velocity_mode; // conf: disk + iface
+    int velocity_min;
+    int velocity_max;
     
     // euclidean properties
     // shadow beat incorrectness

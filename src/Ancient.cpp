@@ -13,7 +13,6 @@ Ancient::Ancient()
     m_auto_variation = false;
     m_swing = 0.;
     m_xor_variation = 0.;
-    m_xor_mode = false;
     m_jacc_variation = 0;
     m_processing = false;
     m_level = 2;
@@ -22,11 +21,12 @@ Ancient::Ancient()
     // init eight tracks
     for(int i = 0; i < 8 ; i++)
     {
-        Trak tr;
+        DTrack tr(i,16);
         m_tracks.push_back(tr);
     }
     
     // pitch map stuff
+    /*
     static const int parr[] = {
                               36,// kick
                               38,// snare1
@@ -37,9 +37,12 @@ Ancient::Ancient()
                               48,// perc2
                               49 // os
                               };
+    
     vector<int> pitchmap (parr, parr + sizeof(parr) / sizeof(parr[0]) );
     assign_pitchmap(pitchmap);
+    */
     
+    /*
     // type map stuff
     static const int tarr[] = {
         Gaia::MODE_LOW_PERC,// kick
@@ -53,9 +56,10 @@ Ancient::Ancient()
     };
     vector<int> typemap (tarr, tarr + sizeof(tarr) / sizeof(tarr[0]) );
     assign_typemap(typemap);
+     */
 }
 
-vector<Trak>* Ancient::get_tracks()
+vector<DTrack>* Ancient::get_tracks()
 {
     return &m_tracks;
 }
@@ -65,8 +69,12 @@ bool Ancient::is_processing()
     return m_processing;
 }
 
-void Ancient::notify_bar()
+void Ancient::notify(int bar, int beat, int tick)
 {
+    m_bar = bar;
+    m_beat = beat;
+    m_tick = tick;
+    /*
     if(m_auto_variation)
     {
         if(m_xor_variation > 0.)
@@ -81,8 +89,10 @@ void Ancient::notify_bar()
             return;
         }
     }
+     */
 }
 
+/*
 void Ancient::ga(int track, int size, float den, float rpv, float syn, float rep)
 {
     // get size
@@ -96,14 +106,7 @@ void Ancient::ga(int track, int size, float den, float rpv, float syn, float rep
     m_ga_tasks[track] = stats;
     startThread();
 }
-
-void Ancient::set_xor_mode(bool mode)
-{
-    m_xor_mode = mode;
-    m_jacc_variation = 0.; // not two at the same time
-    m_tasks.push_back("xor_var");
-    startThread(); // threaded calculus
-}
+ */
 
 void Ancient::set_jaccard_variation(float thres)
 {
@@ -134,7 +137,7 @@ void Ancient::set_groove(vector<float> groove)
     startThread();
 }
 
-void Ancient::set_level_variat(int level, int variat)
+void Ancient::set_level_variat(float level, float variat)
 {
     m_level = level;
     m_variat = variat;
@@ -149,12 +152,8 @@ void Ancient::set_seq(Seq *seq)
     m_seq->update_drum_tracks(&m_tracks);
 }
 
-int Ancient::get_track_pitch(int track)
-{
-    return m_tracks.at(track).get_pitch();
-}
-
 // protected --------------------------------------
+/*
 void Ancient::assign_pitchmap(vector<int> pitchmap)
 {
     if(m_tracks.size())
@@ -169,7 +168,9 @@ void Ancient::assign_pitchmap(vector<int> pitchmap)
         }
     }   
 }
+ */
 
+/*
 void Ancient::assign_typemap(vector<int> typemap)
 {
     if(m_tracks.size())
@@ -184,7 +185,7 @@ void Ancient::assign_typemap(vector<int> typemap)
         }
     }
 }
-
+*/
 //--------------------------
 void Ancient::threadedFunction()
 {
@@ -199,7 +200,7 @@ void Ancient::threadedFunction()
                 m_tasks.erase(m_tasks.begin());
 
                 // update variation for all tracks
-                std::vector<Trak>::iterator track;
+                std::vector<DTrack>::iterator track;
                 for(track = m_tracks.begin(); track != m_tracks.end(); ++track) 
                 {
                     if(task == "jacc_var")
@@ -208,24 +209,25 @@ void Ancient::threadedFunction()
                     }
                     else if(task == "xor_var")
                     {
-                        track->set_xor_variation(m_xor_variation, m_xor_mode);
+                        track->set_xor_variation(m_xor_variation);
                     }
                     else if(task == "swing")
                     {
-                        track->set_swing(m_swing);
+                        //track->set_swing(m_swing);
                     }
                     else if(task == "groove")
                     {
-                        track->set_beat_groove(m_groove);
+                        //track->set_beat_groove(m_groove);
                     }
                     else if(task == "evolve")
                     {
-                        track->set_level_variat(m_level, m_variat);
+                        //track->set_level_variat(m_level, m_variat);
                     }
                 }
             }
   
             //ga
+            /*
             if(m_ga_tasks.size())
             {
                 vector<float> gas = m_ga_tasks.begin()->second;
@@ -277,6 +279,7 @@ void Ancient::threadedFunction()
                 }
                 m_tracks[track].set_matrix(matrix);
             }
+             */
             unlock();
         }
         m_seq->update_drum_tracks(&m_tracks);

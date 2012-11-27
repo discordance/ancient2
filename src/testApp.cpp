@@ -9,6 +9,8 @@ void testApp::setup()
     ofSetWindowTitle("ancient sequencer II");
   	m_font = new ofTrueTypeFont;
 	m_font->loadFont("fonts/lmmonolt10-bold.otf", 12, true, true);
+    m_big_font = new ofTrueTypeFont;
+    m_big_font->loadFont("fonts/lmmonolt10-bold.otf", 28, true, true);
     // init
     m_playing = false;
     m_synced = false;
@@ -21,10 +23,13 @@ void testApp::setup()
     
     // fake conf
     m_conf = ConfTrack();
+    m_conf.track_id = 0;
     m_conf.track_onsets = 0;
     m_conf.track_rotation = 0.;
     m_conf.track_size = 16;
     m_conf.track_evenness = 1.;
+    m_conf.velocity_max = 13;
+    m_conf.velocity_min = 0;
     m_conf.euclid_bias = 0.;
     m_conf.euclid_density = 0.5;
     m_conf.euclid_permutation = 0.;
@@ -183,11 +188,13 @@ void testApp::setup()
     slider_onsets->setRange(0, 64);
     slider_onsets->setIntVar(&m_conf.track_onsets);
     hLabel * label_onsets = gui->addLabel("", panel_euclid, HGUI_RIGHT, gui->margin3 ,0, "onsets");
+    m_ui_elements["onsets_ctrl"] = slider_onsets;
     
     hSlider* slider_size = gui->addSlider("size_slider", panel_euclid, HGUI_NEXT_ROW, gui->margin3,  gui->margin3, 100);
     slider_size->setRange(0, 64);
     slider_size->setIntVar(&m_conf.track_size);
     hLabel * label_size = gui->addLabel("", panel_euclid, HGUI_RIGHT, gui->margin3 ,0, "size");
+    m_ui_elements["onsets_size"] = slider_size;
     
     hSlider* slider_rotation = gui->addSlider("rotation_slider", panel_euclid, HGUI_NEXT_ROW, gui->margin3,  gui->margin3, 100);
     slider_rotation->setRange(0., 1., 2);
@@ -199,20 +206,96 @@ void testApp::setup()
     slider_bias->setFloatVar(&m_conf.euclid_bias);
     hLabel * label_bias = gui->addLabel("", panel_euclid, HGUI_RIGHT, gui->margin3 ,0, "bias");
     
-    hPanel * panel_mixer =
-    gui->addPanel("", mainPanel, HGUI_TOP_LEFT, 0, mainPanel->getHeight() - 116, panelW, 116, true);
-
+    evts->addListener("onGenerate", this, &testApp::el_onGenerate);
+    
+    slider_evenness->setMessage("testApp.onGenerate");
+    slider_onsets->setMessage("testApp.onGenerate");
+    slider_size->setMessage("testApp.onGenerate");
+    slider_rotation->setMessage("testApp.onGenerate");
+    slider_bias->setMessage("testApp.onGenerate");
+    
+    hPanel * panel_velocity = gui->addPanel("", panel_generate, HGUI_NEXT_COL, gui->margin1, gui->margin1, panelW/4 - gui->margin1, panel_generate->getHeight()-gui->margin1*2, true);
+    hLabel * label_velocity = gui->addLabel("", panel_velocity, HGUI_TOP_LEFT, 2, 0, "VELOCITY");
+    
+    
+    // VELO
+    
+    hSlider* slider_minvel = gui->addSlider("minvel_slider", panel_velocity, HGUI_TOP_LEFT, gui->margin3, gui->margin1*2, 100);
+    slider_minvel->setRange(0, 15);
+    slider_minvel->setIntVar(&m_conf.velocity_min);
+    hLabel * label_minvel = gui->addLabel("", panel_velocity, HGUI_RIGHT, gui->margin3 ,0, "minimum");
+    
+    hSlider* slider_maxvel = gui->addSlider("maxvel_slider", panel_velocity, HGUI_NEXT_ROW, gui->margin3, gui->margin3, 100);
+    slider_maxvel->setRange(0, 15);
+    slider_maxvel->setIntVar(&m_conf.velocity_max);
+    hLabel * label_maxvel = gui->addLabel("", panel_velocity, HGUI_RIGHT, gui->margin3 ,0, "maximum");
+    
+    
+    evts->addListener("onVelocity", this, &testApp::el_onVelocities);
+    slider_minvel->setMessage("testApp.onVelocity");
+    slider_maxvel->setMessage("testApp.onVelocity");
+    
+    hButton* button_flat_vel = gui->addButton("button_flat_vel", panel_velocity, HGUI_NEXT_ROW, gui->margin3, gui->margin2, 30, "FLAT");
+    button_flat_vel->setHeight(slider_swing->getHeight());
+    hButton* button_line_vel = gui->addButton("button_line_vel", panel_velocity, HGUI_RIGHT, gui->margin3, 0, 30, "LINE");
+    button_line_vel->setHeight(slider_swing->getHeight());
+    hButton* button_sine_vel = gui->addButton("button_sine_vel", panel_velocity, HGUI_RIGHT, gui->margin3, 0, 30, "SINE");
+    button_sine_vel->setHeight(slider_swing->getHeight());
+    hButton* button_saw_vel = gui->addButton("button_saw_vel", panel_velocity, HGUI_RIGHT, gui->margin3, 0, 30, "SAW");
+    button_saw_vel->setHeight(slider_swing->getHeight());
+    hButton* button_rnd_vel = gui->addButton("button_rnd_vel", panel_velocity, HGUI_RIGHT, gui->margin3, 0, 30, "RAND");
+    button_rnd_vel->setHeight(slider_swing->getHeight());
+    
+    evts->addListener("onVelFlat", this, &testApp::el_onVelFlat);
+    button_flat_vel->setMessage("onVelFlat");
+    evts->addListener("onVelLine", this, &testApp::el_onVelLine);
+    button_line_vel->setMessage("onVelLine");
+    evts->addListener("onVelSine", this, &testApp::el_onVelSine);
+    button_sine_vel->setMessage("onVelSine");
+    evts->addListener("onVelSaw", this, &testApp::el_onVelSaw);
+    button_saw_vel->setMessage("onVelSaw");
+    evts->addListener("onVelRnd", this, &testApp::el_onVelRnd);
+    button_rnd_vel->setMessage("onVelRnd");
+    
+    
+    evts->addListener("onMute", this, &testApp::el_onMute);
+    /****
+     *  MIXER GUI
+     **/
+    for(int i = 0; i < 8; ++i)
+    {
+        m_mutes[i] = true;
+        int ww = panelW - (gui->margin1*7) ;
+        int space = gui->margin1 + 1;
+        hPanel * pane =
+        gui->addPanel("", mainPanel, HGUI_TOP_LEFT, ((ww/8)+space)*i, mainPanel->getHeight() - 115, ww/8 - 1, 115, true);
+        hCheckBox* ctrl_mute = gui->addCheckBox("mute_"+ofToString(i)+"_ctrl", pane, HGUI_TOP_LEFT, gui->margin3, gui->margin3);
+        ctrl_mute->setWidth(ww/16);
+        ctrl_mute->setHeight(ww/16);
+        ctrl_mute->setColor(ON_SECOND_COLOR);
+        ctrl_mute->setBoolVar(&m_mutes[i]);
+        m_ui_elements["mute_"+ofToString(i)+"_panel"] = pane;
+        
+        if(m_selected_track == i)
+        {
+            pane->setBackgroundColor(ON_VAR_COLOR);
+        }
+    }
+    
+    //hPanel * panel_mixer =
+    //gui->addPanel("", mainPanel, HGUI_TOP_LEFT, 0, mainPanel->getHeight() - 116, panelW, 116, true);
+    
     // color shit
     gui->checkBoxColor = ON_MAIN_COLOR;
     gui->sliderColor = ON_SECOND_COLOR;
     gui->editBackColor = ON_GREY_COLOR;
-    gui->editTextColor = ON_VAR_COLOR;
+    gui->editTextColor = ON_MAIN_COLOR;
 }
 
 //--------------------------------------------------------------
 void testApp::update()
 {
-
+    
 }
 
 //--------------------------------------------------------------
@@ -221,7 +304,10 @@ void testApp::draw()
     ofBackground(240, 240, 240);
     ofSetColor(0, 0, 0);
     m_font->drawString("ANCIENT SEQ", 10, 25);
-    m_font->drawString("TRACK "+ofToString(m_selected_track), 10, 161);
+    m_font->drawString("TRACK "+ofToString(m_selected_track+1), 10, 161);
+    
+    drawTracks();
+    
 }
 
 // EVENT LISTENERS
@@ -287,7 +373,7 @@ void testApp::el_onVarHold(hEventArgs &args)
 {
     if(args.values.size() > 0)
     {
-        //cout << "LOL" << endl;
+
     }
 }
 
@@ -320,6 +406,62 @@ void testApp::el_onHjak(hEventArgs& args)
     }
 }
 
+void testApp::el_onGenerate(hEventArgs& args)
+{
+    if(args.values.size() > 0)
+    {
+        if(m_conf.track_onsets > m_conf.track_size)
+        {
+            m_conf.track_size = m_conf.track_onsets;
+        }
+    }
+}
+
+void testApp::el_onVelocities(hEventArgs& args)
+{
+    if(args.values.size() > 0)
+    {
+        if(m_conf.velocity_min > m_conf.velocity_max)
+        {
+            m_conf.velocity_max = m_conf.velocity_min;
+        }
+    }
+}
+
+void testApp::el_onVelFlat(hEventArgs& args)
+{
+    m_conf.velocity_mode = Euclid::VEL_STATIC;
+}
+
+void testApp::el_onVelLine(hEventArgs& args)
+{
+    m_conf.velocity_mode = Euclid::VEL_LINE;
+}
+
+void testApp::el_onVelSine(hEventArgs& args)
+{
+    m_conf.velocity_mode = Euclid::VEL_SINE;
+}
+
+void testApp::el_onVelSaw(hEventArgs& args)
+{
+    m_conf.velocity_mode = Euclid::VEL_RAMP;
+}
+
+void testApp::el_onVelRnd(hEventArgs& args)
+{
+    m_conf.velocity_mode = Euclid::VEL_RAND;
+}
+
+void testApp::el_onMute(hEventArgs& args)
+{
+    map<int,bool>::iterator mute;
+    for(mute = m_mutes.begin(); mute != m_mutes.end(); ++mute)
+    {
+        
+    }
+}
+
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //--------------------------------------------------------------
@@ -333,6 +475,20 @@ void testApp::keyPressed(int key)
     hButton * b;
     switch (key)
     {
+        case OF_KEY_RIGHT:
+            if(m_selected_track < 7)
+            {
+                m_selected_track++;
+                update_selection();
+            }
+            break;
+        case OF_KEY_LEFT:
+            if(m_selected_track)
+            {
+                m_selected_track--;
+                update_selection();
+            }
+            break;
         case 32: // space bar for play
             if(!m_synced)
             {
@@ -367,7 +523,22 @@ void testApp::keyPressed(int key)
         default:
             break;
     }
-    //cout << key << endl;
+    
+    // mutes
+    if(key >= 49 && key <= 58 )
+    {
+        int idx = key - 49;
+        if(m_modifiers.getAppleCommandModifier())
+        {
+            m_selected_track = idx;
+            update_selection();
+        }
+        else
+        {
+            m_mutes[idx] = !m_mutes[idx];
+        }
+    }
+    
 }
 
 //--------------------------------------------------------------
@@ -433,4 +604,56 @@ void testApp::gotMessage(ofMessage msg){
 //--------------------------------------------------------------
 void testApp::dragEvent(ofDragInfo dragInfo){ 
 
+}
+
+void testApp::drawTracks()
+{
+    // UI
+    for(int i = 0; i < 8; ++i)
+    {
+        hWidget * pane = m_ui_elements["mute_"+ofToString(i)+"_panel"];
+        int yy = pane->getY() - 332;
+        int hh = 323;
+        if(m_selected_track == i)
+        {
+            ofSetHexColor(ON_VAR_COLOR);
+        }
+        else
+        {
+            ofSetHexColor(ON_GREY_COLOR);
+        }
+        ofFill();
+        ofRect(pane->getX(), yy, pane->getWidth(), hh);
+        
+        for(int j = 0; j < 64; ++j)
+        {
+            // back
+            if(j % 16 == 0) { ofSetHexColor(0xFFFFFF); }
+            else if(j % 4 == 0) { ofSetHexColor(0xEAEAEA); }
+            else { ofSetHexColor(0xE1E1E1); }
+            ofRect(pane->getX()+2, yy + (5*j) + 2, pane->getWidth()-10, 4);
+            ofSetHexColor(0xFFFFFF);
+            ofRect(pane->getX()+pane->getWidth()-6, yy + (5*j) + 2, 4, 4);
+        }
+    }
+}
+
+void testApp::update_selection()
+{
+    // UI
+    for(int i = 0; i < 8; ++i)
+    {
+        hWidget * pane = m_ui_elements["mute_"+ofToString(i)+"_panel"];
+        
+        if(m_selected_track == i)
+        {
+            pane->setBackgroundColor(ON_VAR_COLOR);
+        }
+        else
+        {
+            pane->setVisibleBackground(false);
+        }
+        
+    }
+    
 }

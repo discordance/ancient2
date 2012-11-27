@@ -40,10 +40,11 @@ Seq::Seq(){
     ofLog(OF_LOG_NOTICE, "initialized Ancient2 sequencer with a resolution of: "+ofToString(m_max_ticks));
 }
 
+
 void Seq::toggle_mute(int track, bool status)
 {
     m_mutes[track] = status;
-    kill_events(10, m_ancient->get_track_pitch(track));
+    //kill_events(10, m_ancient->get_track_pitch(track));
 }
 
 float Seq::get_bpm()
@@ -78,7 +79,7 @@ void Seq::exit()
     m_virtual_midiOut.closePort();
 }
 
-void Seq::update_drum_tracks(vector<Trak> *tracks) // v1, replace all
+void Seq::update_drum_tracks(vector<DTrack> *tracks) // v1, replace all
 {
     /***********************************************
      * V2
@@ -89,7 +90,7 @@ void Seq::update_drum_tracks(vector<Trak> *tracks) // v1, replace all
     {
         reset_events();
         int mult = m_max_ticks/m_max_steps;
-        std::vector<Trak>::iterator track;
+        std::vector<DTrack>::iterator track;
         for(track = tracks->begin(); track != tracks->end(); ++track)
         {
             // track num
@@ -127,7 +128,7 @@ void Seq::update_drum_tracks(vector<Trak> *tracks) // v1, replace all
                 
             }
             // correct the overlaping events and update
-            correct_and_update(evts,tr_num,track->get_pitch());
+            //correct_and_update(evts,tr_num,track->get_pitch());
         }
         unlock();
     }
@@ -207,7 +208,7 @@ void Seq::newMidiMessage(ofxMidiMessage& msg)
     
     if( (m_ticks+m_midi_delay) % (m_resolution*4) == 0 )
     {
-        m_ancient->notify_bar();
+       // m_ancient->notify_bar();
     }
     
     if( lock() )

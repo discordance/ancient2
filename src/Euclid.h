@@ -24,6 +24,7 @@ class Euclid {
     public:
     
         // modes
+        static const unsigned int VEL_STATIC = 1;
         static const unsigned int VEL_LINE = 1;
         static const unsigned int VEL_SINE = 2;
         static const unsigned int VEL_RAMP = 3;
