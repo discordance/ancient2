@@ -96,7 +96,13 @@ float Euclid::weighted_density(vector<int> & target)
     return accumulate(densities.begin(), densities.end(), 0.)/4.;
 }
 
-vector<bool> Euclid::shadow(vector<bool> & beat, float bias)
+void Euclid::rotate_beat(vector<bool> & beat, float rotation)
+{
+    int idx = floor(ofMap(rotation, 0, 1, 0, beat.size()));
+    rotate(beat.begin(), beat.begin() + idx, beat.end());
+}
+
+vector<bool> Euclid::shadow(vector<bool> & beat, float bias, float prune)
 {
     vector<bool> res(beat.size(),false);
     vector<int> ivals = get_ivals(beat);
@@ -250,6 +256,20 @@ float Euclid::weighted_evenness(vector<int> & target)
     return 1-accumulate(deviations.begin(), deviations.end(), 0.)/4.;
 }
 
+void Euclid::dump_beat(vector<bool> & beat)
+{
+    string res = "[";
+    for(vector<bool>::iterator it = beat.begin(); it != beat.end(); it++)
+    {
+        res += ofToString(*it);
+        if(it-beat.begin() < beat.size()-1)
+        {
+            res += ", ";
+        }
+    }
+    res += "]";
+    cout << "beat debug: " << res << endl;
+}
 
 /**
  * Utils
@@ -519,5 +539,20 @@ vector<int> Euclid::get_positions(vector<bool> & target)
  */
 vector<int> Euclid::assemble(vector<bool> beat, vector<int> vels)
 {
-    
+    vector<int> res;
+    vector<bool>::iterator step;
+    int vel = 0;
+    for (step = beat.begin(); step != beat.end(); ++step)
+    {
+        if(*step)
+        {
+            res.push_back(vels.at(vel));
+            ++vel;
+        }
+        else
+        {
+            res.push_back(0);
+        }
+    }
+    return res;
 }

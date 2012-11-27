@@ -13,7 +13,6 @@
 #include <vector>
 #include <map>
 #include <numeric>
-#include "Step.h"
 #include "utils/ofLog.h"
 #include "utils/ofUtils.h"
 
@@ -24,7 +23,7 @@ class Euclid {
     public:
     
         // modes
-        static const unsigned int VEL_STATIC = 1;
+        static const unsigned int VEL_STATIC = 0;
         static const unsigned int VEL_LINE = 1;
         static const unsigned int VEL_SINE = 2;
         static const unsigned int VEL_RAMP = 3;
@@ -41,6 +40,9 @@ class Euclid {
         // non-euclid, best match to eveness
         static vector<bool> gen_permuted_intervals(int size, int onsets, float evenness = 0.9);
         
+        // rotation
+        static void rotate_beat(vector<bool> & beat, float rotation);
+    
         // generate discrete sequences from waveforms
         static vector<int> discrete_line(int size, int max, int min, bool asc = true);
         static vector<int> discrete_sine(int size, int max, int min);
@@ -48,12 +50,18 @@ class Euclid {
         static vector<int> discrete_random(int size, int max, int min);
         
         // euclid modifiers // shadowbeat
-        static vector<bool> shadow(vector<bool> & beat, float bias = 0.);
+        static vector<bool> shadow(vector<bool> & beat, float bias = 0., float prune = 1.);
         // euclid modifiers // alternation 
         static vector<bool> alternation(vector<bool> & beat, int first, int order);
         
         // combinatorics utils
         inline static void desc_partitions(int num, int largest, int max, vector< vector<int> > & result,  vector<int> & prefix);
+        
+        // assemble
+        static vector<int>  assemble(vector<bool> beat, vector<int> vels);
+    
+        // debug
+        static void dump_beat(vector<bool> & beat);
         
         /*
         static vector<int> generate_velocities(int num, int max = 15);
@@ -73,7 +81,6 @@ class Euclid {
         static vector<int>  get_ivals(vector<bool> & target); // get intervals from a beat
         static vector<bool> get_beat(vector<int> & ivals, int size); // get beat from intervals and size
         static vector<int>  get_positions(vector<bool> & target);
-        static vector<int>  assemble(vector<bool> beat, vector<int> vels);
         
 };
 

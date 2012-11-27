@@ -60,6 +60,7 @@ class testApp : public ofBaseApp, public hObject {
         static int const ON_SECOND_COLOR = 0xFFA340;
         static int const ON_GREY_COLOR = 0xDDDDDD;
         static int const ON_MAIN_COLOR = 0x000000;
+        static int const ON_DARK_COLOR = 0x333333;
     
     protected:
         // sequencer
@@ -92,6 +93,7 @@ class testApp : public ofBaseApp, public hObject {
         KeyModifier m_modifiers;
     
         void update_selection();
+        void update_conf(ConfTrack conf);
         void drawTracks();
 		
 };

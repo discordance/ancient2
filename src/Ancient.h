@@ -22,6 +22,8 @@ class Ancient : public ofThread
     
     public:
         Ancient();
+        void update();
+        void generate(ConfTrack conf);
         void set_seq(Seq *seq);
         void set_level_variat(float level, float variat);
         void set_swing(float swg);
@@ -30,8 +32,10 @@ class Ancient : public ofThread
         void set_jaccard_variation(float thres);
         bool is_processing();
         void notify(int bar, int beat, int tick); // be informed that a bar is going on
-        vector<DTrack>* get_tracks();
-        bool m_auto_variation;
+        vector<DTrack> * get_tracks();
+        ConfTrack get_track_conf(int idx);
+        vector<int> get_track_velocities(int idx);
+        bool m_hold_variation;
     
     protected:
         bool m_processing;

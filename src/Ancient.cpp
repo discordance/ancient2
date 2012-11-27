@@ -10,7 +10,7 @@
 
 Ancient::Ancient()
 {
-    m_auto_variation = false;
+    m_hold_variation = false;
     m_swing = 0.;
     m_xor_variation = 0.;
     m_jacc_variation = 0;
@@ -64,6 +64,16 @@ vector<DTrack>* Ancient::get_tracks()
     return &m_tracks;
 }
 
+ConfTrack Ancient::get_track_conf(int idx)
+{
+    return m_tracks.at(idx).get_conf();
+}
+
+vector<int> Ancient::get_track_velocities(int idx)
+{
+    return m_tracks.at(idx).get_velocities();
+}
+
 bool Ancient::is_processing()
 {
     return m_processing;
@@ -92,28 +102,26 @@ void Ancient::notify(int bar, int beat, int tick)
      */
 }
 
-/*
-void Ancient::ga(int track, int size, float den, float rpv, float syn, float rep)
+void Ancient::update()
 {
-    // get size
-    //int size = m_tracks.at(track).get_size();
-    vector<float> stats;
-    stats.push_back((float)size);
-    stats.push_back(den);
-    stats.push_back(rpv);
-    stats.push_back(syn);
-    stats.push_back(rep);
-    m_ga_tasks[track] = stats;
-    startThread();
+    if(m_tasks.size() || m_generations.size())
+    {
+        startThread();
+    }
 }
- */
+
+void Ancient::generate(ConfTrack conf)
+{
+    m_generations.push_back(conf);
+    //startThread();
+}
 
 void Ancient::set_jaccard_variation(float thres)
 {
     m_jacc_variation = thres;
     m_xor_variation = 0.; // not two at the same time
     m_tasks.push_back("jacc_var");
-    startThread();
+    //startThread();
 } 
 
 void Ancient::set_xor_variation(float ratio)
@@ -121,20 +129,20 @@ void Ancient::set_xor_variation(float ratio)
     m_xor_variation = ratio;
     m_jacc_variation = 0.; // not two at the same time
     m_tasks.push_back("xor_var");
-    startThread();
+    //startThread();
 }
 
 void Ancient::set_swing(float swg)
 {
     m_swing = swg;
     m_tasks.push_back("swing");
-    startThread();
+    //startThread();
 }
 void Ancient::set_groove(vector<float> groove)
 {
     m_groove = groove;
     m_tasks.push_back("groove");
-    startThread();
+    //startThread();
 }
 
 void Ancient::set_level_variat(float level, float variat)
@@ -142,7 +150,7 @@ void Ancient::set_level_variat(float level, float variat)
     m_level = level;
     m_variat = variat;
     m_tasks.push_back("evolve");
-    startThread();
+    //startThread();
 }
 
 void Ancient::set_seq(Seq *seq)
@@ -194,13 +202,14 @@ void Ancient::threadedFunction()
         m_processing = true;
         if( lock() )
         {
+            std::vector<DTrack>::iterator track;
             if(m_tasks.size())
             {
-                string task = m_tasks[0];
+                string task = m_tasks.at(0);
                 m_tasks.erase(m_tasks.begin());
 
                 // update variation for all tracks
-                std::vector<DTrack>::iterator track;
+                
                 for(track = m_tracks.begin(); track != m_tracks.end(); ++track) 
                 {
                     if(task == "jacc_var")
@@ -213,11 +222,11 @@ void Ancient::threadedFunction()
                     }
                     else if(task == "swing")
                     {
-                        //track->set_swing(m_swing);
+                        track->set_swing(m_swing);
                     }
                     else if(task == "groove")
                     {
-                        //track->set_beat_groove(m_groove);
+                        track->set_groove(m_groove);
                     }
                     else if(task == "evolve")
                     {
@@ -225,61 +234,18 @@ void Ancient::threadedFunction()
                     }
                 }
             }
-  
-            //ga
-            /*
-            if(m_ga_tasks.size())
+            
+            // generate
+            if(m_generations.size())
             {
-                vector<float> gas = m_ga_tasks.begin()->second;
-                int track = m_ga_tasks.begin()->first;
-                
-                int size = (int)gas.at(0);
-                float den = gas.at(1);
-                float rpv = gas.at(2);
-                float syn = gas.at(3);
-                float rep = gas.at(4);
-                m_ga_tasks.erase(m_ga_tasks.begin());
-                int mode = m_tracks[track].m_mode;
-                
-                // create the matrix
-                vector< vector < vector<Step> > > matrix;
-                vector<int> vanilla;
-                for(int i = 0; i < 5; ++i)
-                {
-                    vector < vector<Step> > level_line;
-                    float curr_den = ofMap(i, 0, 4, ofClamp(den-Gaia::type_stats.at(mode).at(2), 0.05, 1.), ofClamp(den+Gaia::type_stats.at(mode).at(2), 0.05, 1.));
-
-                    if(i == 2)
-                    {
-                        curr_den = den;
-                    }
-                    vector<int> res = Gaia::ga(size, curr_den, rpv, syn, rep);
-                    if(i == 2)
-                    {
-                        vanilla = res;
-                    }
-                    if(i > 2)
-                    {
-                        // mixing
-                        Gaia::compand_phr(vanilla,res);
-                    }
-                    // generate variations
-                    
-                    float jacc_thres = 0.97;
-                    vector<Step> res_phr = Gaia::vel_to_phr(res);
-                    level_line.push_back(res_phr); // push the result
-                    for(int j = 0; j < 4; ++j)
-                    {
-                        vector<int> jaccarded = Gaia::jaccard_variation(&res_phr, jacc_thres);
-                        level_line.push_back(Gaia::vel_to_phr(jaccarded));
-                        jacc_thres += 0.005;
-                    }
-                   
-                    matrix.push_back(level_line); 
-                }
-                m_tracks[track].set_matrix(matrix);
+                ConfTrack conf = m_generations.at(0);
+                m_generations.erase(m_generations.begin());
+                //cout << "st " << ofToString(conf.track_onsets) << " " << ofToString(conf.track_size) << endl;
+                //track->generate(conf);
+                m_tracks.at(conf.track_id).generate(conf);
+               // cout << "end " << ofToString(conf.track_onsets) << " " << ofToString(conf.track_size) << endl;
             }
-             */
+            
             unlock();
         }
         m_seq->update_drum_tracks(&m_tracks);

@@ -7,6 +7,7 @@ void testApp::setup()
     ofSetFrameRate(60);
     // title
     ofSetWindowTitle("ancient sequencer II");
+    m_ancient.set_seq(&m_seq);
   	m_font = new ofTrueTypeFont;
 	m_font->loadFont("fonts/lmmonolt10-bold.otf", 12, true, true);
     m_big_font = new ofTrueTypeFont;
@@ -278,12 +279,17 @@ void testApp::setup()
         
         if(m_selected_track == i)
         {
-            pane->setBackgroundColor(ON_VAR_COLOR);
+            pane->setBackgroundColor(ON_DARK_COLOR);
         }
     }
     
     //hPanel * panel_mixer =
     //gui->addPanel("", mainPanel, HGUI_TOP_LEFT, 0, mainPanel->getHeight() - 116, panelW, 116, true);
+    
+    //vector<bool> test = Euclid::gen_bjorklund(16, 4);
+    //Euclid::dump_beat(test);
+    //Euclid::rotate_beat(test, 0.15);
+    //Euclid::dump_beat(test);
     
     // color shit
     gui->checkBoxColor = ON_MAIN_COLOR;
@@ -295,7 +301,7 @@ void testApp::setup()
 //--------------------------------------------------------------
 void testApp::update()
 {
-    
+    m_ancient.update();
 }
 
 //--------------------------------------------------------------
@@ -414,6 +420,7 @@ void testApp::el_onGenerate(hEventArgs& args)
         {
             m_conf.track_size = m_conf.track_onsets;
         }
+        m_ancient.generate(m_conf);
     }
 }
 
@@ -479,6 +486,7 @@ void testApp::keyPressed(int key)
             if(m_selected_track < 7)
             {
                 m_selected_track++;
+                update_conf(m_ancient.get_track_conf(m_selected_track));
                 update_selection();
             }
             break;
@@ -486,6 +494,7 @@ void testApp::keyPressed(int key)
             if(m_selected_track)
             {
                 m_selected_track--;
+                update_conf(m_ancient.get_track_conf(m_selected_track));
                 update_selection();
             }
             break;
@@ -531,6 +540,7 @@ void testApp::keyPressed(int key)
         if(m_modifiers.getAppleCommandModifier())
         {
             m_selected_track = idx;
+            update_conf(m_ancient.get_track_conf(m_selected_track));
             update_selection();
         }
         else
@@ -616,7 +626,7 @@ void testApp::drawTracks()
         int hh = 323;
         if(m_selected_track == i)
         {
-            ofSetHexColor(ON_VAR_COLOR);
+            ofSetHexColor(0x333333);
         }
         else
         {
@@ -624,6 +634,8 @@ void testApp::drawTracks()
         }
         ofFill();
         ofRect(pane->getX(), yy, pane->getWidth(), hh);
+        
+        vector<int> vels = m_ancient.get_track_velocities(i);
         
         for(int j = 0; j < 64; ++j)
         {
@@ -634,8 +646,31 @@ void testApp::drawTracks()
             ofRect(pane->getX()+2, yy + (5*j) + 2, pane->getWidth()-10, 4);
             ofSetHexColor(0xFFFFFF);
             ofRect(pane->getX()+pane->getWidth()-6, yy + (5*j) + 2, 4, 4);
+            
+            // draw vels
+            int vel = vels.at(j%vels.size());
+            int col = ofMap(vel, 0, 15, 0, 255);
+            int ww = ofMap(vel, 0, 15, 0, pane->getWidth()-10);
+            ofSetColor(col,255-col,0);
+            ofRect(pane->getX()+2, yy + (5*j) + 2, ww, 4);
         }
     }
+}
+
+void testApp::update_conf(ConfTrack conf)
+{
+    m_conf.track_id = conf.track_id;
+    m_conf.track_onsets = conf.track_onsets;
+    m_conf.track_rotation = conf.track_rotation;
+    m_conf.track_size = conf.track_size;
+    m_conf.track_evenness = conf.track_evenness;
+    m_conf.velocity_max = conf.velocity_max;
+    m_conf.velocity_min = conf.velocity_min;
+    m_conf.euclid_bias = conf.euclid_bias;
+    m_conf.euclid_density = conf.euclid_density;
+    m_conf.euclid_permutation = conf.euclid_permutation;
+    m_conf.euclid_evolution_rate = conf.euclid_evolution_rate;
+    m_conf.euclid_permutation_rate = conf.euclid_permutation_rate;
 }
 
 void testApp::update_selection()
@@ -647,13 +682,12 @@ void testApp::update_selection()
         
         if(m_selected_track == i)
         {
-            pane->setBackgroundColor(ON_VAR_COLOR);
+            pane->setBackgroundColor(ON_DARK_COLOR);
         }
         else
         {
             pane->setVisibleBackground(false);
         }
-        
     }
     
 }

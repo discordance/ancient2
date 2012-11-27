@@ -37,6 +37,24 @@ Seq::Seq(){
 	
 	// add testApp as a listener
 	m_midiIn.addListener(this);
+    
+    
+    // pitchs
+    // ableton pitch map
+    static const int abl[] = {
+        36,// kick
+        38,// snare1
+        40,// snare2
+        42,// chh
+        46,// ohh
+        47,// perc3
+        48,// perc2
+        49 // os
+    };
+    
+    vector<int> ab_pitchmap (abl, abl + sizeof(abl) / sizeof(abl[0]) );
+    m_pitches["ableton"] = ab_pitchmap;
+    
     ofLog(OF_LOG_NOTICE, "initialized Ancient2 sequencer with a resolution of: "+ofToString(m_max_ticks));
 }
 
@@ -94,7 +112,7 @@ void Seq::update_drum_tracks(vector<DTrack> *tracks) // v1, replace all
         for(track = tracks->begin(); track != tracks->end(); ++track)
         {
             // track num
-            int tr_num = track - tracks->begin();
+            int tr_num = track->get_conf().track_id;
             
             // get current
             vector<Step>* current = track->get_current();
@@ -128,7 +146,7 @@ void Seq::update_drum_tracks(vector<DTrack> *tracks) // v1, replace all
                 
             }
             // correct the overlaping events and update
-            //correct_and_update(evts,tr_num,track->get_pitch());
+            correct_and_update(evts, tr_num, m_pitches["ableton"].at(tr_num));
         }
         unlock();
     }

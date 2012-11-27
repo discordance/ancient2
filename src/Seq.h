@@ -58,6 +58,9 @@ class Seq : public ofxMidiListener, public ofThread
         
         // mutes
         map<int, bool> m_mutes;
+    
+        // pitches
+        map< string, vector<int> > m_pitches;
         
         // ancient to notify timing
         Ancient *m_ancient;

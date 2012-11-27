@@ -28,6 +28,7 @@ class DTrack {
         ConfTrack      get_conf();
         bool           has_events();
         vector<Step> * get_current();
+        vector<int>    get_velocities();
         
         void set_swing(float swing);
         void set_groove(vector<float> groove);
@@ -55,6 +56,7 @@ class DTrack {
         unsigned int m_velocity_mode; // conf: disk + iface
         int m_velocity_min; //disk + iface
         int m_velocity_max; //disk + iface
+        float m_track_evenness;
         
         // euclidean properties
         // shadow beat incorrectness
@@ -68,6 +70,7 @@ class DTrack {
         // adds the current track groove to the phrase
         void update_groove();
         vector<Step> generate_empty_phr(int size);
+        vector<Step> generate_phr(vector<int> & vels, vector<float> & groove);
 };
 
 #endif
