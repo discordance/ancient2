@@ -417,9 +417,9 @@ void testApp::el_onGenerate(hEventArgs& args)
 {
     if(args.values.size() > 0)
     {
-        if(m_conf.track_onsets > m_conf.track_size)
+        if(m_conf.track_onsets >= m_conf.track_size)
         {
-            m_conf.track_size = m_conf.track_onsets;
+             m_conf.track_onsets = m_conf.track_size;
         }
         m_ancient.generate(m_conf);
     }
@@ -646,16 +646,20 @@ void testApp::drawTracks()
             // back
             if(j % 16 == 0) { ofSetHexColor(0xFFFFFF); }
             else if(j % 4 == 0) { ofSetHexColor(0xEAEAEA); }
+            else if(m_ancient.m_quav == j) { ofSetHexColor(0xFFFFFF); }
             else { ofSetHexColor(0xE1E1E1); }
             ofRect(pane->getX()+2, yy + (5*j) + 2, pane->getWidth()-10, 4);
-            ofSetHexColor(0xFFFFFF);
+            
+            if(m_ancient.m_quav == j){ ofSetHexColor(ON_SECOND_COLOR); }
+            else { ofSetHexColor(0xFFFFFF); }
+            
             ofRect(pane->getX()+pane->getWidth()-6, yy + (5*j) + 2, 4, 4);
             
             // draw vels
             int vel = vels.at(j%vels.size());
             int col = ofMap(vel, 0, 15, 0, 255);
             int ww = ofMap(vel, 0, 15, 0, pane->getWidth()-10);
-            ofSetColor(col,255-col,0);
+            ofSetColor(col,255-col,0, col);
             ofRect(pane->getX()+2, yy + (5*j) + 2, ww, 4);
         }
     }

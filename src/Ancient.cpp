@@ -79,11 +79,11 @@ bool Ancient::is_processing()
     return m_processing;
 }
 
-void Ancient::notify(int bar, int beat, int tick)
+void Ancient::notify(int quav)
 {
-    m_bar = bar;
-    m_beat = beat;
-    m_tick = tick;
+    m_quav = quav;
+    m_bar = floor(quav/16);
+    m_beat = floor(quav/4);
     /*
     if(m_auto_variation)
     {

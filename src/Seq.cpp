@@ -19,8 +19,8 @@ Seq::Seq(){
     // synced by default
     m_synced_seq = true;
     m_resolution = 24;
-    m_max_ticks = (m_resolution / 4) * 128;
-    m_max_steps = 128;
+    m_max_ticks = (m_resolution / 4) * 64;
+    m_max_steps = 64;
     
     // init mutes to 0
     for(int i = 0; i < 8; ++i){ m_mutes[i] = false; }
@@ -130,7 +130,7 @@ void Seq::update_drum_tracks(vector<DTrack> *tracks) // v1, replace all
                     vector<int> evt;
                     int t_dur = (cstep.dur*mult)-1;
                     int cstick = i * mult; // current start tick
-                    int drift = mult*(1+cstep.drift) - mult;
+                    int drift = mult*(1+cstep.drift) - mult; // TEST
                     cstick += drift;
                     int cetick = cstick + t_dur;
                     int vel = ofMap(cstep.vel, 0, 15, 0, 127);
@@ -212,22 +212,19 @@ void Seq::reset_events()
             m_events.clear();
         }
         
-        // max ticks at 24 ppqn for 128 squav
+        // max ticks at 24 ppqn for 64 squav
         // init the vector event pointers
         for(int i = 0; i < m_max_ticks; ++i)
         {
             m_events.push_back(vector<Evt>(0)); 
         }
-    
 }
 
 void Seq::newMidiMessage(ofxMidiMessage& msg)
 {
-    
-    if( (m_ticks+m_midi_delay) % (m_resolution*4) == 0 )
-    {
-       // m_ancient->notify_bar();
-    }
+    int quav = (m_ticks+m_midi_delay) / (m_resolution/4) ;
+    quav = quav % (m_max_ticks/(m_resolution/4));
+    m_ancient->notify( quav );
     
     if( lock() )
     {
@@ -272,12 +269,13 @@ void Seq::newMidiMessage(ofxMidiMessage& msg)
             
         }
         unlock();
-    }
+    }  
 }
 
 void Seq::kill_events(int chan)
 {
-    for (int i = 0; i < 128; i++) {
+    for (int i = 0; i < 128; i++)
+    {
         m_virtual_midiOut.sendNoteOff(chan,i,0);
     }
 }
