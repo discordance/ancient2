@@ -41,6 +41,11 @@ class Seq : public ofxMidiListener, public ofThread
     
         void set_playing(bool status);
     
+        // SWINGGG
+        void set_classic_swing(float swing);
+        void set_cycle_swing(float swing);
+        void set_gauss_swing(float swing);
+    
     protected:
         // evt
         struct Evt 
@@ -93,6 +98,9 @@ class Seq : public ofxMidiListener, public ofThread
         
         // seq data
         vector< vector<Evt> > m_events; // max ticks
+    
+        // swing is now part of the Seq
+        vector<float> m_groove;
         
         // mach time
         double m_mach_multiplier;

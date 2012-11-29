@@ -31,6 +31,8 @@ Seq::Seq(){
     m_mach_multiplier = (double)tinfo.numer / tinfo.denom;
     m_mach_multiplier = 1.0 / m_mach_multiplier; // to nano seconds factor
     
+    m_groove = vector<float>(SEQ_LOOP_SIZE,0.);
+    
     // init mutes to 0
     for(int i = 0; i < 8; ++i){ m_mutes[i] = false; }
     
@@ -136,6 +138,56 @@ void Seq::set_midi_delay(int dly)
     m_midi_delay = dly;
 }
 
+// SWINGGG
+void Seq::set_classic_swing(float swing)
+{
+    if(swing >= 1){ swing = 0.99; }
+    if(swing <= -1){ swing = -0.99; }
+    vector<float> groove;
+    for(int i = 0; i < SEQ_LOOP_SIZE ; ++i)
+    {
+        if(i % 2 != 0)
+        {
+            groove.push_back(swing);
+        }
+        else
+        {
+            groove.push_back(0);
+        }
+    }
+    m_groove = groove;
+    update_drum_tracks(m_ancient->get_tracks());
+}
+
+void Seq::set_cycle_swing(float swing)
+{
+
+}
+
+void Seq::set_gauss_swing(float swing)
+{
+    if(swing >= 1){ swing = 0.99; }
+    if(swing <= -1){ swing = -0.99; }
+    vector<float> groove;
+    for(int i = 0; i < SEQ_LOOP_SIZE ; ++i)
+    {
+        if(i % 2 != 0)
+        {
+            float grv = (i%8)/8.;
+            grv *= 0.9;
+            grv = exp(grv) - 1;
+            grv = ofClamp(grv, 0, 0.9);
+            groove.push_back(grv*swing);
+        }
+        else
+        {
+            groove.push_back(0);
+        }
+    }
+    m_groove = groove;
+    update_drum_tracks(m_ancient->get_tracks());
+}
+
 void Seq::exit()
 {
     kill_events(10); // note off on drum events
@@ -177,7 +229,8 @@ void Seq::update_drum_tracks(vector<DTrack> *tracks) // v1, replace all
                     vector<int> evt;
                     int t_dur = (cstep.dur*mult)-1;
                     int cstick = i * mult; // current start tick
-                    int drift = mult*(1+cstep.drift) - mult; // TEST
+                    float drift_val = m_groove.at(i);
+                    int drift = mult*(1+drift_val) - mult; // TEST
                     cstick += drift;
                     int cetick = cstick + t_dur;
                     int vel = ofMap(cstep.vel, 0, 15, 0, 127);

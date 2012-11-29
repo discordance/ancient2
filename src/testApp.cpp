@@ -356,7 +356,7 @@ void testApp::el_onBpm(hEventArgs &args)
 {
     if(args.values.size() > 0)
     {
-        m_seq.set_bpm(<#int bpm#>)
+        m_seq.set_bpm(m_bpm);
     }
 }
 
@@ -364,7 +364,7 @@ void testApp::el_onMidDelay(hEventArgs &args)
 {
     if(args.values.size() > 0)
     {
-        
+        m_seq.set_midi_delay(m_mid_delay);
     }
 }
 
@@ -372,7 +372,8 @@ void testApp::el_onSwing(hEventArgs &args)
 {
     if(args.values.size() > 0)
     {
-        m_ancient.set_swing(m_swing);
+     //   m_ancient.set_swing(m_swing); OLD WAY
+        m_seq.set_gauss_swing(m_swing);
     }
 }
 
@@ -626,6 +627,7 @@ void testApp::exit()
     // thread safety on exit
     m_ancient.waitForThread(true);
     m_seq.waitForThread(true);
+    m_seq.exit();
 }
 
 void testApp::drawTracks()
