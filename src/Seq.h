@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <map>
+#include <mach/mach_time.h>
 #include "ofxMidi.h"
 #include "utils/ofLog.h"
 #include "utils/ofUtils.h"
@@ -22,6 +23,11 @@ using namespace std;
 class Seq : public ofxMidiListener, public ofThread
 {
     public:
+    
+        static const int SEQ_LOOP_SIZE = 64;
+        static const int SEQ_MIDI_RES = 24;
+        static const int SEQ_HI_RES = 960;
+        
         Seq();
         float get_bpm();
         int get_ticks();
@@ -30,6 +36,10 @@ class Seq : public ofxMidiListener, public ofThread
         void update_drum_tracks(vector<DTrack> *tracks);
         void set_ancient(Ancient * anc);
         void toggle_mute(int track, bool status);
+        void set_synced(bool status);
+        void set_bpm(int bpm);
+    
+        void set_playing(bool status);
     
     protected:
         // evt
@@ -51,8 +61,9 @@ class Seq : public ofxMidiListener, public ofThread
         void correct_and_update(map<int, vector<int> >& evt_map, int track, int pitch);
         
         // midi
-        ofxMidiIn	m_midiIn;
+        ofxMidiIn   m_midiIn;
         ofxMidiOut  m_virtual_midiOut; // for internal routing
+        ofxMidiOut  m_sync_out;
         ofxMidiOut  m_hard_midiOut; // for hardware routing
         ofxMidiMessage m_midiMessage;
         
@@ -68,6 +79,7 @@ class Seq : public ofxMidiListener, public ofThread
         // seq mode/ res
         bool m_synced_seq; // tells if the sequencer is sync to an external clock or not (use an internal clock thread)
         int  m_resolution; // 96 for self clock, synced must be 24
+        double m_reso_multiplier;
         int  m_max_ticks; // size of the event grid, depends on the resolution
         int  m_max_steps; // max steps of the step sequencer;
         // seq status
@@ -80,7 +92,14 @@ class Seq : public ofxMidiListener, public ofThread
         int m_clock_past_time;
         
         // seq data
-        vector< vector<Evt> > m_events; // max ticks at 96 ppqn for 128 squav
+        vector< vector<Evt> > m_events; // max ticks
+        
+        // mach time
+        double m_mach_multiplier;
+    
+        // thread
+        void threadedFunction();
+        void sendMidiClock(int status);
 };
 
 

@@ -21,15 +21,16 @@ class testApp : public ofBaseApp, public hObject {
 		void update();
 		void draw();
 
-		void keyPressed  (int key);
-		void keyReleased(int key);
-		void mouseMoved(int x, int y );
-		void mouseDragged(int x, int y, int button);
-		void mousePressed(int x, int y, int button);
-		void mouseReleased(int x, int y, int button);
-		void windowResized(int w, int h);
-		void dragEvent(ofDragInfo dragInfo);
-		void gotMessage(ofMessage msg);
+        void keyPressed  (int key);
+        void keyReleased(int key);
+        void mouseMoved(int x, int y );
+        void mouseDragged(int x, int y, int button);
+        void mousePressed(int x, int y, int button);
+        void mouseReleased(int x, int y, int button);
+        void windowResized(int w, int h);
+        void dragEvent(ofDragInfo dragInfo);
+        void gotMessage(ofMessage msg);
+        void exit();
     
         // event listeners
         void el_onPlay(hEventArgs& args);
@@ -92,6 +93,7 @@ class testApp : public ofBaseApp, public hObject {
         //utils OBJC
         KeyModifier m_modifiers;
         
+        void update_play();
         void update_mutes();
         void update_selection();
         void update_conf(ConfTrack conf);

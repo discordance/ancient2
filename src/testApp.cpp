@@ -330,7 +330,7 @@ void testApp::el_onPlay(hEventArgs &args)
 {
     if(args.values.size() > 0)
     {
-        
+        update_play();
     }
 }
 
@@ -356,7 +356,7 @@ void testApp::el_onBpm(hEventArgs &args)
 {
     if(args.values.size() > 0)
     {
-        //ofLog(OF_LOG_NOTICE, "on BPM " + ofToString(m_bpm));
+        m_seq.set_bpm(<#int bpm#>)
     }
 }
 
@@ -505,6 +505,7 @@ void testApp::keyPressed(int key)
             if(!m_synced)
             {
                 m_playing = !m_playing;
+                update_play();
             }
             break;
             
@@ -620,6 +621,13 @@ void testApp::dragEvent(ofDragInfo dragInfo){
 
 }
 
+void testApp::exit()
+{
+    // thread safety on exit
+    m_ancient.waitForThread(true);
+    m_seq.waitForThread(true);
+}
+
 void testApp::drawTracks()
 {
     // UI
@@ -680,6 +688,12 @@ void testApp::update_conf(ConfTrack conf)
     m_conf.euclid_permutation = conf.euclid_permutation;
     m_conf.euclid_evolution_rate = conf.euclid_evolution_rate;
     m_conf.euclid_permutation_rate = conf.euclid_permutation_rate;
+}
+
+
+void testApp::update_play()
+{
+    m_seq.set_playing(m_playing);
 }
 
 void testApp::update_mutes()

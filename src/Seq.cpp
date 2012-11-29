@@ -11,16 +11,25 @@
 
 //--------------------------------------------------------------
 Seq::Seq(){
+    
     // value init
     m_started = false;
     m_midi_delay = 0;
     m_ticks = 0;
     m_bpm = 120;
-    // synced by default
-    m_synced_seq = true;
-    m_resolution = 24;
-    m_max_ticks = (m_resolution / 4) * 64;
-    m_max_steps = 64;
+    
+    // not synced by default
+    m_synced_seq = false;
+    m_resolution = SEQ_HI_RES;
+    m_reso_multiplier = (double)1.0/m_resolution;
+    m_max_ticks = (m_resolution / 4) * SEQ_LOOP_SIZE;
+    m_max_steps = SEQ_LOOP_SIZE;
+    
+    // mach time
+    mach_timebase_info_data_t tinfo;
+    mach_timebase_info(&tinfo);
+    m_mach_multiplier = (double)tinfo.numer / tinfo.denom;
+    m_mach_multiplier = 1.0 / m_mach_multiplier; // to nano seconds factor
     
     // init mutes to 0
     for(int i = 0; i < 8; ++i){ m_mutes[i] = false; }
@@ -29,15 +38,17 @@ Seq::Seq(){
     reset_events();
     
     // midi init
-    m_midiIn.openVirtualPort("Ancient2 Sync In");
+    m_midiIn.openVirtualPort("Ancient2 SYNC IN");
     m_midiIn.ignoreTypes(false, false, false);
     
     // virtual port
-    m_virtual_midiOut.openVirtualPort("Ancient2 Notes Out");
+    m_virtual_midiOut.openVirtualPort("Ancient2 NOTES OUT");
+    
+    // sync out;
+    m_sync_out.openVirtualPort("Ancient2 SYNC OUT");
 	
 	// add testApp as a listener
 	m_midiIn.addListener(this);
-    
     
     // pitchs
     // ableton pitch map
@@ -58,11 +69,51 @@ Seq::Seq(){
     ofLog(OF_LOG_NOTICE, "initialized Ancient2 sequencer with a resolution of: "+ofToString(m_max_ticks));
 }
 
+void Seq::set_synced(bool status)
+{
+    m_synced_seq = status;
+    if(m_synced_seq)
+    {
+        m_resolution = SEQ_MIDI_RES;
+        m_reso_multiplier = (double)1.0/m_resolution;
+        m_max_ticks = (m_resolution / 4) * SEQ_LOOP_SIZE;
+        m_max_steps = SEQ_LOOP_SIZE;
+    }
+    else
+    {
+        m_resolution = SEQ_HI_RES;
+        m_reso_multiplier = (double)1.0/m_resolution;
+        m_max_ticks = (m_resolution / 4) * SEQ_LOOP_SIZE;
+        m_max_steps = SEQ_LOOP_SIZE;
+    }
+    
+    reset_events();
+}
+
+void Seq::set_bpm(int bpm)
+{
+    m_bpm = (float)bpm;
+}
+
+void Seq::set_playing(bool status)
+{
+    m_started = status;
+    m_ticks = 0;
+    if(!m_started)
+    {
+        stopThread();
+        kill_events(10);
+    }
+    else
+    {
+        startThread();
+    }
+}
 
 void Seq::toggle_mute(int track, bool status)
 {
     m_mutes[track] = status;
-    //kill_events(10, m_ancient->get_track_pitch(track));
+    kill_events(10, m_pitches["ableton"].at(track));
 }
 
 float Seq::get_bpm()
@@ -82,11 +133,7 @@ void Seq::set_ancient(Ancient * anc)
 
 void Seq::set_midi_delay(int dly)
 {
-    if(lock())
-    {
-        m_midi_delay = dly;
-        unlock();
-    }
+    m_midi_delay = dly;
 }
 
 void Seq::exit()
@@ -220,8 +267,59 @@ void Seq::reset_events()
         }
 }
 
+
+// thread
+void Seq::threadedFunction()
+{
+    uint64_t diff = 0;
+    sendMidiClock(1);
+    while( isThreadRunning() != 0 )
+    {
+        int quav = (m_ticks+m_midi_delay) / (m_resolution/4) ;
+        quav = quav % (m_max_ticks/(m_resolution/4));
+        m_ancient->notify( quav );
+        
+        if( lock() )
+        {
+            int at = (m_ticks+m_midi_delay)%m_max_ticks;
+            if(at < 0)
+            {
+                at = 0;
+            }
+            vector<Evt> *line = &m_events.at(at);
+            // send events
+            
+            ++m_ticks;
+            
+            unlock();
+            
+            // send events
+            send_events(line);
+            
+            // time and wait
+            double sec_to_wait = 60/(double)m_bpm;
+            sec_to_wait *= m_reso_multiplier;
+            uint64_t nanos = sec_to_wait*1000000000;
+            uint64_t sleepTimeInTicks = (uint64_t)(nanos * m_mach_multiplier) - diff;
+            uint64_t time = mach_absolute_time();
+            
+            if(m_ticks % (m_resolution/24) == 0 )
+            {
+                sendMidiClock(0); // yiiiia
+            }
+            
+            mach_wait_until(time + sleepTimeInTicks);
+            diff = mach_absolute_time() - (time + sleepTimeInTicks);
+        }
+    }
+    sendMidiClock(2);
+}
+
+
 void Seq::newMidiMessage(ofxMidiMessage& msg)
 {
+    if(!m_synced_seq){ return; } // not synced
+    
     int quav = (m_ticks+m_midi_delay) / (m_resolution/4) ;
     quav = quav % (m_max_ticks/(m_resolution/4));
     m_ancient->notify( quav );
@@ -255,18 +353,16 @@ void Seq::newMidiMessage(ofxMidiMessage& msg)
         // time
         if (msg.status == 248 && m_started)
         {
-            m_ticks++;
+            
             // send events
-            
             send_events(line);
-
-            // compute the bpm
-            if(m_synced_seq)
-            {   
-                m_bpm = 60000.0/(ofGetElapsedTimeMillis()-m_clock_past_time)/24;
-                m_clock_past_time = ofGetElapsedTimeMillis();
-            }
             
+            // update ticks
+            m_ticks++;
+            
+            // compute the bpm
+            m_bpm = 60000.0/(ofGetElapsedTimeMillis()-m_clock_past_time)/24;
+            m_clock_past_time = ofGetElapsedTimeMillis();
         }
         unlock();
     }  
@@ -305,6 +401,25 @@ void Seq::add_event(int start, int end, int track, int pitch, int vel)
     event_line_on->push_back(on);
     vector<Evt>* event_line_off = &m_events.at(end);
     event_line_off->push_back(off);
+}
+
+void Seq::sendMidiClock(int status)
+{
+
+    vector<unsigned char> bytes;
+    if(status == 2)
+    {
+        bytes.push_back(MIDI_STOP);
+    }
+    if(status == 1)
+    {
+        bytes.push_back(MIDI_START);
+    }
+    if(!status)
+    {
+        bytes.push_back(MIDI_TIME_CLOCK);
+    }
+    m_sync_out.sendMidiBytes(bytes);
 }
 
 void Seq::send_events(vector<Evt>* evts)
