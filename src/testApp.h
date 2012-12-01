@@ -7,6 +7,7 @@
 #include "hWidget.h"
 
 // test
+#include "PennerEasing/Sine.h"
 #include "Ancient.h"
 #include "Seq.h"
 #include "Gaia.h"

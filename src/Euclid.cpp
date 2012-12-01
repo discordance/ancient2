@@ -8,6 +8,35 @@
 
 #include "Euclid.h"
 
+namespace Solution3
+{
+    template<class T>
+    struct CompareDeref
+    {
+        bool operator()( const T& a, const T& b ) const
+        { return *a < *b; }
+    };
+    
+    
+    template<class T, class U>
+    struct Pair2nd
+    {
+        const U& operator()( const std::pair<T,U>& a ) const
+        { return a.second; }
+    };
+    
+    
+    template<class IterIn, class IterOut>
+    void sort_idxtbl( IterIn first, IterIn last, IterOut out )
+    {
+        std::multimap<IterIn, int, CompareDeref<IterIn> > v;
+        for( int i=0; first != last; ++i, ++first )
+            v.insert( std::make_pair( first, i ) );
+        std::transform( v.begin(), v.end(), out,
+                       Pair2nd<IterIn const,int>() );
+    }
+}
+
 /**
  * Generates a vector of onsets with bjorklund algorithm.
  */
@@ -105,6 +134,10 @@ void Euclid::rotate_beat(vector<bool> & beat, float rotation)
 vector<bool> Euclid::shadow(vector<bool> & beat, float bias, float prune)
 {
     vector<bool> res(beat.size(),false);
+    if(!accumulate(beat.begin(), beat.end(), 0))
+    {
+        return res;
+    }
     vector<int> ivals = get_ivals(beat);
     int pos = 0;
     int shade = 0;
@@ -194,6 +227,45 @@ vector<int> Euclid::discrete_random(int size, int max, int min)
     return res;
 }
 
+void Euclid::permute(vector<bool> & beat, vector<bool> shadow, float rate)
+{
+    vector<bool>::reverse_iterator rev;
+    vector<bool> tmp = beat; //copy
+    int onsets = accumulate(tmp.begin(), tmp.end(), 0);
+    onsets = floor((float)onsets*rate);
+    int last_swap = -1;
+    int last_onset = -1;
+    
+    for(rev = tmp.rbegin(); rev != tmp.rend() && onsets; ++rev )
+    {
+        int idx = (tmp.rend() - rev) - 1;
+        
+        if(shadow.at(idx))
+        {
+            last_swap = idx;
+            if(last_onset > -1)
+            {
+                beat.at(last_onset) = false;
+                beat.at(last_swap) = true;
+                last_onset = last_swap = -1;
+            }
+            
+        }
+        if(*rev)
+        {
+            last_onset = idx;
+            
+            if(last_swap > -1)
+            {
+                beat.at(last_onset) = false;
+                beat.at(last_swap) = true;
+                last_onset = last_swap = -1;
+            }
+            --onsets;
+        }
+    }
+    
+}
 
 /**
  * Returns the evenness of a interval vector
@@ -286,7 +358,6 @@ void Euclid::prune(vector<bool> & beat, float rate)
         
         prune--;
     }
-    cout << " " << endl;
 }
 
 void Euclid::dump_beat(vector<bool> & beat)
@@ -302,6 +373,21 @@ void Euclid::dump_beat(vector<bool> & beat)
     }
     res += "]";
     cout << "beat debug: " << res << endl;
+}
+
+void Euclid::dump_vels(vector<int> & vels)
+{
+    string res = "[";
+    for(vector<int>::iterator it = vels.begin(); it != vels.end(); it++)
+    {
+        res += ofToString(*it);
+        if(it-vels.begin() < vels.size()-1)
+        {
+            res += ", ";
+        }
+    }
+    res += "]";
+    cout << "vels debug: " << res << endl;
 }
 
 
@@ -571,6 +657,40 @@ vector<int> Euclid::get_positions(vector<bool> & target)
         }
     }
     return res;
+}
+
+vector<int> Euclid::cross_assemble(vector<bool> beat_a, vector<bool> beat_b, vector<int> vels, float crossfade)
+{
+
+    // yeah do magick
+    
+    vector<int> a_vels = Euclid::assemble(beat_a, vels);
+    vector<int> b_vels = Euclid::assemble(beat_b, vels);
+    vector<int> res(a_vels.size(), 0);
+    for(vector<int>::iterator it = a_vels.begin(); it != a_vels.end(); ++it)
+    {
+        int ct = it - a_vels.begin();
+        float val = 0.;
+        float vel = 0.;
+        float norma, normb;
+        norma = (float)a_vels.at(ct)/15;
+        normb = (float)b_vels.at(ct)/15;
+        val = Expo::easeInOut(crossfade, 0, crossfade, 1);
+
+        
+        if(normb > norma)
+        {
+            vel = ofMap(val, 0, 1, a_vels.at(ct), b_vels.at(ct));
+        }
+        else
+        {
+            vel = ofMap(1-val, 1, 0, a_vels.at(ct), b_vels.at(ct));
+        }
+        res.at(ct) = vel;
+    }
+    Euclid::dump_vels(res);
+    return res;
+     
 }
 
 /**

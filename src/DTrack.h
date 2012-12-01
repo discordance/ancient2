@@ -48,6 +48,7 @@ class DTrack {
         vector<bool> m_vanilla_beat; // conf: disk
         vector<bool> m_shadow_beat; // conf: disk
         vector<bool> m_alternation_beat; // conf: disk
+        vector<bool> m_permutation_places;
         vector<int> m_velocities; // conf: disk
  
         
@@ -73,6 +74,7 @@ class DTrack {
         void update_groove();
         vector<Step> generate_empty_phr(int size);
         vector<Step> generate_phr(vector<int> & vels, vector<float> & groove);
+        
 };
 
 #endif

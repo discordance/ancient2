@@ -175,7 +175,6 @@
 		3F332B60166A40CD00814FE4 /* Circ.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Circ.h; sourceTree = "<group>"; };
 		3F332B61166A40CD00814FE4 /* Cubic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Cubic.cpp; sourceTree = "<group>"; };
 		3F332B62166A40CD00814FE4 /* Cubic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Cubic.h; sourceTree = "<group>"; };
-		3F332B63166A40CD00814FE4 /* easing_terms_of_use.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = easing_terms_of_use.html; sourceTree = "<group>"; };
 		3F332B64166A40CD00814FE4 /* Elastic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Elastic.cpp; sourceTree = "<group>"; };
 		3F332B65166A40CD00814FE4 /* Elastic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Elastic.h; sourceTree = "<group>"; };
 		3F332B66166A40CD00814FE4 /* Expo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Expo.cpp; sourceTree = "<group>"; };
@@ -428,7 +427,6 @@
 				3F332B60166A40CD00814FE4 /* Circ.h */,
 				3F332B61166A40CD00814FE4 /* Cubic.cpp */,
 				3F332B62166A40CD00814FE4 /* Cubic.h */,
-				3F332B63166A40CD00814FE4 /* easing_terms_of_use.html */,
 				3F332B64166A40CD00814FE4 /* Elastic.cpp */,
 				3F332B65166A40CD00814FE4 /* Elastic.h */,
 				3F332B66166A40CD00814FE4 /* Expo.cpp */,

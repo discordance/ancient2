@@ -10,9 +10,11 @@
 #define EUCLID
 
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include <map>
 #include <numeric>
+#include "PennerEasing/Expo.h"
 #include "utils/ofLog.h"
 #include "utils/ofUtils.h"
 
@@ -58,14 +60,16 @@ class Euclid {
         inline static void desc_partitions(int num, int largest, int max, vector< vector<int> > & result,  vector<int> & prefix);
         
         // assemble
-        static vector<int>  assemble(vector<bool> beat, vector<int> vels);
-        
+        static vector<int> assemble(vector<bool> beat, vector<int> vels);
+        static vector<int> cross_assemble(vector<bool> beat_a, vector<bool> beat_b, vector<int> vels, float crossfade);
     
         // utils
         static void prune(vector<bool> & beat, float rate);
+        static void permute(vector<bool> & beat, vector<bool> shadow, float rate);
     
         // debug
         static void dump_beat(vector<bool> & beat);
+        static void dump_vels(vector<int> & vels);
         
         /*
         static vector<int> generate_velocities(int num, int max = 15);

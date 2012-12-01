@@ -40,6 +40,7 @@ DTrack::DTrack(int track_id, int track_size)
     m_vanilla_beat = vector<bool>(m_track_size,false); // conf: disk
     m_shadow_beat = vector<bool>(m_track_size,false);; // conf: disk
     m_alternation_beat = vector<bool>(m_track_size,false); // conf: disk
+    m_permutation_places = vector<bool>(m_track_size,false); // conf: disk
     m_velocities = vector<int>(0,0);// conf: disk
     
 }
@@ -115,13 +116,15 @@ void DTrack::generate(ConfTrack conf)
     }
     
     Euclid::rotate_beat(m_vanilla_beat, m_track_rotation);
+
     // shadow beat and alternation
     m_shadow_beat = Euclid::shadow(m_vanilla_beat, m_euclid_bias);
     m_alternation_beat = Euclid::alternation(m_vanilla_beat, 1, 2, m_euclid_bias);
+    m_permutation_places = m_shadow_beat;
     
     // prune alternation et shadow
     Euclid::prune(m_shadow_beat, 1-m_euclid_evolution_rate);
-    //Euclid::prune(m_alternation_beat, 1-m_euclid_evolution_rate);
+    Euclid::prune(m_alternation_beat, 1-m_euclid_evolution_rate);
 
     switch (m_velocity_mode) {
         
@@ -191,11 +194,23 @@ void DTrack::set_jaccard_variation(float thres, bool mode)
 
 }
 
+
+
 void DTrack::evolve(float level, float permute)
 {
     m_euclid_density = level;
     m_euclid_permutation = permute;
-    vector<int> vels = Euclid::assemble(m_vanilla_beat, m_velocities);
+    
+    vector<bool> permuted = m_vanilla_beat;
+    vector<bool> shad_permuted = m_shadow_beat;
+    vector<bool> alter_permuted = m_alternation_beat;
+    
+    Euclid::permute(permuted,  Euclid::shadow(m_vanilla_beat,m_euclid_bias), permute);
+    Euclid::permute(shad_permuted, Euclid::shadow(m_shadow_beat,m_euclid_bias), permute);
+    Euclid::permute(alter_permuted, Euclid::shadow(m_alternation_beat,m_euclid_bias), permute);
+    
+    vector<int> vels = Euclid::assemble(permuted, m_velocities);
+    
     float lrate = 0.;
     if(level < 0.5)
     {
@@ -203,9 +218,9 @@ void DTrack::evolve(float level, float permute)
         lrate = Sine::easeIn(lrate, 0., lrate, 1.);
         lrate = 1- lrate;
         // alternation
-        for(vector<bool>::iterator alt = m_alternation_beat.begin(); alt != m_alternation_beat.end(); ++alt)
+        for(vector<bool>::iterator alt = alter_permuted.begin(); alt != alter_permuted.end(); ++alt)
         {
-            int ct = alt - m_alternation_beat.begin();
+            int ct = alt - alter_permuted.begin();
             if (*alt)
             {
                 vels.at(ct) = vels.at(ct) * lrate;
@@ -218,16 +233,18 @@ void DTrack::evolve(float level, float permute)
         
         lrate = Sine::easeIn(lrate, 0., lrate, 1.);
         
-        for(vector<bool>::iterator shad = m_shadow_beat.begin(); shad != m_shadow_beat.end(); ++shad)
+        for(vector<bool>::iterator shad = shad_permuted.begin(); shad != shad_permuted.end(); ++shad)
         {
-            int ct = shad - m_shadow_beat.begin();
+            int ct = shad - shad_permuted.begin();
             if(*shad)
             {
                 vels.at(ct) = m_velocity_max * lrate * 0.9; // attenuate
             }
         }
     }
+    
     m_track_current = generate_phr(vels, m_track_groove);
+     
 }
 
 void DTrack::update_groove()

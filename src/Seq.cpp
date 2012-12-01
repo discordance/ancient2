@@ -120,7 +120,6 @@ void Seq::set_playing(bool status)
 
 void Seq::toggle_mute(int track, bool status)
 {
-    cout << track << endl;
     m_mutes[track] = status;
     kill_events(10, m_pitches["stdr"].at(track));
 }

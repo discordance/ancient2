@@ -328,14 +328,33 @@ void testApp::setup()
     gui->editTextColor = ON_MAIN_COLOR;
     
     /*
-    float x = 0.;
-    while(x < 1)
+    vector <bool> orig, test_beat, shadow;
+    int n = 0;
+    while(n<16)
     {
-        cout << Euclid::exp_ease(x, 0., x, 1.) << " " << x << endl;
-        
-        x += 0.01;
+        if(n%4==0)
+        {
+            test_beat.push_back(true);
+        }
+        else
+        {
+            test_beat.push_back(false);
+        }
+        n++;
     }
+    shadow = Euclid::shadow(test_beat,0.2);
+    orig = test_beat;
+    
+    Euclid::dump_beat(test_beat);
+    Euclid::dump_beat(shadow);
+    Euclid::permute(test_beat, shadow, 0.5);
+    Euclid::dump_beat(test_beat);
+    
+    vector<int> vels(4,15);
+    Euclid::cross_assemble(orig, test_beat, vels , 0.5);
     */
+    
+    
 }
 
 //--------------------------------------------------------------
@@ -592,6 +611,19 @@ void testApp::keyPressed(int key)
             update_evolve();
             break;
             
+        case 108:
+            m_conf.euclid_permutation = ofRandom(0.17, 0.33);
+            update_evolve();
+            break;
+        case 59:
+            m_conf.euclid_permutation = ofRandom(0.33, 0.63);
+            update_evolve();
+            break;
+        case 39:
+            m_conf.euclid_permutation = ofRandom(0.77, 1.);
+            update_evolve();
+            break;
+            
         default:
             break;
     }
@@ -640,6 +672,18 @@ void testApp::keyReleased(int key)
         case 93: // right square bracket
             b = (hButton*)m_ui_elements["hard_jak_ctrl"];
             b->setPressed(false);
+            break;
+        case 108:
+            m_conf.euclid_permutation = 0.;
+            update_evolve();
+            break;
+        case 59:
+            m_conf.euclid_permutation = 0.;
+            update_evolve();
+            break;
+        case 39:
+            m_conf.euclid_permutation = 0.;
+            update_evolve();
             break;
         default:
             break;
