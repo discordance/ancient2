@@ -25,7 +25,7 @@ class Ancient : public ofThread
         void update();
         void generate(ConfTrack conf);
         void set_seq(Seq *seq);
-        void set_level_variat(float level, float variat);
+        void set_evolution(float level, float variat);
         void set_swing(float swg);
         void set_groove(vector<float> groove);
         void set_xor_variation(float ratio);

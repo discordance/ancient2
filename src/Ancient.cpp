@@ -129,28 +129,24 @@ void Ancient::set_xor_variation(float ratio)
     m_xor_variation = ratio;
     m_jacc_variation = 0.; // not two at the same time
     m_tasks.push_back("xor_var");
-    //startThread();
 }
 
 void Ancient::set_swing(float swg)
 {
     m_swing = swg;
     m_tasks.push_back("swing");
-    //startThread();
 }
 void Ancient::set_groove(vector<float> groove)
 {
     m_groove = groove;
     m_tasks.push_back("groove");
-    //startThread();
 }
 
-void Ancient::set_level_variat(float level, float variat)
+void Ancient::set_evolution(float level, float variat)
 {
     m_level = level;
     m_variat = variat;
     m_tasks.push_back("evolve");
-    //startThread();
 }
 
 void Ancient::set_seq(Seq *seq)
@@ -231,7 +227,7 @@ void Ancient::threadedFunction()
                     }
                     else if(task == "evolve")
                     {
-                        //track->set_level_variat(m_level, m_variat);
+                        track->evolve(m_level, m_variat);
                     }
                 }
             }

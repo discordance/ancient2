@@ -52,13 +52,17 @@ class Euclid {
         // euclid modifiers // shadowbeat
         static vector<bool> shadow(vector<bool> & beat, float bias = 0., float prune = 1.);
         // euclid modifiers // alternation 
-        static vector<bool> alternation(vector<bool> & beat, int first, int order);
+        static vector<bool> alternation(vector<bool> & beat, int first, int order, float bias = 0);
         
         // combinatorics utils
         inline static void desc_partitions(int num, int largest, int max, vector< vector<int> > & result,  vector<int> & prefix);
         
         // assemble
         static vector<int>  assemble(vector<bool> beat, vector<int> vels);
+        
+    
+        // utils
+        static void prune(vector<bool> & beat, float rate);
     
         // debug
         static void dump_beat(vector<bool> & beat);

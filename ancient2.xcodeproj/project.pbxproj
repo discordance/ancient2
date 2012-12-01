@@ -21,6 +21,17 @@
 		335b3ec9493302d41ac879457d11d521 /* hGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1fb00a178f84f5d45adfa9e40170f7b8 /* hGui.cpp */; };
 		337d2ec7aa8bdca7d6597bdf6fd620ce /* hTScrollBar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 68511cae82dff28d56bcfad9750420d3 /* hTScrollBar.cpp */; };
 		3F262A7416527EBD00195C69 /* Euclid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F262A7216527EBD00195C69 /* Euclid.cpp */; };
+		3F332B72166A40CD00814FE4 /* Back.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F332B5B166A40CD00814FE4 /* Back.cpp */; };
+		3F332B73166A40CD00814FE4 /* Bounce.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F332B5D166A40CD00814FE4 /* Bounce.cpp */; };
+		3F332B74166A40CD00814FE4 /* Circ.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F332B5F166A40CD00814FE4 /* Circ.cpp */; };
+		3F332B75166A40CD00814FE4 /* Cubic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F332B61166A40CD00814FE4 /* Cubic.cpp */; };
+		3F332B76166A40CD00814FE4 /* Elastic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F332B64166A40CD00814FE4 /* Elastic.cpp */; };
+		3F332B77166A40CD00814FE4 /* Expo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F332B66166A40CD00814FE4 /* Expo.cpp */; };
+		3F332B78166A40CD00814FE4 /* Linear.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F332B68166A40CD00814FE4 /* Linear.cpp */; };
+		3F332B79166A40CD00814FE4 /* Quad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F332B6A166A40CD00814FE4 /* Quad.cpp */; };
+		3F332B7A166A40CD00814FE4 /* Quart.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F332B6C166A40CD00814FE4 /* Quart.cpp */; };
+		3F332B7B166A40CD00814FE4 /* Quint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F332B6E166A40CD00814FE4 /* Quint.cpp */; };
+		3F332B7C166A40CD00814FE4 /* Sine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F332B70166A40CD00814FE4 /* Sine.cpp */; };
 		3F80037D1647F3AF006F8AAB /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F80037C1647F3AF006F8AAB /* CoreMIDI.framework */; };
 		3F80039216480CC0006F8AAB /* Seq.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F80039016480CC0006F8AAB /* Seq.cpp */; };
 		3F8003961648101E006F8AAB /* Trak.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F8003941648101E006F8AAB /* Trak.cpp */; };
@@ -156,6 +167,29 @@
 		3F1D1723165E34E7007F2072 /* ConfTrack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ConfTrack.h; sourceTree = "<group>"; };
 		3F262A7216527EBD00195C69 /* Euclid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Euclid.cpp; sourceTree = "<group>"; };
 		3F262A7316527EBD00195C69 /* Euclid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Euclid.h; sourceTree = "<group>"; };
+		3F332B5B166A40CD00814FE4 /* Back.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Back.cpp; sourceTree = "<group>"; };
+		3F332B5C166A40CD00814FE4 /* Back.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Back.h; sourceTree = "<group>"; };
+		3F332B5D166A40CD00814FE4 /* Bounce.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Bounce.cpp; sourceTree = "<group>"; };
+		3F332B5E166A40CD00814FE4 /* Bounce.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Bounce.h; sourceTree = "<group>"; };
+		3F332B5F166A40CD00814FE4 /* Circ.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Circ.cpp; sourceTree = "<group>"; };
+		3F332B60166A40CD00814FE4 /* Circ.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Circ.h; sourceTree = "<group>"; };
+		3F332B61166A40CD00814FE4 /* Cubic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Cubic.cpp; sourceTree = "<group>"; };
+		3F332B62166A40CD00814FE4 /* Cubic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Cubic.h; sourceTree = "<group>"; };
+		3F332B63166A40CD00814FE4 /* easing_terms_of_use.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = easing_terms_of_use.html; sourceTree = "<group>"; };
+		3F332B64166A40CD00814FE4 /* Elastic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Elastic.cpp; sourceTree = "<group>"; };
+		3F332B65166A40CD00814FE4 /* Elastic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Elastic.h; sourceTree = "<group>"; };
+		3F332B66166A40CD00814FE4 /* Expo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Expo.cpp; sourceTree = "<group>"; };
+		3F332B67166A40CD00814FE4 /* Expo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Expo.h; sourceTree = "<group>"; };
+		3F332B68166A40CD00814FE4 /* Linear.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Linear.cpp; sourceTree = "<group>"; };
+		3F332B69166A40CD00814FE4 /* Linear.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Linear.h; sourceTree = "<group>"; };
+		3F332B6A166A40CD00814FE4 /* Quad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Quad.cpp; sourceTree = "<group>"; };
+		3F332B6B166A40CD00814FE4 /* Quad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quad.h; sourceTree = "<group>"; };
+		3F332B6C166A40CD00814FE4 /* Quart.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Quart.cpp; sourceTree = "<group>"; };
+		3F332B6D166A40CD00814FE4 /* Quart.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quart.h; sourceTree = "<group>"; };
+		3F332B6E166A40CD00814FE4 /* Quint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Quint.cpp; sourceTree = "<group>"; };
+		3F332B6F166A40CD00814FE4 /* Quint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quint.h; sourceTree = "<group>"; };
+		3F332B70166A40CD00814FE4 /* Sine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sine.cpp; sourceTree = "<group>"; };
+		3F332B71166A40CD00814FE4 /* Sine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sine.h; sourceTree = "<group>"; };
 		3F80037C1647F3AF006F8AAB /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
 		3F80039016480CC0006F8AAB /* Seq.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Seq.cpp; sourceTree = "<group>"; };
 		3F80039116480CC0006F8AAB /* Seq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Seq.h; sourceTree = "<group>"; };
@@ -381,6 +415,36 @@
 				86d2677079a3af4a5a88e29a7243e442 /* oscpack */,
 			);
 			name = libs;
+			sourceTree = "<group>";
+		};
+		3F332B5A166A40CC00814FE4 /* PennerEasing */ = {
+			isa = PBXGroup;
+			children = (
+				3F332B5B166A40CD00814FE4 /* Back.cpp */,
+				3F332B5C166A40CD00814FE4 /* Back.h */,
+				3F332B5D166A40CD00814FE4 /* Bounce.cpp */,
+				3F332B5E166A40CD00814FE4 /* Bounce.h */,
+				3F332B5F166A40CD00814FE4 /* Circ.cpp */,
+				3F332B60166A40CD00814FE4 /* Circ.h */,
+				3F332B61166A40CD00814FE4 /* Cubic.cpp */,
+				3F332B62166A40CD00814FE4 /* Cubic.h */,
+				3F332B63166A40CD00814FE4 /* easing_terms_of_use.html */,
+				3F332B64166A40CD00814FE4 /* Elastic.cpp */,
+				3F332B65166A40CD00814FE4 /* Elastic.h */,
+				3F332B66166A40CD00814FE4 /* Expo.cpp */,
+				3F332B67166A40CD00814FE4 /* Expo.h */,
+				3F332B68166A40CD00814FE4 /* Linear.cpp */,
+				3F332B69166A40CD00814FE4 /* Linear.h */,
+				3F332B6A166A40CD00814FE4 /* Quad.cpp */,
+				3F332B6B166A40CD00814FE4 /* Quad.h */,
+				3F332B6C166A40CD00814FE4 /* Quart.cpp */,
+				3F332B6D166A40CD00814FE4 /* Quart.h */,
+				3F332B6E166A40CD00814FE4 /* Quint.cpp */,
+				3F332B6F166A40CD00814FE4 /* Quint.h */,
+				3F332B70166A40CD00814FE4 /* Sine.cpp */,
+				3F332B71166A40CD00814FE4 /* Sine.h */,
+			);
+			path = PennerEasing;
 			sourceTree = "<group>";
 		};
 		42bf03ef6f2841da666d74905c10a5f2 /* hTable */ = {
@@ -619,6 +683,7 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				3F332B5A166A40CC00814FE4 /* PennerEasing */,
 				3F80039B1648108B006F8AAB /* Ancient.cpp */,
 				3F80039C1648108B006F8AAB /* Ancient.h */,
 				3F80039816481042006F8AAB /* Gaia.cpp */,
@@ -902,6 +967,17 @@
 				3F262A7416527EBD00195C69 /* Euclid.cpp in Sources */,
 				3FB11C26165BA59400493DEA /* DTrack.cpp in Sources */,
 				3FBCDCFE166410A80004441F /* KeyModifier.mm in Sources */,
+				3F332B72166A40CD00814FE4 /* Back.cpp in Sources */,
+				3F332B73166A40CD00814FE4 /* Bounce.cpp in Sources */,
+				3F332B74166A40CD00814FE4 /* Circ.cpp in Sources */,
+				3F332B75166A40CD00814FE4 /* Cubic.cpp in Sources */,
+				3F332B76166A40CD00814FE4 /* Elastic.cpp in Sources */,
+				3F332B77166A40CD00814FE4 /* Expo.cpp in Sources */,
+				3F332B78166A40CD00814FE4 /* Linear.cpp in Sources */,
+				3F332B79166A40CD00814FE4 /* Quad.cpp in Sources */,
+				3F332B7A166A40CD00814FE4 /* Quart.cpp in Sources */,
+				3F332B7B166A40CD00814FE4 /* Quint.cpp in Sources */,
+				3F332B7C166A40CD00814FE4 /* Sine.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

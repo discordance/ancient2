@@ -10,6 +10,7 @@
 #define DTRACK
 
 #include <vector>
+#include "PennerEasing/Sine.h"
 #include "Step.h"
 #include "ConfTrack.h"
 #include "Euclid.h"
@@ -34,6 +35,7 @@ class DTrack {
         void set_groove(vector<float> groove);
         void set_xor_variation(float thres, bool mode = false);
         void set_jaccard_variation(float thres, bool mode = false);
+        void evolve(float level, float permute);
         
     protected:
         

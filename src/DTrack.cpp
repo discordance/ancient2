@@ -31,7 +31,7 @@ DTrack::DTrack(int track_id, int track_size)
 
     m_euclid_density = 0.5;
     m_euclid_permutation = 0.;
-    m_euclid_evolution_rate = 1.;
+    m_euclid_evolution_rate = 0.2;
     m_euclid_permutation_rate = 1.;
     
     // current default
@@ -116,8 +116,12 @@ void DTrack::generate(ConfTrack conf)
     
     Euclid::rotate_beat(m_vanilla_beat, m_track_rotation);
     // shadow beat and alternation
-    m_shadow_beat = Euclid::shadow(m_vanilla_beat);
-    m_alternation_beat = Euclid::alternation(m_vanilla_beat, 0, 2);
+    m_shadow_beat = Euclid::shadow(m_vanilla_beat, m_euclid_bias);
+    m_alternation_beat = Euclid::alternation(m_vanilla_beat, 1, 2, m_euclid_bias);
+    
+    // prune alternation et shadow
+    Euclid::prune(m_shadow_beat, 1-m_euclid_evolution_rate);
+    //Euclid::prune(m_alternation_beat, 1-m_euclid_evolution_rate);
 
     switch (m_velocity_mode) {
         
@@ -148,6 +152,7 @@ void DTrack::generate(ConfTrack conf)
     // @ TODO permutation rate and evolution rate
     vector<int> vels = Euclid::assemble(m_vanilla_beat, m_velocities);
     m_track_current = generate_phr(vels, m_track_groove);
+    evolve(m_euclid_density, m_euclid_permutation);
 }
 
 void DTrack::set_swing(float swing)
@@ -184,6 +189,45 @@ void DTrack::set_xor_variation(float thres, bool mode)
 void DTrack::set_jaccard_variation(float thres, bool mode)
 {
 
+}
+
+void DTrack::evolve(float level, float permute)
+{
+    m_euclid_density = level;
+    m_euclid_permutation = permute;
+    vector<int> vels = Euclid::assemble(m_vanilla_beat, m_velocities);
+    float lrate = 0.;
+    if(level < 0.5)
+    {
+        lrate = ofMap(level,0.5,0.,0.,1.);
+        lrate = Sine::easeIn(lrate, 0., lrate, 1.);
+        lrate = 1- lrate;
+        // alternation
+        for(vector<bool>::iterator alt = m_alternation_beat.begin(); alt != m_alternation_beat.end(); ++alt)
+        {
+            int ct = alt - m_alternation_beat.begin();
+            if (*alt)
+            {
+                vels.at(ct) = vels.at(ct) * lrate;
+            }
+        }
+    }
+    if(level > 0.5)
+    {
+        lrate = ofMap(level,0.5,1.,0.,1.);
+        
+        lrate = Sine::easeIn(lrate, 0., lrate, 1.);
+        
+        for(vector<bool>::iterator shad = m_shadow_beat.begin(); shad != m_shadow_beat.end(); ++shad)
+        {
+            int ct = shad - m_shadow_beat.begin();
+            if(*shad)
+            {
+                vels.at(ct) = m_velocity_max * lrate * 0.9; // attenuate
+            }
+        }
+    }
+    m_track_current = generate_phr(vels, m_track_groove);
 }
 
 void DTrack::update_groove()

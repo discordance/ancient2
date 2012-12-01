@@ -56,6 +56,8 @@ class testApp : public ofBaseApp, public hObject {
     
         void el_onMute(hEventArgs& args);
     
+        void el_onEvolve(hEventArgs& args);
+    
         // constants
         static int const ON_VAR_COLOR = 0xAAAAAA;//
         static int const ON_SECOND_COLOR = 0xFFA340;
@@ -93,6 +95,7 @@ class testApp : public ofBaseApp, public hObject {
         //utils OBJC
         KeyModifier m_modifiers;
         
+        void update_evolve();
         void update_play();
         void update_mutes();
         void update_selection();

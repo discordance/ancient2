@@ -108,6 +108,9 @@ vector<bool> Euclid::shadow(vector<bool> & beat, float bias, float prune)
     vector<int> ivals = get_ivals(beat);
     int pos = 0;
     int shade = 0;
+    vector<bool>::iterator first = find(beat.begin(), beat.end(), true);
+    pos += first - beat.begin();
+    
     vector<int>::iterator ival;
     for(ival = ivals.begin(); ival != ivals.end(); ++ival)
     {
@@ -118,22 +121,22 @@ vector<bool> Euclid::shadow(vector<bool> & beat, float bias, float prune)
         {
             res.at(shade) = true;
         }
-        
     }
-    
     return res;
 }
 
-vector<bool> Euclid::alternation(vector<bool> & beat, int first, int order)
-{
+vector<bool> Euclid::alternation(vector<bool> & beat, int first, int order, float bias)
+{    
     vector<bool> res(beat.size(),false);
     vector<int> poss = Euclid::get_positions(beat);
     vector<int>::iterator pos = poss.begin();
-    int k, j, c;
+    int k, j, c, a;
+    a = 0;
     j = first;
     c = order;
     k = poss.size();
-    for(j; j < k; j += c)
+    if(ofRandomf()<bias){a = 1;}
+    for(j; j < k; j += c+a)
     {
         res.at(poss.at(j)) = true;
     }
@@ -255,6 +258,37 @@ float Euclid::weighted_evenness(vector<int> & target)
     return 1-accumulate(deviations.begin(), deviations.end(), 0.)/4.;
 }
 
+
+void Euclid::prune(vector<bool> & beat, float rate)
+{
+    if(rate <= 0. )
+    {
+        return;
+    }
+    // random pruning
+    vector<int> indexes;
+    vector<bool>::iterator b;
+    for(b = beat.begin(); b != beat.end(); ++b)
+    {
+        if(*b)
+        {
+            indexes.push_back(b-beat.begin());
+        }
+    }
+    int prune = floor((indexes.size()-1)*rate);
+    int idx = 0;
+    while(indexes.size() && prune)
+    {
+        int rnd = (int)ofRandom(0, indexes.size()-1);
+        idx = indexes.at(rnd);
+        beat.at(idx) = false;
+        indexes.erase(indexes.begin()+rnd);
+        
+        prune--;
+    }
+    cout << " " << endl;
+}
+
 void Euclid::dump_beat(vector<bool> & beat)
 {
     string res = "[";
@@ -269,6 +303,7 @@ void Euclid::dump_beat(vector<bool> & beat)
     res += "]";
     cout << "beat debug: " << res << endl;
 }
+
 
 /**
  * Utils

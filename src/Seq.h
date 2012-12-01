@@ -44,7 +44,6 @@ class Seq : public ofxMidiListener, public ofThread
         // SWINGGG
         void set_classic_swing(float swing);
         void set_cycle_swing(float swing);
-        void set_gauss_swing(float swing);
     
     protected:
         // evt

@@ -39,6 +39,12 @@ Seq::Seq(){
     // reset events 
     reset_events();
     
+    // detect MOTU
+    if(!m_hard_midiOut.openPort("UltraLite mk3 MIDI Port"))
+    {
+        m_hard_midiOut.closePort();
+    }
+    
     // midi init
     m_midiIn.openVirtualPort("Ancient2 SYNC IN");
     m_midiIn.ignoreTypes(false, false, false);
@@ -53,20 +59,20 @@ Seq::Seq(){
 	m_midiIn.addListener(this);
     
     // pitchs
-    // ableton pitch map
-    static const int abl[] = {
+    // stdr pitch map
+    static const int stdr[] = {
         36,// kick
-        38,// snare1
-        40,// snare2
-        42,// chh
-        46,// ohh
-        47,// perc3
-        48,// perc2
-        49 // os
+        41,// drm1
+        43,// drm2
+        38,// chh
+        39,// ohh
+        44,// perc3
+        42,// perc2
+        47 // os
     };
     
-    vector<int> ab_pitchmap (abl, abl + sizeof(abl) / sizeof(abl[0]) );
-    m_pitches["ableton"] = ab_pitchmap;
+    vector<int> stdr_pitchmap (stdr, stdr + sizeof(stdr) / sizeof(stdr[0]) );
+    m_pitches["stdr"] = stdr_pitchmap;
     
     ofLog(OF_LOG_NOTICE, "initialized Ancient2 sequencer with a resolution of: "+ofToString(m_max_ticks));
 }
@@ -114,8 +120,9 @@ void Seq::set_playing(bool status)
 
 void Seq::toggle_mute(int track, bool status)
 {
+    cout << track << endl;
     m_mutes[track] = status;
-    kill_events(10, m_pitches["ableton"].at(track));
+    kill_events(10, m_pitches["stdr"].at(track));
 }
 
 float Seq::get_bpm()
@@ -161,11 +168,6 @@ void Seq::set_classic_swing(float swing)
 
 void Seq::set_cycle_swing(float swing)
 {
-
-}
-
-void Seq::set_gauss_swing(float swing)
-{
     if(swing >= 1){ swing = 0.99; }
     if(swing <= -1){ swing = -0.99; }
     vector<float> groove;
@@ -187,6 +189,7 @@ void Seq::set_gauss_swing(float swing)
     m_groove = groove;
     update_drum_tracks(m_ancient->get_tracks());
 }
+
 
 void Seq::exit()
 {
@@ -246,7 +249,7 @@ void Seq::update_drum_tracks(vector<DTrack> *tracks) // v1, replace all
                 
             }
             // correct the overlaping events and update
-            correct_and_update(evts, tr_num, m_pitches["ableton"].at(tr_num));
+            correct_and_update(evts, tr_num, m_pitches["stdr"].at(tr_num));
         }
         unlock();
     }
@@ -485,10 +488,18 @@ void Seq::send_events(vector<Evt>* evts)
             if(ev->status)
             {
                 m_virtual_midiOut.sendNoteOn(ev->channel, ev->pitch, ev->vel);
+                if(m_hard_midiOut.isOpen())
+                {
+                    m_hard_midiOut.sendNoteOn(ev->channel, ev->pitch, ev->vel);
+                }
             }
             else
             {
                 m_virtual_midiOut.sendNoteOff(ev->channel, ev->pitch, ev->vel);
+                if(m_hard_midiOut.isOpen())
+                {
+                    m_hard_midiOut.sendNoteOff(ev->channel, ev->pitch, ev->vel);
+                }
             }
         }
     }

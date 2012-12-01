@@ -34,10 +34,9 @@ void testApp::setup()
     m_conf.euclid_bias = 0.;
     m_conf.euclid_density = 0.5;
     m_conf.euclid_permutation = 0.;
-    m_conf.euclid_evolution_rate = 1.;
+    m_conf.euclid_evolution_rate = 0.2;
     m_conf.euclid_permutation_rate = 1.;
-    
-    
+
     // gui
     hGui * gui = hGui::getInstance();
     
@@ -175,9 +174,9 @@ void testApp::setup()
     
     // GENERATE
     hPanel * panel_generate =
-    gui->addPanel("", mainPanel, HGUI_TOP_LEFT, 0, panel_global->getHeight() + (gui->margin1*2), panelW, 137, true);
+    gui->addPanel("", mainPanel, HGUI_TOP_LEFT, 0, panel_global->getHeight() + (gui->margin1*2), panelW-176, 137, true);
     
-    hPanel * panel_euclid = gui->addPanel("", panel_generate, HGUI_TOP_LEFT, gui->margin1, gui->margin1, panelW/4 - gui->margin1, panel_generate->getHeight()-gui->margin1*2, true);
+    hPanel * panel_euclid = gui->addPanel("", panel_generate, HGUI_TOP_LEFT, gui->margin1, gui->margin1, panelW/2 - gui->margin1, panel_generate->getHeight()-gui->margin1*2, true);
     hLabel * label_euclid = gui->addLabel("", panel_euclid, HGUI_TOP_LEFT, 2, 0, "EUCLIDEAN");
     
     hSlider* slider_evenness = gui->addSlider("evenness_slider", panel_euclid, HGUI_TOP_LEFT, gui->margin3, gui->margin1*2, 100);
@@ -207,6 +206,16 @@ void testApp::setup()
     slider_bias->setFloatVar(&m_conf.euclid_bias);
     hLabel * label_bias = gui->addLabel("", panel_euclid, HGUI_RIGHT, gui->margin3 ,0, "bias");
     
+    hSlider* slider_evolution_rate = gui->addSlider("evolution_rate_slider", panel_euclid, HGUI_NEXT_COL, gui->margin1*4, gui->margin1*2, 100);
+    slider_evolution_rate->setRange(0., 1., 2);
+    slider_evolution_rate->setFloatVar(&m_conf.euclid_evolution_rate);
+    hLabel * label_evolution_rate = gui->addLabel("", panel_euclid, HGUI_RIGHT, gui->margin3 , 0, "evolution rate");
+        
+    hSlider* slider_permutation_rate = gui->addSlider("permutation_rate_slider", panel_euclid, HGUI_NEXT_ROW, slider_evolution_rate->getX()-20,  gui->margin3, 100);
+    slider_permutation_rate->setRange(0., 1., 2);
+    slider_permutation_rate->setFloatVar(&m_conf.euclid_permutation_rate);
+    hLabel * label_permutation_rate = gui->addLabel("", panel_euclid, HGUI_RIGHT, gui->margin3 , 0, "permutation rate");
+    
     evts->addListener("onGenerate", this, &testApp::el_onGenerate);
     
     slider_evenness->setMessage("testApp.onGenerate");
@@ -214,6 +223,8 @@ void testApp::setup()
     slider_size->setMessage("testApp.onGenerate");
     slider_rotation->setMessage("testApp.onGenerate");
     slider_bias->setMessage("testApp.onGenerate");
+    slider_permutation_rate->setMessage("testApp.onGenerate");
+    slider_evolution_rate->setMessage("testApp.onGenerate");
     
     hPanel * panel_velocity = gui->addPanel("", panel_generate, HGUI_NEXT_COL, gui->margin1, gui->margin1, panelW/4 - gui->margin1, panel_generate->getHeight()-gui->margin1*2, true);
     hLabel * label_velocity = gui->addLabel("", panel_velocity, HGUI_TOP_LEFT, 2, 0, "VELOCITY");
@@ -258,6 +269,24 @@ void testApp::setup()
     evts->addListener("onVelRnd", this, &testApp::el_onVelRnd);
     button_rnd_vel->setMessage("onVelRnd");
     
+    hPanel * panel_evolve =
+    gui->addPanel("", mainPanel, HGUI_TOP_LEFT, panel_generate->getWidth()+8, panel_global->getHeight() + (gui->margin1*2), 168, 137, true);
+    hPanel * panel_subevolve = gui->addPanel("", panel_evolve, HGUI_TOP_LEFT, gui->margin1, gui->margin1, 168-gui->margin1*2, panel_evolve->getHeight()-gui->margin1*2, true);
+    hLabel * label_subevolve = gui->addLabel("", panel_subevolve, HGUI_TOP_LEFT, 2, 0, "EVOLVE");
+    hSlider* slider_evolve = gui->addSlider("evolve_slider", panel_subevolve, HGUI_TOP_LEFT, gui->margin3, gui->margin1*2, 100);
+    slider_evolve->setRange(0., 1.);
+    slider_evolve->setFloatVar(&m_conf.euclid_density);
+    hLabel * label_evolve = gui->addLabel("", panel_subevolve, HGUI_RIGHT, gui->margin3 ,0, "evolve");
+    
+    hSlider* slider_permute = gui->addSlider("permute_slider", panel_subevolve, HGUI_NEXT_ROW, gui->margin3, gui->margin3, 100);
+    slider_permute->setRange(0., 1.);
+    slider_permute->setFloatVar(&m_conf.euclid_permutation);
+    hLabel * label_permute = gui->addLabel("", panel_subevolve, HGUI_RIGHT, gui->margin3 ,0, "permute");
+    
+    evts->addListener("onEvolve", this, &testApp::el_onEvolve);
+    slider_evolve->setMessage("testApp.onEvolve");
+    slider_permute->setMessage("testApp.onEvolve");
+    
     
     evts->addListener("onMute", this, &testApp::el_onMute);
     /****
@@ -297,6 +326,16 @@ void testApp::setup()
     gui->sliderColor = ON_SECOND_COLOR;
     gui->editBackColor = ON_GREY_COLOR;
     gui->editTextColor = ON_MAIN_COLOR;
+    
+    /*
+    float x = 0.;
+    while(x < 1)
+    {
+        cout << Euclid::exp_ease(x, 0., x, 1.) << " " << x << endl;
+        
+        x += 0.01;
+    }
+    */
 }
 
 //--------------------------------------------------------------
@@ -373,7 +412,8 @@ void testApp::el_onSwing(hEventArgs &args)
     if(args.values.size() > 0)
     {
      //   m_ancient.set_swing(m_swing); OLD WAY
-        m_seq.set_gauss_swing(m_swing);
+        m_seq.set_classic_swing(m_swing);
+        //m_seq.set_cycle_swing(m_swing);
     }
 }
 
@@ -473,6 +513,11 @@ void testApp::el_onMute(hEventArgs& args)
     update_mutes();
 }
 
+void testApp::el_onEvolve(hEventArgs& args)
+{
+    update_evolve();
+}
+
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //--------------------------------------------------------------
@@ -534,12 +579,26 @@ void testApp::keyPressed(int key)
             b->bang();
             break;
             
+        case 44: // comma
+            m_conf.euclid_density = 0.08;
+            update_evolve();
+            break;
+        case 46: // dot
+            m_conf.euclid_density = 0.5;
+            update_evolve();
+            break;
+        case 47: // slash
+            m_conf.euclid_density = 0.92;
+            update_evolve();
+            break;
+            
         default:
             break;
     }
     
     // mutes
-    if(key >= 49 && key <= 58 )
+    cout << key << endl;
+    if(key >= 49 && key < 57 )
     {
         int idx = key - 49;
         if(m_modifiers.getAppleCommandModifier())
@@ -692,6 +751,11 @@ void testApp::update_conf(ConfTrack conf)
     m_conf.euclid_permutation_rate = conf.euclid_permutation_rate;
 }
 
+
+void testApp::update_evolve()
+{
+   m_ancient.set_evolution(m_conf.euclid_density, m_conf.euclid_permutation);
+}
 
 void testApp::update_play()
 {
