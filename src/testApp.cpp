@@ -353,7 +353,16 @@ void testApp::setup()
     vector<int> vels(4,15);
     Euclid::cross_assemble(orig, test_beat, vels , 0.5);
     */
+    /*
+    vector<bool> beat = Euclid::gen_bjorklund(16, 4);
+    Euclid::rotate_beat(beat, 0.15);
+    vector<bool> shadow = Euclid::shadow(beat,0.);
     
+    Euclid::dump_beat(beat, "beat");
+    Euclid::dump_beat(shadow, "shadow");
+    Euclid::permute(beat, shadow, 0.45);
+    Euclid::dump_beat(beat, "permutation");
+    */
     
 }
 
@@ -448,28 +457,28 @@ void testApp::el_onSxor(hEventArgs& args)
 {
     if(args.values.size() > 0)
     {
-        //cout << "LOL" << endl;
+        m_ancient.set_xor_variation(m_xorvar_ratio);
     }
 }
 void testApp::el_onHxor(hEventArgs& args)
 {
     if(args.values.size() > 0)
     {
-        //cout << "LOL" << endl;
+        m_ancient.set_xor_variation(m_xorvar_ratio);
     }
 }
 void testApp::el_onSjak(hEventArgs& args)
 {
     if(args.values.size() > 0)
     {
-        //cout << "LOL" << endl;
+        m_ancient.set_jaccard_variation(m_jakvar_ratio);
     }
 }
 void testApp::el_onHjak(hEventArgs& args)
 {
     if(args.values.size() > 0)
     {
-        //cout << "LOL" << endl;
+        m_ancient.set_jaccard_variation(m_jakvar_ratio);
     }
 }
 
@@ -548,6 +557,15 @@ void testApp::el_onEvolve(hEventArgs& args)
 void testApp::keyPressed(int key)
 {
     hButton * b;
+    
+    if(!m_keys[key])
+    {
+        m_keys[key] = ! m_keys[key];
+    }
+    else
+    {
+        return;
+    }
     switch (key)
     {
         case OF_KEY_RIGHT:
@@ -575,27 +593,32 @@ void testApp::keyPressed(int key)
             break;
             
         case 45: // minus
-            b = (hButton*)m_ui_elements["smooth_xor_ctrl"];
-            b->setPressed(true);
-            b->bang();
+                b = (hButton*)m_ui_elements["smooth_xor_ctrl"];
+                b->setPressed(true);
+                m_xorvar_ratio = 0.25;
+                b->bang();
             break;
             
         case 61: // equal
-            b = (hButton*)m_ui_elements["hard_xor_ctrl"];
-            b->setPressed(true);
-            b->bang();
+                b = (hButton*)m_ui_elements["hard_xor_ctrl"];
+                b->setPressed(true);
+                m_xorvar_ratio = 0.75;
+                b->bang();
+                
             break;
             
         case 91: // left square bracket
-            b = (hButton*)m_ui_elements["smooth_jak_ctrl"];
-            b->setPressed(true);
-            b->bang();
+                b = (hButton*)m_ui_elements["smooth_jak_ctrl"];
+                b->setPressed(true);
+                m_jakvar_ratio = 0.95;
+                b->bang();
             break;
             
         case 93: // right square bracket
-            b = (hButton*)m_ui_elements["hard_jak_ctrl"];
-            b->setPressed(true);
-            b->bang();
+                b = (hButton*)m_ui_elements["hard_jak_ctrl"];
+                b->setPressed(true);
+                m_jakvar_ratio = 0.99;
+                b->bang();
             break;
             
         case 44: // comma
@@ -612,16 +635,18 @@ void testApp::keyPressed(int key)
             break;
             
         case 108:
-            m_conf.euclid_permutation = ofRandom(0.17, 0.33);
-            update_evolve();
+
+                m_conf.euclid_permutation = ofRandom(0.20, 0.45);
+                update_evolve();
+
             break;
         case 59:
-            m_conf.euclid_permutation = ofRandom(0.33, 0.63);
-            update_evolve();
+                m_conf.euclid_permutation = ofRandom(0.45, 0.65);
+                update_evolve();
             break;
         case 39:
-            m_conf.euclid_permutation = ofRandom(0.77, 1.);
-            update_evolve();
+                m_conf.euclid_permutation = ofRandom(0.65, 1.);
+                update_evolve();
             break;
             
         default:
@@ -652,26 +677,55 @@ void testApp::keyPressed(int key)
 void testApp::keyReleased(int key)
 {
     hButton * b;
+    if(m_keys[key])
+    {
+        m_keys[key] = !m_keys[key];
+    }
+    else
+    {
+        return;
+    }
     switch (key)
     {
         case 45: // minus
             b = (hButton*)m_ui_elements["smooth_xor_ctrl"];
             b->setPressed(false);
+            if(!m_var_hold)
+            {
+                m_xorvar_ratio = 0.;
+                b->bang();
+            }
+            
             break;
             
         case 61: // equal
             b = (hButton*)m_ui_elements["hard_xor_ctrl"];
             b->setPressed(false);
+            if(!m_var_hold)
+            {
+                m_xorvar_ratio = 0.;
+                b->bang();
+            }
             break;
             
         case 91: // left square bracket
             b = (hButton*)m_ui_elements["smooth_jak_ctrl"];
             b->setPressed(false);
+            if(!m_var_hold)
+            {
+                m_jakvar_ratio = 0.;
+                b->bang();
+            }
             break;
             
         case 93: // right square bracket
             b = (hButton*)m_ui_elements["hard_jak_ctrl"];
             b->setPressed(false);
+            if(!m_var_hold)
+            {
+                m_jakvar_ratio = 0.;
+                b->bang();
+            }
             break;
         case 108:
             m_conf.euclid_permutation = 0.;

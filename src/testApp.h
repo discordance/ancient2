@@ -89,6 +89,7 @@ class testApp : public ofBaseApp, public hObject {
         float m_xorvar_ratio;
         float m_jakvar_ratio;
         map<int,bool> m_mutes;
+        map<int, bool> m_keys;
         
         // conf of current track
         ConfTrack m_conf;

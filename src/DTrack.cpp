@@ -186,14 +186,108 @@ void DTrack::set_groove(vector<float> groove)
 
 void DTrack::set_xor_variation(float thres, bool mode)
 {
-
+    if(!has_events())
+    {
+        return;
+    }
+    if(thres > 0)
+    {
+        // we take the quarter of the phrase
+        int div = 4;
+        
+        if((m_track_size/2)%div){
+            --div;
+        }
+        int vlengh = (m_track_size/div)/2;
+        // we roll a dice to make a start or ending var
+        int voffset = 0;
+        if(ofRandom(0, 2) > 1.)
+        {
+            voffset = (m_track_size/2) - vlengh;
+        }
+        
+        unsigned char rate = (unsigned char)ofMap(thres, 0, 1, 0, 255); // ok valid
+        vector<unsigned char> cbytes = steps_to_bytes(&m_track_current);
+        vector<unsigned char> rbytes;
+        vector<unsigned char>::iterator cbyte;
+        // iterate
+        for(cbyte = cbytes.begin(); cbyte != cbytes.end(); ++cbyte)
+        {
+            int ct = cbyte - cbytes.begin();
+            unsigned char tbyte = *cbyte;
+            float modifier = m_euclid_permutation_rate;
+            unsigned char varbyte = static_cast<unsigned char> (modifier*ofRandom(rate));
+            
+            if(mode) // full mode
+            {
+                tbyte = tbyte ^ varbyte;
+            }
+            else // partial mode
+            {
+                if(ct >= voffset && ct <= voffset+vlengh)
+                {
+                    tbyte = tbyte ^ varbyte;
+                }
+            }
+            
+            rbytes.push_back(tbyte);
+        }
+        
+        vector<int> res_vels = bytes_to_ints(rbytes);
+        
+        vector<int>::iterator vel;
+        for(vel = res_vels.begin(); vel != res_vels.end(); ++vel)
+        {
+            Step *cstep = &m_track_current.at(vel - res_vels.begin());
+            if(cstep->vel < *vel)
+            {
+                cstep->vel = *vel;
+            }
+        }
+    }
+    else
+    {
+        m_track_current = m_track_prev_current;
+    }
 }
 
 void DTrack::set_jaccard_variation(float thres, bool mode)
 {
-
+    if(!has_events())
+    {
+        return;
+    }
+    if(thres > 0.)
+    {
+        vector<int> vari = DTrack::jaccard_variation(&m_track_current, thres);
+        vector<int>::iterator vel;
+        // iterate
+        for(vel = vari.begin(); vel != vari.end(); ++vel)
+        {
+            Step *step = &m_track_current.at(vel - vari.begin());
+            step->vel = *vel;
+        }
+    }
+    else
+    {
+        m_track_current = m_track_prev_current;
+    }
 }
 
+bool DTrack::has_events()
+{
+    // get the current level / variat
+    vector<Step>::iterator step;
+    // iterate
+    for(step = m_track_current.begin(); step != m_track_current.end(); ++step)
+    {
+        if(step->vel)
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 
 void DTrack::evolve(float level, float permute)
@@ -205,9 +299,12 @@ void DTrack::evolve(float level, float permute)
     vector<bool> shad_permuted = m_shadow_beat;
     vector<bool> alter_permuted = m_alternation_beat;
     
-    Euclid::permute(permuted,  Euclid::shadow(m_vanilla_beat,m_euclid_bias), permute);
-    Euclid::permute(shad_permuted, Euclid::shadow(m_shadow_beat,m_euclid_bias), permute);
-    Euclid::permute(alter_permuted, Euclid::shadow(m_alternation_beat,m_euclid_bias), permute);
+    Euclid::permute(permuted,  m_permutation_places, permute);
+    shad_permuted = Euclid::shadow(permuted,m_euclid_bias);
+    alter_permuted = Euclid::alternation(permuted, 1, 2, m_euclid_bias);
+    // prune alternation et shadow
+    Euclid::prune(shad_permuted, 1-m_euclid_evolution_rate);
+    Euclid::prune(alter_permuted, 1-m_euclid_evolution_rate);
     
     vector<int> vels = Euclid::assemble(permuted, m_velocities);
     
@@ -244,6 +341,7 @@ void DTrack::evolve(float level, float permute)
     }
     
     m_track_current = generate_phr(vels, m_track_groove);
+    m_track_prev_current = m_track_current;
      
 }
 
@@ -291,4 +389,122 @@ vector<Step> DTrack::generate_empty_phr(int size)
         res.push_back(st);
     }
     return res;
+}
+
+// byte array to vector of int
+vector<int> DTrack::bytes_to_ints(vector<unsigned char> bytes)
+{
+    vector<int> res;
+    vector<unsigned char>::iterator cbyte;
+    for(cbyte = bytes.begin(); cbyte != bytes.end(); ++cbyte)
+    {
+        int a = (*cbyte & 0x0f);
+        int b = *cbyte >> 4;
+        res.push_back(a);
+        res.push_back(b);
+    }
+    return res;
+}
+
+// vector of steps to byte array
+vector<unsigned char> DTrack::steps_to_bytes(vector<Step> *phr)
+{
+    vector<unsigned char> res;
+    for(int i = 0; i < phr->size(); i+=2)
+    {
+        unsigned char cbyte;
+        cbyte = (cbyte & 0xF0) | (phr->at(i).vel & 0xF); // write low quartet
+        cbyte = (cbyte & 0x0F) | ((phr->at(i+1).vel & 0xF) << 4);
+        res.push_back(cbyte);
+    }
+    return res;
+}
+
+
+// get a variation according to the weighted jaccard method
+vector<int> DTrack::jaccard_variation(vector<Step> *phr, float thres)
+{
+    thres = ofClamp(thres, 0.97, 0.99);
+    int inc = 4;
+    vector<int> target;
+    vector<int> goal;
+    target = steps_to_vel(phr);
+    for(int i = 0; i < target.size(); i += inc)
+    {
+        int to = (inc > target.size()-i)? target.size()-i : inc;
+        to += i;
+        vector<int>::const_iterator beg = target.begin() + i;
+        vector<int>::const_iterator end = beg + (to-i);
+        vector<int> part(beg,end);
+        vector<int> res;
+        float score = 1;
+        int stedv = 15;
+        vector<int> rnd;
+        while (score > thres) {
+            
+            for(int j = i; j < to; ++j)
+            {
+                rnd.push_back(ofClamp(Euclid::normal(target.at(j),stedv),0,15));
+            }
+            res = rnd;
+            score = DTrack::wjacc(rnd, part);
+            rnd.clear();
+            stedv -= 0.1;
+        }
+        goal.insert(goal.end(), res.begin(), res.end());
+    }
+    DTrack::upper_compressor(&goal,m_velocity_max);
+    return goal;
+}
+
+vector<int> DTrack::steps_to_vel(vector<Step> *phr)
+{
+    vector<int> res;
+    vector<Step>::iterator step;
+    for(step = phr->begin(); step != phr->end(); ++step)
+    {
+        res.push_back(step->vel);
+    }
+    return res;
+}
+
+// weighted jaccard distance
+float DTrack::wjacc(vector<int>& s1, vector<int>& s2)
+{
+    int l1, l2;
+    l1 = s1.size();
+    l2 = s2.size();
+    int ct = 0;
+    float  a = 0, b = 0 , same = 0, diff = 0 ;
+    if (l1 == 0 || l1 != l2) // lengh > 0 and same length
+    {
+        return -1.;
+    }
+    if(s1 == s2)
+    {
+        return 0.;
+    }
+    while (ct != l1)
+    {
+        if (s1.at(ct) == s2.at(ct)) {
+            ++same;
+        } else {
+            a = pow((float)s1.at(ct),2);
+            b = pow((float)s2.at(ct),2);
+            diff += abs(a-b);
+        }
+        ++ct;
+    }
+    return (1 - (same / (diff + same)));
+}
+void DTrack::upper_compressor(vector<int> *phr, int max_vel)
+{
+    vector<int>::iterator vel;
+    for(vel = phr->begin(); vel != phr->end(); ++vel)
+    {
+        if(*vel > max_vel)
+        {
+            *vel = max_vel;
+        }
+    }
 }

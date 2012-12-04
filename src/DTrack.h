@@ -44,6 +44,7 @@ class DTrack {
         vector<float> m_track_groove; // conf: disk
         // current form of the track after transforms
         vector<Step> m_track_current; // conf: disk
+        vector<Step> m_track_prev_current; // conf: disk
         // stores the intervals between onsets
         vector<bool> m_vanilla_beat; // conf: disk
         vector<bool> m_shadow_beat; // conf: disk
@@ -74,7 +75,21 @@ class DTrack {
         void update_groove();
         vector<Step> generate_empty_phr(int size);
         vector<Step> generate_phr(vector<int> & vels, vector<float> & groove);
+    
+        // utils
+        static vector<unsigned char> steps_to_bytes(vector<Step> *phr);
+        static vector<int> bytes_to_ints(vector<unsigned char> bytes);
+        static vector<int> steps_to_vel(vector<Step> *phr);
+    
+        // fx utils
+        vector<int> jaccard_variation(vector<Step> *phr, float thres);
+        static void upper_compressor(vector<int> *phr, int max_vel);
+        // weigthed jaccard
+        static float wjacc(vector<int>& s1, vector<int>& s2);
+    
         
+    
+
 };
 
 #endif

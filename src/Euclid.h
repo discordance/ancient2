@@ -68,13 +68,16 @@ class Euclid {
         static void permute(vector<bool> & beat, vector<bool> shadow, float rate);
     
         // debug
-        static void dump_beat(vector<bool> & beat);
+        static void dump_beat(vector<bool> & beat, string message);
         static void dump_vels(vector<int> & vels);
         
         /*
         static vector<int> generate_velocities(int num, int max = 15);
         static vector<int> rnd_parts(int num, int max);
-        */ 
+        */
+    
+        // normal gaussian rand
+        static float normal(float mean, float stdev);
         
     private:
         // utils

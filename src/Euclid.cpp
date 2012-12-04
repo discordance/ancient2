@@ -134,6 +134,7 @@ void Euclid::rotate_beat(vector<bool> & beat, float rotation)
 vector<bool> Euclid::shadow(vector<bool> & beat, float bias, float prune)
 {
     vector<bool> res(beat.size(),false);
+    
     if(!accumulate(beat.begin(), beat.end(), 0))
     {
         return res;
@@ -143,6 +144,7 @@ vector<bool> Euclid::shadow(vector<bool> & beat, float bias, float prune)
     int shade = 0;
     vector<bool>::iterator first = find(beat.begin(), beat.end(), true);
     pos += first - beat.begin();
+    cout << first - beat.begin() << endl;
     
     vector<int>::iterator ival;
     for(ival = ivals.begin(); ival != ivals.end(); ++ival)
@@ -155,6 +157,7 @@ vector<bool> Euclid::shadow(vector<bool> & beat, float bias, float prune)
             res.at(shade) = true;
         }
     }
+     
     return res;
 }
 
@@ -239,7 +242,6 @@ void Euclid::permute(vector<bool> & beat, vector<bool> shadow, float rate)
     for(rev = tmp.rbegin(); rev != tmp.rend() && onsets; ++rev )
     {
         int idx = (tmp.rend() - rev) - 1;
-        
         if(shadow.at(idx))
         {
             last_swap = idx;
@@ -249,7 +251,6 @@ void Euclid::permute(vector<bool> & beat, vector<bool> shadow, float rate)
                 beat.at(last_swap) = true;
                 last_onset = last_swap = -1;
             }
-            
         }
         if(*rev)
         {
@@ -264,7 +265,6 @@ void Euclid::permute(vector<bool> & beat, vector<bool> shadow, float rate)
             --onsets;
         }
     }
-    
 }
 
 /**
@@ -360,7 +360,7 @@ void Euclid::prune(vector<bool> & beat, float rate)
     }
 }
 
-void Euclid::dump_beat(vector<bool> & beat)
+void Euclid::dump_beat(vector<bool> & beat, string message)
 {
     string res = "[";
     for(vector<bool>::iterator it = beat.begin(); it != beat.end(); it++)
@@ -372,7 +372,7 @@ void Euclid::dump_beat(vector<bool> & beat)
         }
     }
     res += "]";
-    cout << "beat debug: " << res << endl;
+    cout << res << " << " << message << endl;
 }
 
 void Euclid::dump_vels(vector<int> & vels)
@@ -714,4 +714,11 @@ vector<int> Euclid::assemble(vector<bool> beat, vector<int> vels)
         }
     }
     return res;
+}
+
+// gaussian random
+float Euclid::normal(float mean, float stdev)
+{
+    float rnd = (ofRandom(1) * 2 - 1) + (ofRandom(1) * 2 - 1) + (ofRandom(1) * 2 - 1);
+    return rnd * stdev + mean;
 }
