@@ -7,6 +7,7 @@
 #include "hWidget.h"
 
 // test
+#include "ofxXmlSettings.h"
 #include "PennerEasing/Sine.h"
 #include "Ancient.h"
 #include "Seq.h"
@@ -58,6 +59,9 @@ class testApp : public ofBaseApp, public hObject {
         void el_onMute(hEventArgs& args);
     
         void el_onEvolve(hEventArgs& args);
+        void el_onPresetName(hEventArgs& args);
+        void el_onSave(hEventArgs& args);
+        void el_onLoad(hEventArgs& args);
     
         // constants
         static int const ON_VAR_COLOR = 0xAAAAAA;//
@@ -103,5 +107,6 @@ class testApp : public ofBaseApp, public hObject {
         void update_selection();
         void update_conf(ConfTrack conf);
         void drawTracks();
+        void refresh_presets();
 		
 };

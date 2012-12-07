@@ -11,6 +11,7 @@
 #include <vector>
 #include <map>
 #include <mach/mach_time.h>
+#include "PennerEasing/Sine.h"
 #include "ofxMidi.h"
 #include "utils/ofLog.h"
 #include "utils/ofUtils.h"
@@ -40,6 +41,11 @@ class Seq : public ofxMidiListener, public ofThread
         void set_bpm(int bpm);
     
         void set_playing(bool status);
+        void set_groove_point();
+        void reset_groove();
+        vector<float> get_groove();
+        void set_groove(vector<float> groove);
+        int get_quav();
     
         // SWINGGG
         void set_classic_swing(float swing);
@@ -63,6 +69,7 @@ class Seq : public ofxMidiListener, public ofThread
         void kill_events(int chan);
         void kill_events(int chan, int pitch);
         void correct_and_update(map<int, vector<int> >& evt_map, int track, int pitch);
+        void do_nudge();
         
         // midi
         ofxMidiIn   m_midiIn;
@@ -71,6 +78,9 @@ class Seq : public ofxMidiListener, public ofThread
         ofxMidiOut  m_hard_midiOut; // for hardware routing
         ofxMidiMessage m_midiMessage;
         
+        // nudge
+        float m_nudge;
+    
         // mutes
         map<int, bool> m_mutes;
     
@@ -107,6 +117,9 @@ class Seq : public ofxMidiListener, public ofThread
         // thread
         void threadedFunction();
         void sendMidiClock(int status);
+    
+        //testing
+        vector<bool> m_gonsets;
 };
 
 

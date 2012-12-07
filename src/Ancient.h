@@ -30,15 +30,16 @@ class Ancient : public ofThread
         void set_groove(vector<float> groove);
         void set_xor_variation(float ratio);
         void set_jaccard_variation(float thres);
+        void set_hold_variation(bool hold);
         bool is_processing();
         void notify(int quav); // be informed that a bar is going on
         vector<DTrack> * get_tracks();
         ConfTrack get_track_conf(int idx);
         vector<int> get_track_velocities(int idx);
-        bool m_hold_variation;
         int m_bar, m_beat, m_quav;
     
     protected:
+        bool m_hold_variation;
         bool m_processing;
         vector<DTrack> m_tracks;
         Seq *m_seq;
@@ -48,6 +49,9 @@ class Ancient : public ofThread
         float m_jacc_variation;
         float m_level;
         float m_variat;
+        
+        // states
+        bool m_on_variation;
         
         // queue handling
         vector<string> m_tasks;

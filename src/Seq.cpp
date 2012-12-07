@@ -32,7 +32,8 @@ Seq::Seq(){
     m_mach_multiplier = 1.0 / m_mach_multiplier; // to nano seconds factor
     
     m_groove = vector<float>(SEQ_LOOP_SIZE,0.);
-    
+    m_gonsets = vector<bool>(m_max_ticks/8, false);
+
     // init mutes to 0
     for(int i = 0; i < 8; ++i){ m_mutes[i] = false; }
     
@@ -64,11 +65,11 @@ Seq::Seq(){
         36,// kick
         41,// drm1
         43,// drm2
-        38,// chh
-        39,// ohh
-        44,// perc3
-        42,// perc2
-        47 // os
+        38,// sn
+        39,// cl
+        42,// cym
+        44,// perc2
+        46 // os
     };
     
     vector<int> stdr_pitchmap (stdr, stdr + sizeof(stdr) / sizeof(stdr[0]) );
@@ -116,6 +117,99 @@ void Seq::set_playing(bool status)
     {
         startThread();
     }
+}
+
+vector<float> Seq::get_groove()
+{
+    return m_groove;
+}
+
+void Seq::set_groove(vector<float> groove)
+{
+    m_groove = groove;
+    update_drum_tracks(m_ancient->get_tracks());
+}
+
+void Seq::set_groove_point()
+{
+    if(!m_started)
+    {
+        return;
+    }
+    
+    if(accumulate(m_gonsets.begin(),  m_gonsets.end(), 0) >= 1)
+    {
+        m_gonsets = vector<bool>(m_max_ticks/8, false);
+    }
+    int at = (m_ticks+m_midi_delay)%(m_max_ticks/8);
+    m_gonsets.at(at) = true;
+    vector<float> grooves(4, 0.0);
+    vector<int> indexes;
+    for(vector<bool>::iterator it = m_gonsets.begin(); it != m_gonsets.end(); ++it)
+    {
+        int ct = it - m_gonsets.begin();
+        if(*it)
+        {
+            float cont_step = (float)ct/(m_resolution/4);
+            float dec_part = cont_step-floor(cont_step);
+            int step = floor(cont_step);
+            if(dec_part > 0.5)
+            {
+                step+=1;
+                grooves.at(step%grooves.size()) = - (1-dec_part);
+            }
+            else
+            {
+                grooves.at(step%grooves.size()) = dec_part;
+            }
+            indexes.push_back(step%grooves.size());
+        }
+    }
+    
+    int bound_low = 0;
+    int bound_up = 0;
+    int idx = 0;
+    float last = 0.;
+    for(vector<float>::iterator grv = grooves.begin(); grv != grooves.end(); ++grv)
+    {
+        int cct = grv - grooves.begin();
+        if(*grv == 0. && indexes.size())
+        {
+            if(idx != indexes.size())
+            {
+                bound_up = indexes.at(idx);
+                float next = grooves.at(indexes.at(idx));
+                float time = ofMap(cct, (float)bound_low, (float)bound_up, 0, 1);
+                *grv = Sine::easeIn(time, 0. , time, next);
+            }
+            else
+            {
+                bound_up = grooves.size()-1;
+                float time = ofMap(cct, (float)bound_low, (float)bound_up, 0, 1);
+                *grv = Sine::easeOut(time, 0. , time, last);//ofMap(cct, (float)bound_low, (float)bound_up, last, 0);
+            }
+        }
+        else
+        {
+            bound_low = cct;
+            last = *grv;
+            idx++;
+        }
+    }
+
+    for(vector<float>::iterator grv = m_groove.begin(); grv != m_groove.end(); ++grv)
+    {
+        int cct = grv - m_groove.begin();
+        *grv = grooves.at(cct%grooves.size());
+    }
+    update_drum_tracks(m_ancient->get_tracks());
+}
+
+void Seq::reset_groove()
+{
+    m_gonsets = vector<bool>(m_max_ticks/8,false);
+    m_groove = vector<float>(SEQ_LOOP_SIZE, 0.0);
+    update_drum_tracks(m_ancient->get_tracks());
 }
 
 void Seq::toggle_mute(int track, bool status)
@@ -218,7 +312,7 @@ void Seq::update_drum_tracks(vector<DTrack> *tracks) // v1, replace all
             // get current
             vector<Step>* current = track->get_current();
             int ps = current->size(); // phrase size
-            vector<Step>::iterator step;
+            //vector<Step>::iterator step;
             map<int, vector<int> > evts; // events map for the track to correct it
             
             for(int i = 0; i < m_max_steps; ++i)
@@ -248,6 +342,7 @@ void Seq::update_drum_tracks(vector<DTrack> *tracks) // v1, replace all
                 
             }
             // correct the overlaping events and update
+            //cout << "track : " << track->get_conf().track_id << " size: " << evts.size() << endl;
             correct_and_update(evts, tr_num, m_pitches["stdr"].at(tr_num));
         }
         unlock();
@@ -318,10 +413,16 @@ void Seq::reset_events()
         // init the vector event pointers
         for(int i = 0; i < m_max_ticks; ++i)
         {
-            m_events.push_back(vector<Evt>(0)); 
+            m_events.push_back(vector<Evt>(0));
         }
 }
 
+int Seq::get_quav()
+{
+    int quav = (m_ticks+m_midi_delay) / (m_resolution/4) ;
+    quav = quav % (m_max_ticks/(m_resolution/4));
+    return quav;
+}
 
 // thread
 void Seq::threadedFunction()
@@ -330,10 +431,12 @@ void Seq::threadedFunction()
     sendMidiClock(1);
     while( isThreadRunning() != 0 )
     {
-        int quav = (m_ticks+m_midi_delay) / (m_resolution/4) ;
-        quav = quav % (m_max_ticks/(m_resolution/4));
-        m_ancient->notify( quav );
-        
+
+        if((m_ticks+m_midi_delay) % (int)(m_resolution*0.25) == 0)
+        {
+            m_ancient->notify( get_quav() );
+        }
+       //
         if( lock() )
         {
             int at = (m_ticks+m_midi_delay)%m_max_ticks;
@@ -452,9 +555,9 @@ void Seq::add_event(int start, int end, int track, int pitch, int vel)
     off.pitch = pitch;
     off.vel = vel;
     
-    vector<Evt>* event_line_on = &m_events.at(start);
+    vector<Evt>* event_line_on = &m_events.at(start%m_events.size());
     event_line_on->push_back(on);
-    vector<Evt>* event_line_off = &m_events.at(end);
+    vector<Evt>* event_line_off = &m_events.at(end%m_events.size());
     event_line_off->push_back(off);
 }
 
@@ -475,6 +578,10 @@ void Seq::sendMidiClock(int status)
         bytes.push_back(MIDI_TIME_CLOCK);
     }
     m_sync_out.sendMidiBytes(bytes);
+    if(m_hard_midiOut.isOpen())
+    {
+        m_hard_midiOut.sendMidiBytes(bytes);
+    }
 }
 
 void Seq::send_events(vector<Evt>* evts)

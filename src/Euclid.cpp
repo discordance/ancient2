@@ -144,7 +144,7 @@ vector<bool> Euclid::shadow(vector<bool> & beat, float bias, float prune)
     int shade = 0;
     vector<bool>::iterator first = find(beat.begin(), beat.end(), true);
     pos += first - beat.begin();
-    cout << first - beat.begin() << endl;
+   // cout << first - beat.begin() << endl;
     
     vector<int>::iterator ival;
     for(ival = ivals.begin(); ival != ivals.end(); ++ival)
@@ -233,36 +233,72 @@ vector<int> Euclid::discrete_random(int size, int max, int min)
 void Euclid::permute(vector<bool> & beat, vector<bool> shadow, float rate)
 {
     vector<bool>::reverse_iterator rev;
+    vector<bool>::iterator fw;
     vector<bool> tmp = beat; //copy
     int onsets = accumulate(tmp.begin(), tmp.end(), 0);
     onsets = floor((float)onsets*rate);
     int last_swap = -1;
     int last_onset = -1;
     
-    for(rev = tmp.rbegin(); rev != tmp.rend() && onsets; ++rev )
+    if(rate < 0.5)
     {
-        int idx = (tmp.rend() - rev) - 1;
-        if(shadow.at(idx))
+        rate = ofMap(rate, 0., 0.5, 0., 1.);
+        for(rev = tmp.rbegin(); rev != tmp.rend() && onsets; ++rev )
         {
-            last_swap = idx;
-            if(last_onset > -1)
+            int idx = (tmp.rend() - rev) - 1;
+            if(shadow.at(idx))
             {
-                beat.at(last_onset) = false;
-                beat.at(last_swap) = true;
-                last_onset = last_swap = -1;
+                last_swap = idx;
+                if(last_onset > -1)
+                {
+                    beat.at(last_onset) = false;
+                    beat.at(last_swap) = true;
+                    last_onset = last_swap = -1;
+                }
+            }
+            if(*rev)
+            {
+                last_onset = idx;
+                
+                if(last_swap > -1)
+                {
+                    beat.at(last_onset) = false;
+                    beat.at(last_swap) = true;
+                    last_onset = last_swap = -1;
+                }
+                --onsets;
             }
         }
-        if(*rev)
+    }
+    else
+    {
+        rate = ofMap(rate, 0.5, 1, 0., 1.);
+        for(fw = tmp.begin(); fw != tmp.end() && onsets; ++fw )
         {
-            last_onset = idx;
-            
-            if(last_swap > -1)
+            int idx = fw - tmp.begin();
+            if(shadow.at(idx))
             {
-                beat.at(last_onset) = false;
-                beat.at(last_swap) = true;
-                last_onset = last_swap = -1;
+                last_swap = idx;
+                if(last_onset > -1)
+                {
+                    beat.at(last_onset) = false;
+                    beat.at(last_swap) = true;
+                    last_onset = last_swap = -1;
+                }
             }
-            --onsets;
+            if(*fw)
+            {
+                last_onset = idx;
+                
+                if(last_swap > -1)
+                {
+                    beat.at(last_onset) = false;
+                    beat.at(last_swap) = true;
+                    last_onset = last_swap = -1;
+                }
+                --onsets;
+            }
+
         }
     }
 }

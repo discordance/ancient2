@@ -11,6 +11,7 @@
 Ancient::Ancient()
 {
     m_hold_variation = false;
+    m_on_variation = false;
     m_swing = 0.;
     m_xor_variation = 0.;
     m_jacc_variation = 0;
@@ -84,22 +85,30 @@ void Ancient::notify(int quav)
     m_quav = quav;
     m_bar = floor(quav/16);
     m_beat = floor(quav/4);
-    /*
-    if(m_auto_variation)
+    
+    if(m_beat % 2 != 0)
     {
-        if(m_xor_variation > 0.)
+        if(m_hold_variation && !m_on_variation)
         {
-            set_xor_variation(m_xor_variation);
-            return;
-        }
-        
-        if(m_jacc_variation > 0.)
-        {
-            set_jaccard_variation(m_jacc_variation);
-            return;
+            if(m_xor_variation > 0)
+            { 
+                set_xor_variation(m_xor_variation);
+            }
+            if(m_jacc_variation > 0)
+            {
+                set_jaccard_variation(m_jacc_variation);
+            }
+            m_on_variation = !m_on_variation;
         }
     }
-     */
+    else
+    {
+        if(m_hold_variation && m_on_variation)
+        {
+            m_on_variation = !m_on_variation;
+            m_tasks.push_back("reset_variation");
+        }
+    }
 }
 
 void Ancient::update()
@@ -147,6 +156,19 @@ void Ancient::set_evolution(float level, float variat)
     m_level = level;
     m_variat = variat;
     m_tasks.push_back("evolve");
+}
+
+void Ancient::set_hold_variation(bool hold)
+{
+    m_hold_variation = hold;
+    if(!m_hold_variation)
+    {
+        m_on_variation = m_hold_variation;
+        m_jacc_variation = 0;
+        m_xor_variation = 0;
+        set_xor_variation(m_xor_variation);
+        set_jaccard_variation(m_jacc_variation);
+    }
 }
 
 void Ancient::set_seq(Seq *seq)
@@ -227,6 +249,11 @@ void Ancient::threadedFunction()
                     else if(task == "evolve")
                     {
                         track->evolve(m_level, m_variat);
+                    }
+                    else if (task == "reset_variation")
+                    {
+                        track->set_xor_variation(0);
+                        track->set_jaccard_variation(0);
                     }
                 }
             }

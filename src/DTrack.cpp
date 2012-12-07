@@ -97,6 +97,60 @@ vector<Step> * DTrack::get_current()
     return &m_track_current;
 }
 
+void DTrack::add_to_preset(ofxXmlSettings * settings)
+{
+    ConfTrack conf = get_conf();
+    settings->setValue("tracks:"+ofToString(conf.track_id)+":id",conf.track_id);
+    settings->setValue("tracks:"+ofToString(conf.track_id)+":size",conf.track_size);
+    settings->setValue("tracks:"+ofToString(conf.track_id)+":onsets",conf.track_onsets);
+    settings->setValue("tracks:"+ofToString(conf.track_id)+":rotation",conf.track_rotation);
+    settings->setValue("tracks:"+ofToString(conf.track_id)+":evenness",conf.track_evenness);
+    settings->setValue("tracks:"+ofToString(conf.track_id)+":velocity_mode",(int)conf.velocity_mode);
+    settings->setValue("tracks:"+ofToString(conf.track_id)+":velocity_max",conf.velocity_max);
+    settings->setValue("tracks:"+ofToString(conf.track_id)+":velocity_min",conf.velocity_min);
+    settings->setValue("tracks:"+ofToString(conf.track_id)+":euclid_bias",conf.euclid_bias);
+    settings->setValue("tracks:"+ofToString(conf.track_id)+":euclid_density",conf.euclid_density);
+    settings->setValue("tracks:"+ofToString(conf.track_id)+":euclid_permutation",conf.euclid_permutation);
+    settings->setValue("tracks:"+ofToString(conf.track_id)+":euclid_evolution_rate",conf.euclid_evolution_rate);
+    settings->setValue("tracks:"+ofToString(conf.track_id)+":euclid_permutation_rate",conf.euclid_permutation_rate);
+    
+    vector<int>::iterator int_erator;
+    vector<bool>::iterator bool_erator;
+    for(int_erator = m_velocities.begin(); int_erator != m_velocities.end(); ++int_erator)
+    {
+        settings->setValue("tracks:"+ofToString(conf.track_id)+":velocities:"+ofToString(int_erator-m_velocities.begin()), *int_erator);
+    }
+    
+    for(bool_erator = m_vanilla_beat.begin(); bool_erator != m_vanilla_beat.end(); ++bool_erator)
+    {
+        settings->setValue("tracks:"+ofToString(conf.track_id)+":vanillia_beat:"+ofToString(bool_erator-m_vanilla_beat.begin()), *bool_erator);
+    }
+    for(bool_erator = m_shadow_beat.begin(); bool_erator != m_shadow_beat.end(); ++bool_erator)
+    {
+        settings->setValue("tracks:"+ofToString(conf.track_id)+":shadow_beat:"+ofToString(bool_erator-m_shadow_beat.begin()), *bool_erator);
+    }
+    for(bool_erator = m_alternation_beat.begin(); bool_erator != m_alternation_beat.end(); ++bool_erator)
+    {
+        settings->setValue("tracks:"+ofToString(conf.track_id)+":alternation_beat:"+ofToString(bool_erator-m_alternation_beat.begin()), *bool_erator);
+    }
+    for(bool_erator = m_permutation_places.begin(); bool_erator != m_permutation_places.end(); ++bool_erator)
+    {
+        settings->setValue("tracks:"+ofToString(conf.track_id)+":permutation_places:"+ofToString(bool_erator-m_permutation_places.begin()), *bool_erator);
+    }
+    
+    // current
+    vector<Step> * curr = &m_track_current;
+    vector<Step>::iterator step;
+    for(step = curr->begin(); step != curr->end(); ++step)
+    {
+        settings->setValue("tracks:"+ofToString(conf.track_id)+":curr:"+ofToString(step-curr->begin())+":vel",step->vel);
+        settings->setValue("tracks:"+ofToString(conf.track_id)+":curr:"+ofToString(step-curr->begin())+":dur",step->dur);
+        settings->setValue("tracks:"+ofToString(conf.track_id)+":curr:"+ofToString(step-curr->begin())+":chance",step->chance);
+        // @TODO
+        //preset.setValue("tracks:"+ofToString(conf.track_id)+":curr:"+ofToString(step-curr->begin())+":dur",step->);
+    }
+}
+
 void DTrack::generate(ConfTrack conf)
 {
     set_conf(conf);
@@ -251,6 +305,8 @@ void DTrack::set_xor_variation(float thres, bool mode)
     }
 }
 
+
+
 void DTrack::set_jaccard_variation(float thres, bool mode)
 {
     if(!has_events())
@@ -265,7 +321,11 @@ void DTrack::set_jaccard_variation(float thres, bool mode)
         for(vel = vari.begin(); vel != vari.end(); ++vel)
         {
             Step *step = &m_track_current.at(vel - vari.begin());
-            step->vel = *vel;
+            //step->vel = *vel;
+            if(step->vel < *vel)
+            {
+                step->vel = *vel;
+            }
         }
     }
     else
@@ -410,7 +470,12 @@ vector<int> DTrack::bytes_to_ints(vector<unsigned char> bytes)
 vector<unsigned char> DTrack::steps_to_bytes(vector<Step> *phr)
 {
     vector<unsigned char> res;
-    for(int i = 0; i < phr->size(); i+=2)
+    int size = phr->size();
+    if (size%2 == 1)
+    {
+        size--;
+    }
+    for(int i = 0; i < size; i+=2)
     {
         unsigned char cbyte;
         cbyte = (cbyte & 0xF0) | (phr->at(i).vel & 0xF); // write low quartet

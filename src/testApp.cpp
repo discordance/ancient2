@@ -288,6 +288,27 @@ void testApp::setup()
     slider_permute->setMessage("testApp.onEvolve");
     
     
+    // Library and presets
+    hTextBox * box_preset_name = gui->addTextBox("preset_name_box", panel_library,  HGUI_TOP_LEFT,  gui->margin3, gui->margin1*2, 70, "");
+    evts->addListener("onPresetName", this, &testApp::el_onPresetName);
+    box_preset_name->setMessage("testApp.onPresetName");
+
+    m_ui_elements["preset_name_box"] = box_preset_name;
+    hButton* button_save = gui->addButton("button_save", panel_library, HGUI_RIGHT, gui->margin3, 0, 30, "save");
+    button_save->setHeight(box_preset_name->getHeight());
+    evts->addListener("onSave", this, &testApp::el_onSave);
+    button_save->setMessage("testApp.onSave");
+    
+    hListBox * list_presets = gui->addListBox("list_presets", panel_library, HGUI_RIGHT, gui->margin2, 0, 129);
+    //
+    m_ui_elements["list_presets"] = list_presets;
+    
+    
+    hButton* button_load = gui->addButton("button_load", panel_library, HGUI_TOP_LEFT, 80, gui->margin1*2 + box_preset_name->getHeight()+gui->margin3, 30, "load");
+    button_load->setHeight(box_preset_name->getHeight());
+    evts->addListener("onLoad", this, &testApp::el_onLoad);
+    button_load->setMessage("testApp.onLoad");
+    
     evts->addListener("onMute", this, &testApp::el_onMute);
     /****
      *  MIXER GUI
@@ -313,13 +334,7 @@ void testApp::setup()
         }
     }
     
-    //hPanel * panel_mixer =
-    //gui->addPanel("", mainPanel, HGUI_TOP_LEFT, 0, mainPanel->getHeight() - 116, panelW, 116, true);
-    
-    //vector<bool> test = Euclid::gen_bjorklund(16, 4);
-    //Euclid::dump_beat(test);
-    //Euclid::rotate_beat(test, 0.15);
-    //Euclid::dump_beat(test);
+    refresh_presets();
     
     // color shit
     gui->checkBoxColor = ON_MAIN_COLOR;
@@ -327,42 +342,6 @@ void testApp::setup()
     gui->editBackColor = ON_GREY_COLOR;
     gui->editTextColor = ON_MAIN_COLOR;
     
-    /*
-    vector <bool> orig, test_beat, shadow;
-    int n = 0;
-    while(n<16)
-    {
-        if(n%4==0)
-        {
-            test_beat.push_back(true);
-        }
-        else
-        {
-            test_beat.push_back(false);
-        }
-        n++;
-    }
-    shadow = Euclid::shadow(test_beat,0.2);
-    orig = test_beat;
-    
-    Euclid::dump_beat(test_beat);
-    Euclid::dump_beat(shadow);
-    Euclid::permute(test_beat, shadow, 0.5);
-    Euclid::dump_beat(test_beat);
-    
-    vector<int> vels(4,15);
-    Euclid::cross_assemble(orig, test_beat, vels , 0.5);
-    */
-    /*
-    vector<bool> beat = Euclid::gen_bjorklund(16, 4);
-    Euclid::rotate_beat(beat, 0.15);
-    vector<bool> shadow = Euclid::shadow(beat,0.);
-    
-    Euclid::dump_beat(beat, "beat");
-    Euclid::dump_beat(shadow, "shadow");
-    Euclid::permute(beat, shadow, 0.45);
-    Euclid::dump_beat(beat, "permutation");
-    */
     
 }
 
@@ -449,7 +428,7 @@ void testApp::el_onVarHold(hEventArgs &args)
 {
     if(args.values.size() > 0)
     {
-
+        m_ancient.set_hold_variation(m_var_hold);
     }
 }
 
@@ -457,28 +436,84 @@ void testApp::el_onSxor(hEventArgs& args)
 {
     if(args.values.size() > 0)
     {
-        m_ancient.set_xor_variation(m_xorvar_ratio);
+        hButton * b;
+        b = (hButton*)m_ui_elements["smooth_xor_ctrl"];
+        if(b->isPressed())
+        {
+            m_xorvar_ratio = 0.25;
+            m_ancient.set_xor_variation(m_xorvar_ratio);
+        }
+        else
+        {
+            if(!m_var_hold)
+            {
+                m_xorvar_ratio = 0.;
+                m_ancient.set_xor_variation(m_xorvar_ratio);
+            }
+        }
     }
 }
 void testApp::el_onHxor(hEventArgs& args)
 {
     if(args.values.size() > 0)
     {
-        m_ancient.set_xor_variation(m_xorvar_ratio);
+        hButton * b;
+        b = (hButton*)m_ui_elements["hard_xor_ctrl"];
+        if(b->isPressed())
+        {
+            m_xorvar_ratio = 0.75;
+            m_ancient.set_xor_variation(m_xorvar_ratio);
+        }
+        else
+        {
+            if(!m_var_hold)
+            {
+                m_xorvar_ratio = 0.;
+                m_ancient.set_xor_variation(m_xorvar_ratio);
+            }
+        }
     }
 }
 void testApp::el_onSjak(hEventArgs& args)
 {
     if(args.values.size() > 0)
     {
-        m_ancient.set_jaccard_variation(m_jakvar_ratio);
+        hButton * b;
+        b = (hButton*)m_ui_elements["smooth_jak_ctrl"];
+        if(b->isPressed())
+        {
+            m_jakvar_ratio = 0.978;
+            m_ancient.set_jaccard_variation(m_jakvar_ratio);
+        }
+        else
+        {
+            if(!m_var_hold)
+            {
+                m_jakvar_ratio = 0.;
+                m_ancient.set_jaccard_variation(m_jakvar_ratio);
+            }
+        }
     }
 }
 void testApp::el_onHjak(hEventArgs& args)
 {
     if(args.values.size() > 0)
     {
-        m_ancient.set_jaccard_variation(m_jakvar_ratio);
+        hButton * b;
+        b = (hButton*)m_ui_elements["hard_jak_ctrl"];
+        if(b->isPressed())
+        {
+            m_jakvar_ratio = 0.99;
+            m_ancient.set_jaccard_variation(m_jakvar_ratio);
+        }
+        else
+        {
+            if(!m_var_hold)
+            {
+                m_jakvar_ratio = 0.;
+                m_ancient.set_jaccard_variation(m_jakvar_ratio);
+            }
+        }
     }
 }
 
@@ -546,6 +581,74 @@ void testApp::el_onEvolve(hEventArgs& args)
     update_evolve();
 }
 
+void testApp::el_onPresetName(hEventArgs& args)
+{
+    //if(args.values.size() > 0)
+    //{
+        //hTextBox * box = (hTextBox*)m_ui_elements["preset_name_box"];
+        //cout << box->getLabel() << endl;
+    //}
+}
+
+void testApp::el_onSave(hEventArgs& args)
+{
+    if(args.values.size() > 0)
+    {
+        hTextBox * box = (hTextBox*)m_ui_elements["preset_name_box"];
+        
+        ofxXmlSettings preset;
+        preset.setValue("global:name", box->getLabel());
+        preset.setValue("global:swing_val", m_swing);
+
+        vector<float> groove = m_seq.get_groove();
+        // groove seq
+        for(vector<float>::iterator gr = groove.begin(); gr != groove.end(); ++gr)
+        {
+            preset.setValue("global:seq_groove:"+ofToString(gr-groove.begin()), *gr);
+        }
+        // track conf
+        vector<DTrack> * tracks = m_ancient.get_tracks();
+        for(vector<DTrack>::iterator track = tracks->begin(); track != tracks->end(); ++track)
+        {
+            track->add_to_preset(&preset);
+        }
+        
+        ofFile file;
+        if(!file.open(ofToDataPath("preset")))
+        {
+            ofDirectory::createDirectory(ofToDataPath("preset"));
+        }
+        
+        if(box->getLabel() != "")
+        {
+            preset.saveFile("preset/"+box->getLabel()+".xml");
+        }
+        box->clearLabel(); // clear to avoid conneries
+        refresh_presets();
+        //cout << ofToDataPath("presets/"+box->getLabel()+".xml") << endl;
+        // save global
+    }
+}
+
+
+void testApp::el_onLoad(hEventArgs& args)
+{
+    if(args.values.size() > 0)
+    {
+        hListBox* box = (hListBox*)m_ui_elements["list_presets"];
+        string filename = box->getSelectedElementLabel();
+        filename += ".xml";
+        ofxXmlSettings settings;
+        if(settings.loadFile(ofToDataPath(filename)))
+        {
+           
+        }
+        else{
+            ofLogError("Position file did not load!");
+        }
+    }
+}
+
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //--------------------------------------------------------------
@@ -556,16 +659,26 @@ void testApp::el_onEvolve(hEventArgs& args)
 //--------------------------------------------------------------
 void testApp::keyPressed(int key)
 {
+    // avoid trig keys when editing preset name
+    if(m_ui_elements["preset_name_box"]->isSelected())
+    {
+        return;
+    }
+    
     hButton * b;
     
     if(!m_keys[key])
     {
-        m_keys[key] = ! m_keys[key];
+        if(!m_modifiers.getAppleCommandModifier())
+        {
+            m_keys[key] = ! m_keys[key];
+        }
     }
     else
     {
         return;
     }
+    
     switch (key)
     {
         case OF_KEY_RIGHT:
@@ -591,6 +704,10 @@ void testApp::keyPressed(int key)
                 update_play();
             }
             break;
+        case 112: // hold p
+                m_var_hold = !m_var_hold;
+                m_ancient.set_hold_variation(m_var_hold);
+                break;
             
         case 45: // minus
                 b = (hButton*)m_ui_elements["smooth_xor_ctrl"];
@@ -600,17 +717,17 @@ void testApp::keyPressed(int key)
             break;
             
         case 61: // equal
+
                 b = (hButton*)m_ui_elements["hard_xor_ctrl"];
                 b->setPressed(true);
                 m_xorvar_ratio = 0.75;
                 b->bang();
-                
             break;
             
         case 91: // left square bracket
                 b = (hButton*)m_ui_elements["smooth_jak_ctrl"];
                 b->setPressed(true);
-                m_jakvar_ratio = 0.95;
+                m_jakvar_ratio = 0.978;
                 b->bang();
             break;
             
@@ -634,27 +751,35 @@ void testApp::keyPressed(int key)
             update_evolve();
             break;
             
+        case 107:
+            m_conf.euclid_permutation = ofRandom(0., 0.25);
+            update_evolve();
+            
         case 108:
-
-                m_conf.euclid_permutation = ofRandom(0.20, 0.45);
-                update_evolve();
+            m_conf.euclid_permutation = ofRandom(0.25, 0.50);
+            update_evolve();
 
             break;
         case 59:
-                m_conf.euclid_permutation = ofRandom(0.45, 0.65);
-                update_evolve();
+            m_conf.euclid_permutation = ofRandom(0.50, 0.75);
+            update_evolve();
+            
             break;
         case 39:
-                m_conf.euclid_permutation = ofRandom(0.65, 1.);
-                update_evolve();
+            m_conf.euclid_permutation = ofRandom(0.75, 1.);
+            update_evolve();
             break;
-            
+        case 95:
+            m_seq.reset_groove();
+            break;
+        case 43:
+            m_seq.set_groove_point();
+            break;
         default:
             break;
     }
     
     // mutes
-    cout << key << endl;
     if(key >= 49 && key < 57 )
     {
         int idx = key - 49;
@@ -676,15 +801,25 @@ void testApp::keyPressed(int key)
 //--------------------------------------------------------------
 void testApp::keyReleased(int key)
 {
+    if(m_ui_elements["preset_name_box"]->isSelected())
+    {
+        return;
+    }
+    
     hButton * b;
+
     if(m_keys[key])
     {
-        m_keys[key] = !m_keys[key];
+        if(!m_modifiers.getAppleCommandModifier())
+        {
+            m_keys[key] = !m_keys[key];
+        }
     }
     else
     {
         return;
     }
+    
     switch (key)
     {
         case 45: // minus
@@ -693,18 +828,18 @@ void testApp::keyReleased(int key)
             if(!m_var_hold)
             {
                 m_xorvar_ratio = 0.;
-                b->bang();
+                m_ancient.set_xor_variation(m_xorvar_ratio);
             }
-            
             break;
             
         case 61: // equal
+
             b = (hButton*)m_ui_elements["hard_xor_ctrl"];
             b->setPressed(false);
             if(!m_var_hold)
             {
                 m_xorvar_ratio = 0.;
-                b->bang();
+                m_ancient.set_xor_variation(m_xorvar_ratio);
             }
             break;
             
@@ -714,7 +849,7 @@ void testApp::keyReleased(int key)
             if(!m_var_hold)
             {
                 m_jakvar_ratio = 0.;
-                b->bang();
+                m_ancient.set_jaccard_variation(m_jakvar_ratio);
             }
             break;
             
@@ -724,9 +859,15 @@ void testApp::keyReleased(int key)
             if(!m_var_hold)
             {
                 m_jakvar_ratio = 0.;
-                b->bang();
+                m_ancient.set_jaccard_variation(m_jakvar_ratio);
             }
             break;
+            
+        case 107:
+            m_conf.euclid_permutation = 0.;
+            update_evolve();
+            break;
+            
         case 108:
             m_conf.euclid_permutation = 0.;
             update_evolve();
@@ -830,6 +971,38 @@ void testApp::drawTracks()
             ofRect(pane->getX()+2, yy + (5*j) + 2, ww, 4);
         }
     }
+}
+
+void testApp::refresh_presets()
+{
+    ofFile file;
+    if(file.open(ofToDataPath("preset")))
+    {
+        ofDirectory preset_dir;
+        preset_dir.open(ofToDataPath("preset"));
+        preset_dir.allowExt("xml");
+        preset_dir.listDir();
+        hListBox* box = (hListBox*)m_ui_elements["list_presets"];
+        box->clear();
+        box->addItems(3, "");
+        //go through and print out all the paths
+        for(int i = 0; i < preset_dir.numFiles(); i++)
+        {
+            file = preset_dir.getFile(i);
+            string name = file.getFileName();
+            int lastindex = name.find_last_of(".");
+            string rawname = name.substr(0, lastindex);
+            if(i+1 <= 3)
+            {
+                box->setElementLabel(i+1, rawname);
+            }
+            else
+            {
+                box->addData(rawname);
+            }
+        }
+    }
+
 }
 
 void testApp::update_conf(ConfTrack conf)

@@ -10,6 +10,7 @@
 #define DTRACK
 
 #include <vector>
+#include "ofxXmlSettings.h"
 #include "PennerEasing/Sine.h"
 #include "Step.h"
 #include "ConfTrack.h"
@@ -28,9 +29,13 @@ class DTrack {
         void           set_conf(ConfTrack conf);
         ConfTrack      get_conf();
         bool           has_events();
+    
         vector<Step> * get_current();
-        vector<int>    get_velocities();
-        
+    
+        vector<int>  get_velocities();
+
+        void add_to_preset(ofxXmlSettings * settings);
+    
         void set_swing(float swing);
         void set_groove(vector<float> groove);
         void set_xor_variation(float thres, bool mode = false);
