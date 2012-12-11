@@ -113,9 +113,10 @@ void Ancient::notify(int quav)
 
 void Ancient::update()
 {
+   // cout << m_tasks.size() << " " << m_generations.size() << endl;
     if(m_tasks.size() || m_generations.size())
     {
-        startThread();
+        startThread(true,true);
     }
 }
 
@@ -123,6 +124,12 @@ void Ancient::generate(ConfTrack conf)
 {
     m_generations.push_back(conf);
     //startThread();
+}
+
+void Ancient::load_preset(ofxXmlSettings * settings)
+{
+    m_preset = settings;
+    m_tasks.push_back("load");
 }
 
 void Ancient::set_jaccard_variation(float thres)
@@ -218,6 +225,7 @@ void Ancient::threadedFunction()
     while( isThreadRunning() != 0 )
     {
         m_processing = true;
+        vector<float> groove;
         if( lock() )
         {
             std::vector<DTrack>::iterator track;
@@ -255,6 +263,21 @@ void Ancient::threadedFunction()
                         track->set_xor_variation(0);
                         track->set_jaccard_variation(0);
                     }
+                    else if (task == "load")
+                    {
+                        track->load_preset(m_preset);
+                    }
+                }
+                if (task == "load")
+                {
+                    m_preset->popTag();
+                    m_preset->pushTag("global");
+                    m_preset->pushTag("seq_groove");
+                    int ct = m_preset->getNumTags("i");
+                    for(int i = 0; i < ct; ++i)
+                    {
+                        groove.push_back(m_preset->getValue("i", 0, i));
+                    }
                 }
             }
             
@@ -271,7 +294,15 @@ void Ancient::threadedFunction()
             
             unlock();
         }
-        m_seq->update_drum_tracks(&m_tracks);
+        if(!groove.size())
+        {
+            m_seq->update_drum_tracks(&m_tracks);
+        }
+        else
+        {
+            m_seq->set_groove(groove);
+        }
+        
         m_processing = false;
         stopThread();
     } 

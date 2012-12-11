@@ -97,58 +97,175 @@ vector<Step> * DTrack::get_current()
     return &m_track_current;
 }
 
+void DTrack::load_preset(ofxXmlSettings * settings)
+{
+    
+    settings->pushTag("track",m_track_id);
+    ConfTrack conf;
+    conf.track_id = settings->getValue("id",0);
+    conf.track_size = settings->getValue("size",0);
+    conf.track_onsets = settings->getValue("onsets",0);
+    conf.track_rotation = settings->getValue("rotation",0);
+    conf.track_evenness = settings->getValue("evenness",0);
+    conf.velocity_mode = settings->getValue("velocity_mode",0);
+    conf.velocity_max = settings->getValue("velocity_max",0);
+    conf.velocity_min = settings->getValue("velocity_min",0);
+    conf.euclid_bias = settings->getValue("euclid_bias",0);
+    conf.euclid_density = settings->getValue("euclid_density",0);
+    conf.euclid_permutation = settings->getValue("euclid_permutation",0);
+    conf.euclid_evolution_rate = settings->getValue("euclid_evolution_rate",0);
+    conf.euclid_permutation_rate = settings->getValue("euclid_permutation_rate",0);
+    set_conf(conf);
+    
+    settings->pushTag("velocities");
+    int tt = settings->getNumTags("i");
+    vector<int> vels;
+    for(int i = 0; i < tt; ++i)
+    {
+        vels.push_back(settings->getValue("i", 0, i));
+    }
+    m_velocities = vels;
+    settings->popTag();
+    
+    //beats
+    settings->pushTag("vanillia_beat");
+    tt = settings->getNumTags("i");
+    vector<bool> vanilla;
+    for(int i = 0; i < tt; ++i)
+    {
+        vanilla.push_back((bool)settings->getValue("i", 0, i));
+    }
+    m_vanilla_beat = vanilla;
+    settings->popTag();
+    
+    settings->pushTag("shadow_beat");
+    tt = settings->getNumTags("i");
+    vector<bool> shadow;
+    for(int i = 0; i < tt; ++i)
+    {
+        shadow.push_back((bool)settings->getValue("i", 0, i));
+    }
+    m_shadow_beat = shadow;
+    settings->popTag();
+    
+    settings->pushTag("alternation_beat");
+    tt = settings->getNumTags("i");
+    vector<bool> alternation;
+    for(int i = 0; i < tt; ++i)
+    {
+        alternation.push_back((bool)settings->getValue("i", 0, i));
+    }
+    m_alternation_beat = alternation;
+    settings->popTag();
+    
+    settings->pushTag("permutation_places");
+    tt = settings->getNumTags("i");
+    vector<bool> permutation_places;
+    for(int i = 0; i < tt; ++i)
+    {
+        permutation_places.push_back((bool)settings->getValue("i", 0, i));
+    }
+    m_permutation_places = permutation_places;
+    settings->popTag();
+    
+    // current
+    settings->pushTag("current");
+    tt = settings->getNumTags("step");
+    vector<Step> curr;
+    for(int i = 0; i < tt; ++i)
+    {
+        settings->pushTag("step",i);
+        Step st;
+        st.vel = settings->getValue("vel", 0);
+        st.dur = settings->getValue("dur", 0);
+        st.chance = settings->getValue("chance", 0);
+        curr.push_back(st);
+        settings->popTag();
+    }
+    m_track_current = m_track_prev_current = curr;
+    settings->popTag();
+    
+    
+    settings->popTag();
+}
+
 void DTrack::add_to_preset(ofxXmlSettings * settings)
 {
     ConfTrack conf = get_conf();
-    settings->setValue("tracks:"+ofToString(conf.track_id)+":id",conf.track_id);
-    settings->setValue("tracks:"+ofToString(conf.track_id)+":size",conf.track_size);
-    settings->setValue("tracks:"+ofToString(conf.track_id)+":onsets",conf.track_onsets);
-    settings->setValue("tracks:"+ofToString(conf.track_id)+":rotation",conf.track_rotation);
-    settings->setValue("tracks:"+ofToString(conf.track_id)+":evenness",conf.track_evenness);
-    settings->setValue("tracks:"+ofToString(conf.track_id)+":velocity_mode",(int)conf.velocity_mode);
-    settings->setValue("tracks:"+ofToString(conf.track_id)+":velocity_max",conf.velocity_max);
-    settings->setValue("tracks:"+ofToString(conf.track_id)+":velocity_min",conf.velocity_min);
-    settings->setValue("tracks:"+ofToString(conf.track_id)+":euclid_bias",conf.euclid_bias);
-    settings->setValue("tracks:"+ofToString(conf.track_id)+":euclid_density",conf.euclid_density);
-    settings->setValue("tracks:"+ofToString(conf.track_id)+":euclid_permutation",conf.euclid_permutation);
-    settings->setValue("tracks:"+ofToString(conf.track_id)+":euclid_evolution_rate",conf.euclid_evolution_rate);
-    settings->setValue("tracks:"+ofToString(conf.track_id)+":euclid_permutation_rate",conf.euclid_permutation_rate);
+    settings->addTag("track");
+    settings->pushTag("track",conf.track_id);
+    settings->setValue("id", conf.track_id);
+    settings->setValue("size",conf.track_size);
+    settings->setValue("onsets",conf.track_onsets);
+    settings->setValue("rotation",conf.track_rotation);
+    settings->setValue("evenness",conf.track_evenness);
+    settings->setValue("velocity_mode",(int)conf.velocity_mode);
+    settings->setValue("velocity_max",conf.velocity_max);
+    settings->setValue("velocity_min",conf.velocity_min);
+    settings->setValue("euclid_bias",conf.euclid_bias);
+    settings->setValue("euclid_density",conf.euclid_density);
+    settings->setValue("euclid_permutation",conf.euclid_permutation);
+    settings->setValue("euclid_evolution_rate",conf.euclid_evolution_rate);
+    settings->setValue("euclid_permutation_rate",conf.euclid_permutation_rate);
     
     vector<int>::iterator int_erator;
     vector<bool>::iterator bool_erator;
+    
+    settings->addTag("velocities");
+    settings->pushTag("velocities");
     for(int_erator = m_velocities.begin(); int_erator != m_velocities.end(); ++int_erator)
     {
-        settings->setValue("tracks:"+ofToString(conf.track_id)+":velocities:"+ofToString(int_erator-m_velocities.begin()), *int_erator);
+        settings->addValue("i", *int_erator);
     }
+    settings->popTag();
     
+    settings->addTag("vanillia_beat");
+    settings->pushTag("vanillia_beat");
     for(bool_erator = m_vanilla_beat.begin(); bool_erator != m_vanilla_beat.end(); ++bool_erator)
     {
-        settings->setValue("tracks:"+ofToString(conf.track_id)+":vanillia_beat:"+ofToString(bool_erator-m_vanilla_beat.begin()), *bool_erator);
+        settings->addValue("i", *bool_erator);
     }
+    settings->popTag();
+    
+    settings->addTag("shadow_beat");
+    settings->pushTag("shadow_beat");
     for(bool_erator = m_shadow_beat.begin(); bool_erator != m_shadow_beat.end(); ++bool_erator)
     {
-        settings->setValue("tracks:"+ofToString(conf.track_id)+":shadow_beat:"+ofToString(bool_erator-m_shadow_beat.begin()), *bool_erator);
+        settings->addValue("i", *bool_erator);
     }
+    settings->popTag();
+    
+    settings->addTag("alternation_beat");
+    settings->pushTag("alternation_beat");
     for(bool_erator = m_alternation_beat.begin(); bool_erator != m_alternation_beat.end(); ++bool_erator)
     {
-        settings->setValue("tracks:"+ofToString(conf.track_id)+":alternation_beat:"+ofToString(bool_erator-m_alternation_beat.begin()), *bool_erator);
+        settings->addValue("i", *bool_erator);
     }
+    settings->popTag();
+    
+    settings->addTag("permutation_places");
+    settings->pushTag("permutation_places");
     for(bool_erator = m_permutation_places.begin(); bool_erator != m_permutation_places.end(); ++bool_erator)
     {
-        settings->setValue("tracks:"+ofToString(conf.track_id)+":permutation_places:"+ofToString(bool_erator-m_permutation_places.begin()), *bool_erator);
+        settings->addValue("i", *bool_erator);
     }
+    settings->popTag();
     
-    // current
     vector<Step> * curr = &m_track_current;
     vector<Step>::iterator step;
+    settings->addTag("current");
+    settings->pushTag("current");
     for(step = curr->begin(); step != curr->end(); ++step)
     {
-        settings->setValue("tracks:"+ofToString(conf.track_id)+":curr:"+ofToString(step-curr->begin())+":vel",step->vel);
-        settings->setValue("tracks:"+ofToString(conf.track_id)+":curr:"+ofToString(step-curr->begin())+":dur",step->dur);
-        settings->setValue("tracks:"+ofToString(conf.track_id)+":curr:"+ofToString(step-curr->begin())+":chance",step->chance);
-        // @TODO
-        //preset.setValue("tracks:"+ofToString(conf.track_id)+":curr:"+ofToString(step-curr->begin())+":dur",step->);
+        settings->addTag("step");
+        settings->pushTag("step",step-curr->begin());
+        settings->setValue("vel", step->vel);
+        settings->setValue("dur", step->dur);
+        settings->setValue("chance", step->chance);
+        settings->popTag();
     }
+    settings->popTag();
+    settings->popTag();
 }
 
 void DTrack::generate(ConfTrack conf)

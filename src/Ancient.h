@@ -32,6 +32,8 @@ class Ancient : public ofThread
         void set_jaccard_variation(float thres);
         void set_hold_variation(bool hold);
         bool is_processing();
+        void load_preset(ofxXmlSettings * settings);
+    
         void notify(int quav); // be informed that a bar is going on
         vector<DTrack> * get_tracks();
         ConfTrack get_track_conf(int idx);
@@ -49,6 +51,7 @@ class Ancient : public ofThread
         float m_jacc_variation;
         float m_level;
         float m_variat;
+        ofxXmlSettings * m_preset;
         
         // states
         bool m_on_variation;

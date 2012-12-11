@@ -597,15 +597,22 @@ void testApp::el_onSave(hEventArgs& args)
         hTextBox * box = (hTextBox*)m_ui_elements["preset_name_box"];
         
         ofxXmlSettings preset;
-        preset.setValue("global:name", box->getLabel());
-        preset.setValue("global:swing_val", m_swing);
-
+        preset.setValue("preset:global:name", box->getLabel());
+        preset.setValue("preset:global:swing_val", m_swing);
+        preset.pushTag("preset");
+        preset.pushTag("global");
+        preset.addTag("seq_groove");
+        preset.pushTag("seq_groove");
         vector<float> groove = m_seq.get_groove();
         // groove seq
         for(vector<float>::iterator gr = groove.begin(); gr != groove.end(); ++gr)
         {
-            preset.setValue("global:seq_groove:"+ofToString(gr-groove.begin()), *gr);
+            preset.addValue("i", *gr);
         }
+        preset.popTag();
+        preset.popTag();
+        preset.addTag("tracks");
+        preset.pushTag("tracks");
         // track conf
         vector<DTrack> * tracks = m_ancient.get_tracks();
         for(vector<DTrack>::iterator track = tracks->begin(); track != tracks->end(); ++track)
@@ -637,14 +644,23 @@ void testApp::el_onLoad(hEventArgs& args)
     {
         hListBox* box = (hListBox*)m_ui_elements["list_presets"];
         string filename = box->getSelectedElementLabel();
-        filename += ".xml";
-        ofxXmlSettings settings;
-        if(settings.loadFile(ofToDataPath(filename)))
+        if(filename != "")
         {
-           
-        }
-        else{
-            ofLogError("Position file did not load!");
+            filename = ofToDataPath("preset/"+filename + ".xml");
+            ofFile ff;
+            ff.open(filename);
+            cout << ff.exists() << endl;
+            if(m_loaded_preset.loadFile(filename))
+            {
+                m_swing = m_loaded_preset.getValue("preset:global:swing_val",0);
+                m_loaded_preset.pushTag("preset");
+                m_loaded_preset.pushTag("tracks");
+                m_ancient.load_preset(&m_loaded_preset);
+            }
+            else
+            {
+                ofLogError("could not load preset");
+            }
         }
     }
 }

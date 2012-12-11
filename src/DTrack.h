@@ -35,6 +35,7 @@ class DTrack {
         vector<int>  get_velocities();
 
         void add_to_preset(ofxXmlSettings * settings);
+        void load_preset(ofxXmlSettings * settings);
     
         void set_swing(float swing);
         void set_groove(vector<float> groove);

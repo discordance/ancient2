@@ -97,6 +97,7 @@ class testApp : public ofBaseApp, public hObject {
         
         // conf of current track
         ConfTrack m_conf;
+        ofxXmlSettings m_loaded_preset;
     
         //utils OBJC
         KeyModifier m_modifiers;
