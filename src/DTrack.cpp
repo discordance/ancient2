@@ -105,16 +105,16 @@ void DTrack::load_preset(ofxXmlSettings * settings)
     conf.track_id = settings->getValue("id",0);
     conf.track_size = settings->getValue("size",0);
     conf.track_onsets = settings->getValue("onsets",0);
-    conf.track_rotation = settings->getValue("rotation",0);
-    conf.track_evenness = settings->getValue("evenness",0);
+    conf.track_rotation = settings->getValue("rotation",0.);
+    conf.track_evenness = settings->getValue("evenness",0.);
     conf.velocity_mode = settings->getValue("velocity_mode",0);
     conf.velocity_max = settings->getValue("velocity_max",0);
     conf.velocity_min = settings->getValue("velocity_min",0);
-    conf.euclid_bias = settings->getValue("euclid_bias",0);
-    conf.euclid_density = settings->getValue("euclid_density",0);
-    conf.euclid_permutation = settings->getValue("euclid_permutation",0);
-    conf.euclid_evolution_rate = settings->getValue("euclid_evolution_rate",0);
-    conf.euclid_permutation_rate = settings->getValue("euclid_permutation_rate",0);
+    conf.euclid_bias = settings->getValue("euclid_bias",0.);
+    conf.euclid_density = settings->getValue("euclid_density",0.5);
+    conf.euclid_permutation = settings->getValue("euclid_permutation",0.);
+    conf.euclid_evolution_rate = settings->getValue("euclid_evolution_rate",0.);
+    conf.euclid_permutation_rate = settings->getValue("euclid_permutation_rate",0.);
     set_conf(conf);
     
     settings->pushTag("velocities");
@@ -178,7 +178,7 @@ void DTrack::load_preset(ofxXmlSettings * settings)
         Step st;
         st.vel = settings->getValue("vel", 0);
         st.dur = settings->getValue("dur", 0);
-        st.chance = settings->getValue("chance", 0);
+        st.chance = settings->getValue("chance", 0.);
         curr.push_back(st);
         settings->popTag();
     }
@@ -203,8 +203,8 @@ void DTrack::add_to_preset(ofxXmlSettings * settings)
     settings->setValue("velocity_max",conf.velocity_max);
     settings->setValue("velocity_min",conf.velocity_min);
     settings->setValue("euclid_bias",conf.euclid_bias);
-    settings->setValue("euclid_density",conf.euclid_density);
-    settings->setValue("euclid_permutation",conf.euclid_permutation);
+    settings->setValue("euclid_density",0.5);
+    settings->setValue("euclid_permutation",0.);
     settings->setValue("euclid_evolution_rate",conf.euclid_evolution_rate);
     settings->setValue("euclid_permutation_rate",conf.euclid_permutation_rate);
     
@@ -251,7 +251,7 @@ void DTrack::add_to_preset(ofxXmlSettings * settings)
     }
     settings->popTag();
     
-    vector<Step> * curr = &m_track_current;
+    vector<Step> * curr = &m_track_prev_current;
     vector<Step>::iterator step;
     settings->addTag("current");
     settings->pushTag("current");
@@ -441,7 +441,7 @@ void DTrack::set_jaccard_variation(float thres, bool mode)
             //step->vel = *vel;
             if(step->vel < *vel)
             {
-                step->vel = *vel;
+                step->vel = ofClamp(*vel, 0, m_velocity_max);
             }
         }
     }

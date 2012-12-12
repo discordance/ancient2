@@ -353,6 +353,7 @@ void Seq::update_drum_tracks(vector<DTrack> *tracks) // v1, replace all
 
 void Seq::correct_and_update(map<int, vector<int> >& evt_map, int track, int pitch)
 {
+
     vector<int> *n_p = NULL;
     vector<int> *n_c = NULL;
     map<int, vector<int> >::iterator curr;
@@ -381,17 +382,25 @@ void Seq::correct_and_update(map<int, vector<int> >& evt_map, int track, int pit
                 {
                     n_p->at(1) = n_c->at(0)-1;
                 }
-                add_event(n_p->at(0), n_p->at(1), track, pitch, n_p->at(2));
             }
+            add_event(n_p->at(0), n_p->at(1), track, pitch, n_p->at(2));
             if(curr == last)
             {
-                add_event(n_p->at(0), n_p->at(1), track, pitch, n_p->at(2));
+                if(n_c->size())
+                {
+                    if(n_c->at(1) >= m_max_ticks)
+                    {
+                        n_c->at(1) = m_max_ticks-1;
+                    }
+                    add_event(n_c->at(0), n_c->at(1), track, pitch, n_c->at(2));
+                }
             }
         }
         else
         {
             if(n_c->size() && curr == last)
             {
+                            
                 if(n_c->at(1) >= m_max_ticks)
                 {
                     n_c->at(1) = m_max_ticks - 1;

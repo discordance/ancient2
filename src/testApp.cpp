@@ -295,6 +295,7 @@ void testApp::setup()
 
     m_ui_elements["preset_name_box"] = box_preset_name;
     hButton* button_save = gui->addButton("button_save", panel_library, HGUI_RIGHT, gui->margin3, 0, 30, "save");
+    m_ui_elements["button_save"] = button_save;
     button_save->setHeight(box_preset_name->getHeight());
     evts->addListener("onSave", this, &testApp::el_onSave);
     button_save->setMessage("testApp.onSave");
@@ -305,6 +306,7 @@ void testApp::setup()
     
     
     hButton* button_load = gui->addButton("button_load", panel_library, HGUI_TOP_LEFT, 80, gui->margin1*2 + box_preset_name->getHeight()+gui->margin3, 30, "load");
+    m_ui_elements["button_load"] = button_load;
     button_load->setHeight(box_preset_name->getHeight());
     evts->addListener("onLoad", this, &testApp::el_onLoad);
     button_load->setMessage("testApp.onLoad");
@@ -592,6 +594,13 @@ void testApp::el_onPresetName(hEventArgs& args)
 
 void testApp::el_onSave(hEventArgs& args)
 {
+    hButton * b;
+    b = (hButton*)m_ui_elements["button_save"];
+    if(!b->isPressed())
+    {
+        return;
+    }
+    
     if(args.values.size() > 0)
     {
         hTextBox * box = (hTextBox*)m_ui_elements["preset_name_box"];
@@ -640,6 +649,13 @@ void testApp::el_onSave(hEventArgs& args)
 
 void testApp::el_onLoad(hEventArgs& args)
 {
+    hButton * b;
+    b = (hButton*)m_ui_elements["button_load"];
+    if(!b->isPressed())
+    {
+        return;
+    }
+    
     if(args.values.size() > 0)
     {
         hListBox* box = (hListBox*)m_ui_elements["list_presets"];
@@ -649,10 +665,15 @@ void testApp::el_onLoad(hEventArgs& args)
             filename = ofToDataPath("preset/"+filename + ".xml");
             ofFile ff;
             ff.open(filename);
-            cout << ff.exists() << endl;
             if(m_loaded_preset.loadFile(filename))
             {
-                m_swing = m_loaded_preset.getValue("preset:global:swing_val",0);
+                // reset
+                m_xorvar_ratio = 0.;
+                m_jakvar_ratio = 0.;
+                m_ancient.set_xor_variation(m_xorvar_ratio);
+                m_ancient.set_jaccard_variation(m_jakvar_ratio);
+                
+                m_swing = m_loaded_preset.getValue("preset:global:swing_val",0.);
                 m_loaded_preset.pushTag("preset");
                 m_loaded_preset.pushTag("tracks");
                 m_ancient.load_preset(&m_loaded_preset);
@@ -927,8 +948,13 @@ void testApp::windowResized(int w, int h){
 }
 
 //--------------------------------------------------------------
-void testApp::gotMessage(ofMessage msg){
-
+void testApp::gotMessage(ofMessage msg)
+{
+    if(msg.message == "preset_loaded")
+    {
+        update_conf(m_ancient.get_track_conf(m_selected_track));
+        update_selection();
+    }
 }
 
 //--------------------------------------------------------------

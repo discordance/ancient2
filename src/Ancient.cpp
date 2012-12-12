@@ -116,7 +116,7 @@ void Ancient::update()
    // cout << m_tasks.size() << " " << m_generations.size() << endl;
     if(m_tasks.size() || m_generations.size())
     {
-        startThread(true,true);
+        startThread();
     }
 }
 
@@ -276,7 +276,7 @@ void Ancient::threadedFunction()
                     int ct = m_preset->getNumTags("i");
                     for(int i = 0; i < ct; ++i)
                     {
-                        groove.push_back(m_preset->getValue("i", 0, i));
+                        groove.push_back(m_preset->getValue("i", 0., i));
                     }
                 }
             }
@@ -302,7 +302,7 @@ void Ancient::threadedFunction()
         {
             m_seq->set_groove(groove);
         }
-        
+        ofSendMessage("preset_loaded");
         m_processing = false;
         stopThread();
     } 
