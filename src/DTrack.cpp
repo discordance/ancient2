@@ -412,7 +412,7 @@ void DTrack::set_xor_variation(float thres, bool mode)
             Step *cstep = &m_track_current.at(vel - res_vels.begin());
             if(cstep->vel < *vel)
             {
-                cstep->vel = *vel;
+                cstep->vel = ofClamp(*vel, 0, m_velocity_max);
             }
         }
     }

@@ -668,6 +668,8 @@ void testApp::el_onLoad(hEventArgs& args)
             if(m_loaded_preset.loadFile(filename))
             {
                 // reset
+                m_var_hold = false;
+                m_ancient.set_hold_variation(m_var_hold);
                 m_xorvar_ratio = 0.;
                 m_jakvar_ratio = 0.;
                 m_ancient.set_xor_variation(m_xorvar_ratio);
@@ -1006,11 +1008,14 @@ void testApp::drawTracks()
             ofRect(pane->getX()+pane->getWidth()-6, yy + (5*j) + 2, 4, 4);
             
             // draw vels
-            int vel = vels.at(j%vels.size());
-            int col = ofMap(vel, 0, 15, 0, 255);
-            int ww = ofMap(vel, 0, 15, 0, pane->getWidth()-10);
-            ofSetColor(col,255-col,0, col);
-            ofRect(pane->getX()+2, yy + (5*j) + 2, ww, 4);
+            if(vels.size())
+            {
+                int vel = vels.at(j%vels.size());
+                int col = ofMap(vel, 0, 15, 0, 255);
+                int ww = ofMap(vel, 0, 15, 0, pane->getWidth()-10);
+                ofSetColor(col,255-col,0, col);
+                ofRect(pane->getX()+2, yy + (5*j) + 2, ww, 4);
+            }
         }
     }
 }

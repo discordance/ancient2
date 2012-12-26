@@ -76,6 +76,7 @@ class Seq : public ofxMidiListener, public ofThread
         ofxMidiOut  m_virtual_midiOut; // for internal routing
         ofxMidiOut  m_sync_out;
         ofxMidiOut  m_hard_midiOut; // for hardware routing
+        ofxMidiOut  m_network_out;
         ofxMidiMessage m_midiMessage;
         
         // nudge

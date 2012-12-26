@@ -72,7 +72,13 @@ ConfTrack Ancient::get_track_conf(int idx)
 
 vector<int> Ancient::get_track_velocities(int idx)
 {
-    return m_tracks.at(idx).get_velocities();
+    vector<int> vels;
+    if(lock())
+    {
+        vels = m_tracks.at(idx).get_velocities();
+        unlock();
+    }
+    return vels;
 }
 
 bool Ancient::is_processing()
@@ -292,7 +298,7 @@ void Ancient::threadedFunction()
                // cout << "end " << ofToString(conf.track_onsets) << " " << ofToString(conf.track_size) << endl;
             }
             
-            unlock();
+            //unlock();
         }
         if(!groove.size())
         {
@@ -304,6 +310,7 @@ void Ancient::threadedFunction()
         }
         ofSendMessage("preset_loaded");
         m_processing = false;
+        unlock();
         stopThread();
     } 
 }

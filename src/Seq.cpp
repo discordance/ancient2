@@ -40,6 +40,12 @@ Seq::Seq(){
     // reset events 
     reset_events();
     
+    // detect network
+    if(!m_network_out.openPort("Network Session 1"))
+    {
+        m_network_out.closePort();
+    }
+    
     // detect MOTU
     if(!m_hard_midiOut.openPort("UltraLite mk3 MIDI Port"))
     {
@@ -67,9 +73,9 @@ Seq::Seq(){
         43,// drm2
         38,// sn
         39,// cl
-        42,// cym
-        44,// perc2
-        46 // os
+        42,// HH
+        44,// HH2
+        46 // HH3
     };
     
     vector<int> stdr_pitchmap (stdr, stdr + sizeof(stdr) / sizeof(stdr[0]) );
@@ -591,6 +597,10 @@ void Seq::sendMidiClock(int status)
     {
         m_hard_midiOut.sendMidiBytes(bytes);
     }
+    if(m_network_out.isOpen())
+    {
+        m_network_out.sendMidiBytes(bytes);
+    }
 }
 
 void Seq::send_events(vector<Evt>* evts)
@@ -607,6 +617,10 @@ void Seq::send_events(vector<Evt>* evts)
                 {
                     m_hard_midiOut.sendNoteOn(ev->channel, ev->pitch, ev->vel);
                 }
+                if(m_network_out.isOpen())
+                {
+                    m_network_out.sendNoteOn(ev->channel, ev->pitch, ev->vel);
+                }
             }
             else
             {
@@ -614,6 +628,10 @@ void Seq::send_events(vector<Evt>* evts)
                 if(m_hard_midiOut.isOpen())
                 {
                     m_hard_midiOut.sendNoteOff(ev->channel, ev->pitch, ev->vel);
+                }
+                if(m_network_out.isOpen())
+                {
+                    m_network_out.sendNoteOff(ev->channel, ev->pitch, ev->vel);
                 }
             }
         }
