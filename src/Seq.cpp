@@ -350,6 +350,7 @@ void Seq::update_drum_tracks(vector<DTrack> *tracks) // v1, replace all
             // correct the overlaping events and update
             //cout << "track : " << track->get_conf().track_id << " size: " << evts.size() << endl;
             correct_and_update(evts, tr_num, m_pitches["stdr"].at(tr_num));
+            cout << "event " << tr_num << " " << evts[0].size() << endl;
         }
         unlock();
     }
@@ -359,11 +360,12 @@ void Seq::update_drum_tracks(vector<DTrack> *tracks) // v1, replace all
 
 void Seq::correct_and_update(map<int, vector<int> >& evt_map, int track, int pitch)
 {
-
+    cout << "correct_and_update " << evt_map[0].size() << " " << track << endl;
     vector<int> *n_p = NULL;
     vector<int> *n_c = NULL;
     map<int, vector<int> >::iterator curr;
     map<int, vector<int> >::iterator last = evt_map.end();
+    int last_add = -1;
     --last; // get the last
 
     for(curr = evt_map.begin(); curr != evt_map.end(); curr++)
@@ -389,7 +391,13 @@ void Seq::correct_and_update(map<int, vector<int> >& evt_map, int track, int pit
                     n_p->at(1) = n_c->at(0)-1;
                 }
             }
-            add_event(n_p->at(0), n_p->at(1), track, pitch, n_p->at(2));
+            
+            if(n_p->at(0) != last_add)
+            {
+                add_event(n_p->at(0), n_p->at(1), track, pitch, n_p->at(2));
+                last_add = n_p->at(0);
+            }
+            
             if(curr == last)
             {
                 if(n_c->size())
@@ -556,6 +564,8 @@ void Seq::kill_events(int chan, int pitch)
 
 void Seq::add_event(int start, int end, int track, int pitch, int vel)
 {
+    cout << "addevent " << track << " " << start << endl;
+    
     Evt on;
     on.track = track;
     on.status = 1; // note on on channel 10
@@ -605,6 +615,7 @@ void Seq::sendMidiClock(int status)
 
 void Seq::send_events(vector<Evt>* evts)
 {
+   
     vector<Evt>::iterator ev;
     for(ev = evts->begin(); ev != evts->end(); ++ev )
     {
