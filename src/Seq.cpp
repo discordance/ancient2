@@ -100,8 +100,6 @@ void Seq::set_synced(bool status)
         m_max_ticks = (m_resolution / 4) * SEQ_LOOP_SIZE;
         m_max_steps = SEQ_LOOP_SIZE;
     }
-    
-    reset_events();
 }
 
 void Seq::set_bpm(int bpm)
@@ -588,8 +586,7 @@ void Seq::newMidiMessage(ofxMidiMessage& msg)
             at = 0;
         }
         vector<Evt> *line = &m_events.at(at); // here because of the 0 event line must be used
-        
-        
+
         // start
         if (msg.status == 250)
         {
@@ -603,6 +600,11 @@ void Seq::newMidiMessage(ofxMidiMessage& msg)
             m_ticks = 0;
             // send all channels / noteoffs
             kill_events(10);
+        }
+        //pause (reaper)
+        if (msg.status == 251)
+        {
+            m_started = true;
         }
         // time
         if (msg.status == 248 && m_started)

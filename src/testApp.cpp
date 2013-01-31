@@ -395,11 +395,13 @@ void testApp::el_onSync(hEventArgs &args)
             m_ui_elements["play_ctrl"]->setSelectable(false);
             m_ui_elements["play_ctrl"]->setVisibleBorder(false);
             m_playing = false; // linked
+            m_seq.set_synced(m_synced);
         }
         else
         {
             m_ui_elements["play_ctrl"]->setSelectable(true);
             m_ui_elements["play_ctrl"]->setVisibleBorder(true);
+            m_seq.set_synced(m_synced);
         }
     }
 }
