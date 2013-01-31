@@ -22,6 +22,9 @@ void testApp::setup()
     m_var_hold = false;
     m_selected_track = 0;
     
+    // init ancient
+    m_ancient.init();
+    
     // fake conf
     m_conf = ConfTrack();
     m_conf.track_id = 0;
@@ -350,7 +353,7 @@ void testApp::setup()
 //--------------------------------------------------------------
 void testApp::update()
 {
-    m_ancient.update();
+   // m_ancient.update();
 }
 
 //--------------------------------------------------------------
@@ -420,9 +423,7 @@ void testApp::el_onSwing(hEventArgs &args)
 {
     if(args.values.size() > 0)
     {
-     //   m_ancient.set_swing(m_swing); OLD WAY
-        m_seq.set_classic_swing(m_swing);
-        //m_seq.set_cycle_swing(m_swing);
+        m_ancient.set_swing(m_swing);
     }
 }
 
@@ -612,7 +613,14 @@ void testApp::el_onSave(hEventArgs& args)
         preset.pushTag("global");
         preset.addTag("seq_groove");
         preset.pushTag("seq_groove");
-        vector<float> groove = m_seq.get_groove();
+        
+        vector<float> groove;
+        if(m_ancient.lock())
+        {
+            groove = m_ancient.get_groove();
+            m_ancient.unlock();
+        }
+
         // groove seq
         for(vector<float>::iterator gr = groove.begin(); gr != groove.end(); ++gr)
         {
@@ -809,10 +817,10 @@ void testApp::keyPressed(int key)
             update_evolve();
             break;
         case 95:
-            m_seq.reset_groove();
+            //m_seq.reset_groove();
             break;
         case 43:
-            m_seq.set_groove_point();
+            //m_seq.set_groove_point();
             break;
         default:
             break;

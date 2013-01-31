@@ -38,24 +38,6 @@
 		3F80039A16481043006F8AAB /* Gaia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F80039816481042006F8AAB /* Gaia.cpp */; };
 		3F80039D1648108B006F8AAB /* Ancient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F80039B1648108B006F8AAB /* Ancient.cpp */; };
 		3FA9DE3616988E8F00332733 /* ancient.icns in Resources */ = {isa = PBXBuildFile; fileRef = 3FA9DE3416988E3500332733 /* ancient.icns */; };
-		3FA9DE4F16988ECD00332733 /* jat_break_a.xml in Resources */ = {isa = PBXBuildFile; fileRef = 3FA9DE3A16988ECD00332733 /* jat_break_a.xml */; };
-		3FA9DE5016988ECD00332733 /* jat_break_b.xml in Resources */ = {isa = PBXBuildFile; fileRef = 3FA9DE3B16988ECD00332733 /* jat_break_b.xml */; };
-		3FA9DE5116988ECD00332733 /* jat_tech_a.xml in Resources */ = {isa = PBXBuildFile; fileRef = 3FA9DE3C16988ECD00332733 /* jat_tech_a.xml */; };
-		3FA9DE5216988ECD00332733 /* AvantGarde-Book.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3FA9DE3E16988ECD00332733 /* AvantGarde-Book.ttf */; };
-		3FA9DE5316988ECD00332733 /* DIN.otf in Resources */ = {isa = PBXBuildFile; fileRef = 3FA9DE3F16988ECD00332733 /* DIN.otf */; };
-		3FA9DE5416988ECD00332733 /* frabk.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3FA9DE4016988ECD00332733 /* frabk.ttf */; };
-		3FA9DE5516988ECD00332733 /* lmmonolt10-bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 3FA9DE4116988ECD00332733 /* lmmonolt10-bold.otf */; };
-		3FA9DE5616988ECD00332733 /* mono.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3FA9DE4216988ECD00332733 /* mono.ttf */; };
-		3FA9DE5716988ECD00332733 /* verdana.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3FA9DE4316988ECD00332733 /* verdana.ttf */; };
-		3FA9DE5816988ECD00332733 /* drd_bourus_1.xml in Resources */ = {isa = PBXBuildFile; fileRef = 3FA9DE4516988ECD00332733 /* drd_bourus_1.xml */; };
-		3FA9DE5916988ECD00332733 /* drd_indus_1.xml in Resources */ = {isa = PBXBuildFile; fileRef = 3FA9DE4616988ECD00332733 /* drd_indus_1.xml */; };
-		3FA9DE5A16988ECD00332733 /* jat_break_a.xml in Resources */ = {isa = PBXBuildFile; fileRef = 3FA9DE4716988ECD00332733 /* jat_break_a.xml */; };
-		3FA9DE5B16988ECD00332733 /* jat_break_b.xml in Resources */ = {isa = PBXBuildFile; fileRef = 3FA9DE4816988ECD00332733 /* jat_break_b.xml */; };
-		3FA9DE5C16988ECD00332733 /* jat_break_c.xml in Resources */ = {isa = PBXBuildFile; fileRef = 3FA9DE4916988ECD00332733 /* jat_break_c.xml */; };
-		3FA9DE5D16988ECD00332733 /* jat_semitech.xml in Resources */ = {isa = PBXBuildFile; fileRef = 3FA9DE4A16988ECD00332733 /* jat_semitech.xml */; };
-		3FA9DE5E16988ECD00332733 /* jat_tech_a.xml in Resources */ = {isa = PBXBuildFile; fileRef = 3FA9DE4B16988ECD00332733 /* jat_tech_a.xml */; };
-		3FA9DE5F16988ECD00332733 /* jat_tech_b.xml in Resources */ = {isa = PBXBuildFile; fileRef = 3FA9DE4C16988ECD00332733 /* jat_tech_b.xml */; };
-		3FA9DE6016988ECD00332733 /* nun_tech_01.xml in Resources */ = {isa = PBXBuildFile; fileRef = 3FA9DE4D16988ECD00332733 /* nun_tech_01.xml */; };
 		3FB11C26165BA59400493DEA /* DTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3FB11C24165BA59400493DEA /* DTrack.cpp */; };
 		3FBCDCFE166410A80004441F /* KeyModifier.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3FBCDCFC166410A80004441F /* KeyModifier.mm */; };
 		3aefe4fa8ad5c72671ad07f877fdd77f /* ofxRtMidiOut.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 712b183bc00ebffb1eea5ab8d509f735 /* ofxRtMidiOut.cpp */; };
@@ -208,6 +190,7 @@
 		3F332B6F166A40CD00814FE4 /* Quint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quint.h; sourceTree = "<group>"; };
 		3F332B70166A40CD00814FE4 /* Sine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sine.cpp; sourceTree = "<group>"; };
 		3F332B71166A40CD00814FE4 /* Sine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sine.h; sourceTree = "<group>"; };
+		3F444F1916A6060A00B73928 /* Evt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Evt.h; sourceTree = "<group>"; };
 		3F80037C1647F3AF006F8AAB /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
 		3F80039016480CC0006F8AAB /* Seq.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Seq.cpp; sourceTree = "<group>"; };
 		3F80039116480CC0006F8AAB /* Seq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Seq.h; sourceTree = "<group>"; };
@@ -219,25 +202,6 @@
 		3F80039B1648108B006F8AAB /* Ancient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Ancient.cpp; sourceTree = "<group>"; };
 		3F80039C1648108B006F8AAB /* Ancient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ancient.h; sourceTree = "<group>"; };
 		3FA9DE3416988E3500332733 /* ancient.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = ancient.icns; sourceTree = "<group>"; };
-		3FA9DE3816988ECD00332733 /* .gitkeep */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitkeep; sourceTree = "<group>"; };
-		3FA9DE3A16988ECD00332733 /* jat_break_a.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = jat_break_a.xml; sourceTree = "<group>"; };
-		3FA9DE3B16988ECD00332733 /* jat_break_b.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = jat_break_b.xml; sourceTree = "<group>"; };
-		3FA9DE3C16988ECD00332733 /* jat_tech_a.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = jat_tech_a.xml; sourceTree = "<group>"; };
-		3FA9DE3E16988ECD00332733 /* AvantGarde-Book.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "AvantGarde-Book.ttf"; sourceTree = "<group>"; };
-		3FA9DE3F16988ECD00332733 /* DIN.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = DIN.otf; sourceTree = "<group>"; };
-		3FA9DE4016988ECD00332733 /* frabk.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = frabk.ttf; sourceTree = "<group>"; };
-		3FA9DE4116988ECD00332733 /* lmmonolt10-bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "lmmonolt10-bold.otf"; sourceTree = "<group>"; };
-		3FA9DE4216988ECD00332733 /* mono.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = mono.ttf; sourceTree = "<group>"; };
-		3FA9DE4316988ECD00332733 /* verdana.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = verdana.ttf; sourceTree = "<group>"; };
-		3FA9DE4516988ECD00332733 /* drd_bourus_1.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = drd_bourus_1.xml; sourceTree = "<group>"; };
-		3FA9DE4616988ECD00332733 /* drd_indus_1.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = drd_indus_1.xml; sourceTree = "<group>"; };
-		3FA9DE4716988ECD00332733 /* jat_break_a.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = jat_break_a.xml; sourceTree = "<group>"; };
-		3FA9DE4816988ECD00332733 /* jat_break_b.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = jat_break_b.xml; sourceTree = "<group>"; };
-		3FA9DE4916988ECD00332733 /* jat_break_c.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = jat_break_c.xml; sourceTree = "<group>"; };
-		3FA9DE4A16988ECD00332733 /* jat_semitech.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = jat_semitech.xml; sourceTree = "<group>"; };
-		3FA9DE4B16988ECD00332733 /* jat_tech_a.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = jat_tech_a.xml; sourceTree = "<group>"; };
-		3FA9DE4C16988ECD00332733 /* jat_tech_b.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = jat_tech_b.xml; sourceTree = "<group>"; };
-		3FA9DE4D16988ECD00332733 /* nun_tech_01.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = nun_tech_01.xml; sourceTree = "<group>"; };
 		3FB11C24165BA59400493DEA /* DTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DTrack.cpp; sourceTree = "<group>"; };
 		3FB11C25165BA59400493DEA /* DTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DTrack.h; sourceTree = "<group>"; };
 		3FBCDCFC166410A80004441F /* KeyModifier.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = KeyModifier.mm; sourceTree = "<group>"; };
@@ -484,57 +448,6 @@
 			path = PennerEasing;
 			sourceTree = "<group>";
 		};
-		3FA9DE3716988ECD00332733 /* data */ = {
-			isa = PBXGroup;
-			children = (
-				3FA9DE3816988ECD00332733 /* .gitkeep */,
-				3FA9DE3916988ECD00332733 /* back */,
-				3FA9DE3D16988ECD00332733 /* fonts */,
-				3FA9DE4416988ECD00332733 /* preset */,
-			);
-			name = data;
-			path = bin/data;
-			sourceTree = "<group>";
-		};
-		3FA9DE3916988ECD00332733 /* back */ = {
-			isa = PBXGroup;
-			children = (
-				3FA9DE3A16988ECD00332733 /* jat_break_a.xml */,
-				3FA9DE3B16988ECD00332733 /* jat_break_b.xml */,
-				3FA9DE3C16988ECD00332733 /* jat_tech_a.xml */,
-			);
-			path = back;
-			sourceTree = "<group>";
-		};
-		3FA9DE3D16988ECD00332733 /* fonts */ = {
-			isa = PBXGroup;
-			children = (
-				3FA9DE3E16988ECD00332733 /* AvantGarde-Book.ttf */,
-				3FA9DE3F16988ECD00332733 /* DIN.otf */,
-				3FA9DE4016988ECD00332733 /* frabk.ttf */,
-				3FA9DE4116988ECD00332733 /* lmmonolt10-bold.otf */,
-				3FA9DE4216988ECD00332733 /* mono.ttf */,
-				3FA9DE4316988ECD00332733 /* verdana.ttf */,
-			);
-			path = fonts;
-			sourceTree = "<group>";
-		};
-		3FA9DE4416988ECD00332733 /* preset */ = {
-			isa = PBXGroup;
-			children = (
-				3FA9DE4516988ECD00332733 /* drd_bourus_1.xml */,
-				3FA9DE4616988ECD00332733 /* drd_indus_1.xml */,
-				3FA9DE4716988ECD00332733 /* jat_break_a.xml */,
-				3FA9DE4816988ECD00332733 /* jat_break_b.xml */,
-				3FA9DE4916988ECD00332733 /* jat_break_c.xml */,
-				3FA9DE4A16988ECD00332733 /* jat_semitech.xml */,
-				3FA9DE4B16988ECD00332733 /* jat_tech_a.xml */,
-				3FA9DE4C16988ECD00332733 /* jat_tech_b.xml */,
-				3FA9DE4D16988ECD00332733 /* nun_tech_01.xml */,
-			);
-			path = preset;
-			sourceTree = "<group>";
-		};
 		42bf03ef6f2841da666d74905c10a5f2 /* hTable */ = {
 			isa = PBXGroup;
 			children = (
@@ -766,7 +679,6 @@
 				E45BE5980E8CC70C009D7055 /* frameworks */,
 				E4B69B5B0A3A1756003C02F2 /* ancient2Debug.app */,
 				3FA9DE3416988E3500332733 /* ancient.icns */,
-				3FA9DE3716988ECD00332733 /* data */,
 			);
 			sourceTree = "<group>";
 		};
@@ -793,6 +705,7 @@
 				3F1D1723165E34E7007F2072 /* ConfTrack.h */,
 				3FBCDCFC166410A80004441F /* KeyModifier.mm */,
 				3FBCDCFD166410A80004441F /* KeyModifier.h */,
+				3F444F1916A6060A00B73928 /* Evt.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -973,24 +886,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				3FA9DE3616988E8F00332733 /* ancient.icns in Resources */,
-				3FA9DE4F16988ECD00332733 /* jat_break_a.xml in Resources */,
-				3FA9DE5016988ECD00332733 /* jat_break_b.xml in Resources */,
-				3FA9DE5116988ECD00332733 /* jat_tech_a.xml in Resources */,
-				3FA9DE5216988ECD00332733 /* AvantGarde-Book.ttf in Resources */,
-				3FA9DE5316988ECD00332733 /* DIN.otf in Resources */,
-				3FA9DE5416988ECD00332733 /* frabk.ttf in Resources */,
-				3FA9DE5516988ECD00332733 /* lmmonolt10-bold.otf in Resources */,
-				3FA9DE5616988ECD00332733 /* mono.ttf in Resources */,
-				3FA9DE5716988ECD00332733 /* verdana.ttf in Resources */,
-				3FA9DE5816988ECD00332733 /* drd_bourus_1.xml in Resources */,
-				3FA9DE5916988ECD00332733 /* drd_indus_1.xml in Resources */,
-				3FA9DE5A16988ECD00332733 /* jat_break_a.xml in Resources */,
-				3FA9DE5B16988ECD00332733 /* jat_break_b.xml in Resources */,
-				3FA9DE5C16988ECD00332733 /* jat_break_c.xml in Resources */,
-				3FA9DE5D16988ECD00332733 /* jat_semitech.xml in Resources */,
-				3FA9DE5E16988ECD00332733 /* jat_tech_a.xml in Resources */,
-				3FA9DE5F16988ECD00332733 /* jat_tech_b.xml in Resources */,
-				3FA9DE6016988ECD00332733 /* nun_tech_01.xml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

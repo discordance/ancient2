@@ -31,7 +31,6 @@ Seq::Seq(){
     m_mach_multiplier = (double)tinfo.numer / tinfo.denom;
     m_mach_multiplier = 1.0 / m_mach_multiplier; // to nano seconds factor
     
-    m_groove = vector<float>(SEQ_LOOP_SIZE,0.);
     m_gonsets = vector<bool>(m_max_ticks/8, false);
 
     // init mutes to 0
@@ -125,17 +124,26 @@ void Seq::set_playing(bool status)
     }
 }
 
+/*
 vector<float> Seq::get_groove()
 {
     return m_groove;
 }
+*/ 
 
+int Seq::get_max_ticks()
+{
+    return m_max_ticks;
+}
+
+/*
 void Seq::set_groove(vector<float> groove)
 {
     m_groove = groove;
-    update_drum_tracks(m_ancient->get_tracks());
+    //update_drum_tracks(m_ancient->get_tracks());
 }
-
+ */
+/*
 void Seq::set_groove_point()
 {
     if(!m_started)
@@ -147,6 +155,7 @@ void Seq::set_groove_point()
     {
         m_gonsets = vector<bool>(m_max_ticks/8, false);
     }
+    
     int at = (m_ticks+m_midi_delay)%(m_max_ticks/8);
     m_gonsets.at(at) = true;
     vector<float> grooves(4, 0.0);
@@ -208,16 +217,18 @@ void Seq::set_groove_point()
         int cct = grv - m_groove.begin();
         *grv = grooves.at(cct%grooves.size());
     }
-    update_drum_tracks(m_ancient->get_tracks());
+    //update_drum_tracks(m_ancient->get_tracks());
 }
+*/
 
+/*
 void Seq::reset_groove()
 {
     m_gonsets = vector<bool>(m_max_ticks/8,false);
     m_groove = vector<float>(SEQ_LOOP_SIZE, 0.0);
-    update_drum_tracks(m_ancient->get_tracks());
+    //update_drum_tracks(m_ancient->get_tracks());
 }
-
+*/
 void Seq::toggle_mute(int track, bool status)
 {
     m_mutes[track] = status;
@@ -227,6 +238,20 @@ void Seq::toggle_mute(int track, bool status)
 float Seq::get_bpm()
 {
     return m_bpm;
+}
+
+void Seq::update(vector< vector<Evt> > & events)
+{
+    if(lock())
+    {
+         m_events = events;
+         unlock();
+    }
+}
+
+map< string, vector<int> > Seq::get_pitches()
+{
+    return m_pitches;
 }
 
 int Seq::get_ticks()
@@ -245,7 +270,7 @@ void Seq::set_midi_delay(int dly)
 }
 
 // SWINGGG
-void Seq::set_classic_swing(float swing)
+vector<float> Seq::classic_swing(float swing)
 {
     if(swing >= 1){ swing = 0.99; }
     if(swing <= -1){ swing = -0.99; }
@@ -261,11 +286,10 @@ void Seq::set_classic_swing(float swing)
             groove.push_back(0);
         }
     }
-    m_groove = groove;
-    update_drum_tracks(m_ancient->get_tracks());
+    return groove;
 }
 
-void Seq::set_cycle_swing(float swing)
+vector<float> Seq::cycle_swing(float swing)
 {
     if(swing >= 1){ swing = 0.99; }
     if(swing <= -1){ swing = -0.99; }
@@ -285,8 +309,7 @@ void Seq::set_cycle_swing(float swing)
             groove.push_back(0);
         }
     }
-    m_groove = groove;
-    update_drum_tracks(m_ancient->get_tracks());
+    return groove;
 }
 
 
@@ -298,13 +321,62 @@ void Seq::exit()
     m_virtual_midiOut.closePort();
 }
 
-void Seq::update_drum_tracks(vector<DTrack> *tracks) // v1, replace all
+vector< vector<Evt> > Seq::generate_events(vector<DTrack> *tracks, vector<float> & groove, map< string, vector<int> > & pitches, int max_ticks)
 {
     /***********************************************
-     * V2
+     * V3 STATIC !!!
      *
      ***/
     
+    vector< vector<Evt> > res_evts;
+    for(int i = 0; i < max_ticks; ++i)
+    {
+        res_evts.push_back(vector<Evt>(0));
+    }
+    
+    int mult = max_ticks/SEQ_LOOP_SIZE;
+    std::vector<DTrack>::iterator track;
+    for(track = tracks->begin(); track != tracks->end(); ++track)
+    {
+        // track num
+        int tr_num = track->get_conf().track_id;
+        
+        // get current
+        vector<Step>* current = track->get_current();
+        int ps = current->size(); // phrase size
+        //vector<Step>::iterator step;
+        map<int, vector<int> > evts; // events map for the track to correct it
+        for(int i = 0; i < SEQ_LOOP_SIZE; ++i)
+        {
+            int modi=i%ps;
+            Step cstep = current->at(modi);
+            
+            if(cstep.vel)
+            {
+                vector<int> evt;
+                int t_dur = (cstep.dur*mult)-1;
+                int cstick = i * mult; // current start tick
+                float drift_val = groove.at(i);
+                int drift = mult*(1+drift_val) - mult; // TEST
+                cstick += drift;
+                int cetick = cstick + t_dur;
+                int vel = ofMap(cstep.vel, 0, 15, 0, 127);
+                evt.push_back(cstick);
+                evt.push_back(cetick);
+                evt.push_back(vel);
+                evts[i] = evt;
+            }
+            else
+            {
+                evts[i] = vector<int>(0);
+            }
+        }
+        
+        Seq::correct_and_update(res_evts, evts, tr_num, pitches["stdr"].at(tr_num), max_ticks);
+    }
+       
+    return res_evts;
+    /*
     if(lock())
     {
         reset_events();
@@ -350,17 +422,17 @@ void Seq::update_drum_tracks(vector<DTrack> *tracks) // v1, replace all
             // correct the overlaping events and update
             //cout << "track : " << track->get_conf().track_id << " size: " << evts.size() << endl;
             correct_and_update(evts, tr_num, m_pitches["stdr"].at(tr_num));
-            cout << "event " << tr_num << " " << evts[0].size() << endl;
+            //cout << "event " << tr_num << " " << evts[0].size() << endl;
         }
         unlock();
-    }
+    }*/
 }
 
 //--------------------------------------------------------------
 
-void Seq::correct_and_update(map<int, vector<int> >& evt_map, int track, int pitch)
+    
+void Seq::correct_and_update(vector< vector<Evt> > & evts, map<int, vector<int> > & evt_map, int track, int pitch, int max_ticks)
 {
-    cout << "correct_and_update " << evt_map[0].size() << " " << track << endl;
     vector<int> *n_p = NULL;
     vector<int> *n_c = NULL;
     map<int, vector<int> >::iterator curr;
@@ -394,7 +466,7 @@ void Seq::correct_and_update(map<int, vector<int> >& evt_map, int track, int pit
             
             if(n_p->at(0) != last_add)
             {
-                add_event(n_p->at(0), n_p->at(1), track, pitch, n_p->at(2));
+                add_event(evts, n_p->at(0), n_p->at(1), track, pitch, n_p->at(2));
                 last_add = n_p->at(0);
             }
             
@@ -402,11 +474,11 @@ void Seq::correct_and_update(map<int, vector<int> >& evt_map, int track, int pit
             {
                 if(n_c->size())
                 {
-                    if(n_c->at(1) >= m_max_ticks)
+                    if(n_c->at(1) >= max_ticks)
                     {
-                        n_c->at(1) = m_max_ticks-1;
+                        n_c->at(1) = max_ticks-1;
                     }
-                    add_event(n_c->at(0), n_c->at(1), track, pitch, n_c->at(2));
+                    add_event(evts, n_c->at(0), n_c->at(1), track, pitch, n_c->at(2));
                 }
             }
         }
@@ -415,11 +487,11 @@ void Seq::correct_and_update(map<int, vector<int> >& evt_map, int track, int pit
             if(n_c->size() && curr == last)
             {
                             
-                if(n_c->at(1) >= m_max_ticks)
+                if(n_c->at(1) >= max_ticks)
                 {
-                    n_c->at(1) = m_max_ticks - 1;
+                    n_c->at(1) = max_ticks - 1;
                 }
-                add_event(n_c->at(0), n_c->at(1), track, pitch, n_c->at(2));
+                add_event(evts, n_c->at(0), n_c->at(1), track, pitch, n_c->at(2));
             }
         }
     }
@@ -447,9 +519,10 @@ int Seq::get_quav()
     return quav;
 }
 
-// thread
+// thread 
 void Seq::threadedFunction()
 {
+    //cout << "in thread func " << isCurrentThread() << endl;
     uint64_t diff = 0;
     sendMidiClock(1);
     while( isThreadRunning() != 0 )
@@ -562,10 +635,8 @@ void Seq::kill_events(int chan, int pitch)
     m_virtual_midiOut.sendNoteOff(chan, pitch ,0);
 }
 
-void Seq::add_event(int start, int end, int track, int pitch, int vel)
+void Seq::add_event(vector< vector<Evt> > & evts, int start, int end, int track, int pitch, int vel)
 {
-    cout << "addevent " << track << " " << start << endl;
-    
     Evt on;
     on.track = track;
     on.status = 1; // note on on channel 10
@@ -580,9 +651,9 @@ void Seq::add_event(int start, int end, int track, int pitch, int vel)
     off.pitch = pitch;
     off.vel = vel;
     
-    vector<Evt>* event_line_on = &m_events.at(start%m_events.size());
+    vector<Evt>* event_line_on = &evts.at(start%evts.size());
     event_line_on->push_back(on);
-    vector<Evt>* event_line_off = &m_events.at(end%m_events.size());
+    vector<Evt>* event_line_off = &evts.at(end%evts.size());
     event_line_off->push_back(off);
 }
 
