@@ -5,6 +5,7 @@
 void testApp::setup()
 {
     ofSetFrameRate(60);
+    ofSetDataPathRoot("../Resources/"); // set data
     // title
     ofSetWindowTitle("ancient sequencer II");
     m_ancient.set_seq(&m_seq);
