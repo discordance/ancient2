@@ -35,6 +35,7 @@ DTrack::DTrack(int track_id, int track_size)
     m_euclid_permutation_rate = 1.;
     
     // current default
+    /*
     m_track_current = generate_empty_phr(m_track_size);
     
     m_vanilla_beat = vector<bool>(m_track_size,false); // conf: disk
@@ -42,7 +43,8 @@ DTrack::DTrack(int track_id, int track_size)
     m_alternation_beat = vector<bool>(m_track_size,false); // conf: disk
     m_permutation_places = vector<bool>(m_track_size,false); // conf: disk
     m_velocities = vector<int>(0,0);// conf: disk
-    
+    */
+    reset();
 }
 
 void DTrack::set_conf(ConfTrack conf)
@@ -274,6 +276,7 @@ void DTrack::generate(ConfTrack conf)
     
     if(!conf.track_onsets) // no need if no onsets haha
     {
+        reset();
         return;
     }
     // get the beat motherfucker
@@ -679,6 +682,7 @@ float DTrack::wjacc(vector<int>& s1, vector<int>& s2)
     }
     return (1 - (same / (diff + same)));
 }
+
 void DTrack::upper_compressor(vector<int> *phr, int max_vel)
 {
     vector<int>::iterator vel;
@@ -689,4 +693,17 @@ void DTrack::upper_compressor(vector<int> *phr, int max_vel)
             *vel = max_vel;
         }
     }
+}
+
+
+void DTrack::reset()
+{
+    // current default
+    m_track_current = generate_empty_phr(m_track_size);
+    
+    m_vanilla_beat = vector<bool>(m_track_size,false); // conf: disk
+    m_shadow_beat = vector<bool>(m_track_size,false);; // conf: disk
+    m_alternation_beat = vector<bool>(m_track_size,false); // conf: disk
+    m_permutation_places = vector<bool>(m_track_size,false); // conf: disk
+    m_velocities = vector<int>(0,0);// conf: disk
 }

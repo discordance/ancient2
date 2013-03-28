@@ -20,10 +20,13 @@ Seq::Seq(){
     
     // not synced by default
     m_synced_seq = false;
-    m_resolution = SEQ_HI_RES;
+    m_resolution = SEQ_HI_RES; //SEQ_HI_RES
     m_reso_multiplier = (double)1.0/m_resolution;
     m_max_ticks = (m_resolution / 4) * SEQ_LOOP_SIZE;
     m_max_steps = SEQ_LOOP_SIZE;
+    
+    // record patterns on a4
+    m_a4_send = false;
     
     // mach time
     mach_timebase_info_data_t tinfo;
@@ -50,10 +53,16 @@ Seq::Seq(){
     {
         m_hard_midiOut.closePort();
     }
+
+    // detect analog four
+    if(!m_hard_a4USBIn.openPort("Elektron Analog Four"))
+    {
+        m_hard_a4USBIn.closePort();
+    }
     
     // midi init
-    m_midiIn.openVirtualPort("Ancient2 SYNC IN");
-    m_midiIn.ignoreTypes(false, false, false);
+    m_virtual_midiIn.openVirtualPort("Ancient2 SYNC IN");
+    m_virtual_midiIn.ignoreTypes(false, false, false);
     
     // virtual port
     m_virtual_midiOut.openVirtualPort("Ancient2 NOTES OUT");
@@ -62,7 +71,7 @@ Seq::Seq(){
     m_sync_out.openVirtualPort("Ancient2 SYNC OUT");
 	
 	// add testApp as a listener
-	m_midiIn.addListener(this);
+	m_virtual_midiIn.addListener(this);
     
     // pitchs
     // stdr pitch map
@@ -81,6 +90,16 @@ Seq::Seq(){
     m_pitches["stdr"] = stdr_pitchmap;
     
     ofLog(OF_LOG_NOTICE, "initialized Ancient2 sequencer with a resolution of: "+ofToString(m_max_ticks));
+    
+    m_poco_thread = &getPocoThread();
+    //m_poco_thread->setOSPriority(Poco::ThreadImpl::PRIO_HIGHEST_IMPL);
+    //m_poco_thread->setOSPriority(m_poco_thread->getMaxOSPriority());
+    //m_poco_thread->get
+    //pthread_t threadID = (pthread_t) m_poco_thread->tid();
+    
+    //cout << "priority " << m_poco_thread->getOSPriority() << endl;
+    //cout << "tid " << getPocoThread().tid() << endl;
+    
 }
 
 void Seq::set_synced(bool status)
@@ -119,114 +138,21 @@ void Seq::set_playing(bool status)
     else
     {
         startThread();
+        /*
+        pthread_t threadID = (pthread_t) m_poco_thread->tid();
+        struct sched_param param;
+        int policy;
+        policy = SCHED_RR;
+        param.sched_priority = sched_get_priority_max(SCHED_RR);
+         */
+        //std::cout << "ret " << pthread_setschedparam(threadID, policy, &param) << std::endl;
     }
 }
-
-/*
-vector<float> Seq::get_groove()
-{
-    return m_groove;
-}
-*/ 
 
 int Seq::get_max_ticks()
 {
     return m_max_ticks;
 }
-
-/*
-void Seq::set_groove(vector<float> groove)
-{
-    m_groove = groove;
-    //update_drum_tracks(m_ancient->get_tracks());
-}
- */
-/*
-void Seq::set_groove_point()
-{
-    if(!m_started)
-    {
-        return;
-    }
-    
-    if(accumulate(m_gonsets.begin(),  m_gonsets.end(), 0) >= 1)
-    {
-        m_gonsets = vector<bool>(m_max_ticks/8, false);
-    }
-    
-    int at = (m_ticks+m_midi_delay)%(m_max_ticks/8);
-    m_gonsets.at(at) = true;
-    vector<float> grooves(4, 0.0);
-    vector<int> indexes;
-    for(vector<bool>::iterator it = m_gonsets.begin(); it != m_gonsets.end(); ++it)
-    {
-        int ct = it - m_gonsets.begin();
-        if(*it)
-        {
-            float cont_step = (float)ct/(m_resolution/4);
-            float dec_part = cont_step-floor(cont_step);
-            int step = floor(cont_step);
-            if(dec_part > 0.5)
-            {
-                step+=1;
-                grooves.at(step%grooves.size()) = - (1-dec_part);
-            }
-            else
-            {
-                grooves.at(step%grooves.size()) = dec_part;
-            }
-            indexes.push_back(step%grooves.size());
-        }
-    }
-    
-    int bound_low = 0;
-    int bound_up = 0;
-    int idx = 0;
-    float last = 0.;
-    for(vector<float>::iterator grv = grooves.begin(); grv != grooves.end(); ++grv)
-    {
-        int cct = grv - grooves.begin();
-        if(*grv == 0. && indexes.size())
-        {
-            if(idx != indexes.size())
-            {
-                bound_up = indexes.at(idx);
-                float next = grooves.at(indexes.at(idx));
-                float time = ofMap(cct, (float)bound_low, (float)bound_up, 0, 1);
-                *grv = Sine::easeIn(time, 0. , time, next);
-            }
-            else
-            {
-                bound_up = grooves.size()-1;
-                float time = ofMap(cct, (float)bound_low, (float)bound_up, 0, 1);
-                *grv = Sine::easeOut(time, 0. , time, last);//ofMap(cct, (float)bound_low, (float)bound_up, last, 0);
-            }
-        }
-        else
-        {
-            bound_low = cct;
-            last = *grv;
-            idx++;
-        }
-    }
-
-    for(vector<float>::iterator grv = m_groove.begin(); grv != m_groove.end(); ++grv)
-    {
-        int cct = grv - m_groove.begin();
-        *grv = grooves.at(cct%grooves.size());
-    }
-    //update_drum_tracks(m_ancient->get_tracks());
-}
-*/
-
-/*
-void Seq::reset_groove()
-{
-    m_gonsets = vector<bool>(m_max_ticks/8,false);
-    m_groove = vector<float>(SEQ_LOOP_SIZE, 0.0);
-    //update_drum_tracks(m_ancient->get_tracks());
-}
-*/
 void Seq::toggle_mute(int track, bool status)
 {
     m_mutes[track] = status;
@@ -314,8 +240,8 @@ vector<float> Seq::cycle_swing(float swing)
 void Seq::exit()
 {
     kill_events(10); // note off on drum events
-    m_midiIn.closePort();
-    m_midiIn.removeListener(this);
+    m_virtual_midiIn.closePort();
+    m_virtual_midiIn.removeListener(this);
     m_virtual_midiOut.closePort();
 }
 
@@ -346,7 +272,7 @@ vector< vector<Evt> > Seq::generate_events(vector<DTrack> *tracks, vector<float>
         map<int, vector<int> > evts; // events map for the track to correct it
         for(int i = 0; i < SEQ_LOOP_SIZE; ++i)
         {
-            int modi=i%ps;
+            int modi=i%ps; // bug
             Step cstep = current->at(modi);
             
             if(cstep.vel)
@@ -374,56 +300,6 @@ vector< vector<Evt> > Seq::generate_events(vector<DTrack> *tracks, vector<float>
     }
        
     return res_evts;
-    /*
-    if(lock())
-    {
-        reset_events();
-        int mult = m_max_ticks/m_max_steps;
-        std::vector<DTrack>::iterator track;
-        for(track = tracks->begin(); track != tracks->end(); ++track)
-        {
-            // track num
-            int tr_num = track->get_conf().track_id;
-            
-            // get current
-            vector<Step>* current = track->get_current();
-            int ps = current->size(); // phrase size
-            //vector<Step>::iterator step;
-            map<int, vector<int> > evts; // events map for the track to correct it
-            
-            for(int i = 0; i < m_max_steps; ++i)
-            {
-                int modi=i%ps;
-                Step cstep = current->at(modi);
-                
-                if(cstep.vel)
-                {
-                    vector<int> evt;
-                    int t_dur = (cstep.dur*mult)-1;
-                    int cstick = i * mult; // current start tick
-                    float drift_val = m_groove.at(i);
-                    int drift = mult*(1+drift_val) - mult; // TEST
-                    cstick += drift;
-                    int cetick = cstick + t_dur;
-                    int vel = ofMap(cstep.vel, 0, 15, 0, 127);
-                    evt.push_back(cstick);
-                    evt.push_back(cetick);
-                    evt.push_back(vel);
-                    evts[i] = evt;
-                }
-                else
-                {
-                    evts[i] = vector<int>(0);
-                }
-                
-            }
-            // correct the overlaping events and update
-            //cout << "track : " << track->get_conf().track_id << " size: " << evts.size() << endl;
-            correct_and_update(evts, tr_num, m_pitches["stdr"].at(tr_num));
-            //cout << "event " << tr_num << " " << evts[0].size() << endl;
-        }
-        unlock();
-    }*/
 }
 
 //--------------------------------------------------------------
@@ -520,33 +396,41 @@ int Seq::get_quav()
 // thread 
 void Seq::threadedFunction()
 {
-    //cout << "in thread func " << isCurrentThread() << endl;
+    // set realtime
+    uint64_t nanos = 2902490;
+    uint64_t absolute = (uint64_t)(nanos * m_mach_multiplier);
     uint64_t diff = 0;
+    
+    set_realtime(absolute, absolute*0.5, absolute * 0.85);
+    
     sendMidiClock(1);
     while( isThreadRunning() != 0 )
     {
-
-        if((m_ticks+m_midi_delay) % (int)(m_resolution*0.25) == 0)
-        {
-            m_ancient->notify( get_quav() );
-        }
        //
         if( lock() )
         {
+            long ss = ofGetElapsedTimeMicros();
+            uint64_t start = mach_absolute_time();
+            //if((m_ticks+m_midi_delay) % (int)(m_resolution*0.25) == 0)
+            //{
+            //    m_ancient->notify( get_quav() );
+            //}
+            
             int at = (m_ticks+m_midi_delay)%m_max_ticks;
             if(at < 0)
             {
                 at = 0;
             }
             vector<Evt> *line = &m_events.at(at);
-            // send events
             
             ++m_ticks;
             
-            unlock();
-            
             // send events
             send_events(line);
+            if(m_ticks % (m_resolution/24) == 0 )
+            {
+                sendMidiClock(0); // yiiiia
+            }
             
             // time and wait
             double sec_to_wait = 60/(double)m_bpm;
@@ -555,13 +439,12 @@ void Seq::threadedFunction()
             uint64_t sleepTimeInTicks = (uint64_t)(nanos * m_mach_multiplier) - diff;
             uint64_t time = mach_absolute_time();
             
-            if(m_ticks % (m_resolution/24) == 0 )
-            {
-                sendMidiClock(0); // yiiiia
-            }
-            
             mach_wait_until(time + sleepTimeInTicks);
-            diff = mach_absolute_time() - (time + sleepTimeInTicks);
+            //diff = mach_absolute_time() - (time + sleepTimeInTicks);
+            //cout << ofGetElapsedTimeMicros() - ss << endl;
+            //cout << diff << endl;
+            unlock();
+            
         }
     }
     sendMidiClock(2);
@@ -572,9 +455,9 @@ void Seq::newMidiMessage(ofxMidiMessage& msg)
 {
     if(!m_synced_seq){ return; } // not synced
     
-    int quav = (m_ticks+m_midi_delay) / (m_resolution/4) ;
-    quav = quav % (m_max_ticks/(m_resolution/4));
-    m_ancient->notify( quav );
+    //int quav = (m_ticks+m_midi_delay) / (m_resolution/4) ;
+    //quav = quav % (m_max_ticks/(m_resolution/4));
+    //m_ancient->notify( quav );
     
     if( lock() )
     {
@@ -592,6 +475,7 @@ void Seq::newMidiMessage(ofxMidiMessage& msg)
         {
             m_started = true;
             m_ticks = 0;
+            sendMidiClock(1);
         }
         // stop
         if (msg.status == 252)
@@ -600,6 +484,7 @@ void Seq::newMidiMessage(ofxMidiMessage& msg)
             m_ticks = 0;
             // send all channels / noteoffs
             kill_events(10);
+            sendMidiClock(2);
         }
         //pause (reaper)
         if (msg.status == 251)
@@ -616,9 +501,9 @@ void Seq::newMidiMessage(ofxMidiMessage& msg)
             // update ticks
             m_ticks++;
             
+            sendMidiClock(0);
             // compute the bpm
-            m_bpm = 60000.0/(ofGetElapsedTimeMillis()-m_clock_past_time)/24;
-            m_clock_past_time = ofGetElapsedTimeMillis();
+            //m_bpm = 60000.0/(ofGetElapsedTimeMillis()-m_clock_past_time)/24;
         }
         unlock();
     }  
@@ -661,7 +546,6 @@ void Seq::add_event(vector< vector<Evt> > & evts, int start, int end, int track,
 
 void Seq::sendMidiClock(int status)
 {
-
     vector<unsigned char> bytes;
     if(status == 2)
     {
@@ -680,6 +564,10 @@ void Seq::sendMidiClock(int status)
     {
         m_hard_midiOut.sendMidiBytes(bytes);
     }
+    if(m_hard_a4USBIn.isOpen())
+    {
+        m_hard_a4USBIn.sendMidiBytes(bytes);
+    }
     if(m_network_out.isOpen())
     {
         m_network_out.sendMidiBytes(bytes);
@@ -688,8 +576,12 @@ void Seq::sendMidiClock(int status)
 
 void Seq::send_events(vector<Evt>* evts)
 {
-   
+    long st = ofGetElapsedTimeMicros();
     vector<Evt>::iterator ev;
+    if(!evts->size())
+    {
+        return;
+    }
     for(ev = evts->begin(); ev != evts->end(); ++ev )
     {
         if(!m_mutes[ev->track])
@@ -705,6 +597,7 @@ void Seq::send_events(vector<Evt>* evts)
                 {
                     m_network_out.sendNoteOn(ev->channel, ev->pitch, ev->vel);
                 }
+                sendA4NoteOn(ev->pitch,  ev->vel);
             }
             else
             {
@@ -717,9 +610,79 @@ void Seq::send_events(vector<Evt>* evts)
                 {
                     m_network_out.sendNoteOff(ev->channel, ev->pitch, ev->vel);
                 }
+                sendA4NoteOff(ev->pitch,  ev->vel);
             }
         }
     }
+    //cout << ofGetElapsedTimeMicros() - st << endl;
+}
+
+void Seq::sendA4NoteOn(int pitch, int vel)
+{
+    if(m_a4_send && m_hard_a4USBIn.isOpen())
+    {
+        switch (pitch) {
+            case 36:
+                m_hard_a4USBIn.sendNoteOn(1, 64, vel);
+                break;
+            case 41:
+                m_hard_a4USBIn.sendNoteOn(2, 64, vel);
+                break;
+            case 38:
+                m_hard_a4USBIn.sendNoteOn(3, 64, vel);
+                break;
+            case 42:
+                m_hard_a4USBIn.sendNoteOn(4, 64, vel);
+                break;
+                
+            default:
+                break;
+        }
+    }
+}
+
+void Seq::sendA4NoteOff(int pitch, int vel)
+{
+    if(m_a4_send && m_hard_a4USBIn.isOpen())
+    {
+        switch (pitch) {
+            case 36:
+                m_hard_a4USBIn.sendNoteOff(1, 64, vel);
+                break;
+            case 41:
+                m_hard_a4USBIn.sendNoteOff(2, 64, vel);
+                break;
+            case 38:
+                m_hard_a4USBIn.sendNoteOff(3, 64, vel);
+                break;
+            case 42:
+                m_hard_a4USBIn.sendNoteOff(4, 64, vel);
+                break;
+                
+            default:
+                break;
+        }
+    }
+}
+
+// hardcore
+int Seq::set_realtime(int period, int computation, int constraint)
+{
+    struct thread_time_constraint_policy ttcpolicy;
+    int ret;
+    
+    ttcpolicy.period=period; // HZ/160
+    ttcpolicy.computation=computation; // HZ/3300;
+    ttcpolicy.constraint=constraint; // HZ/2200;
+    ttcpolicy.preemptible=1;
+    
+    if ((ret=thread_policy_set(mach_thread_self(),
+                               THREAD_TIME_CONSTRAINT_POLICY, (thread_policy_t)&ttcpolicy,
+                               THREAD_TIME_CONSTRAINT_POLICY_COUNT)) != KERN_SUCCESS) {
+        fprintf(stderr, "set_realtime() failed.\n");
+        return 0;
+    }
+    return 1;
 }
 
 

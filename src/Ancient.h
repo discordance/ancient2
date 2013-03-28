@@ -66,7 +66,6 @@ class Ancient : public ofThread
         
         // thread
         void threadedFunction();
-    
         // refactoring the seq stuff
         /**
         vector< vector<Evt> > generate_events();

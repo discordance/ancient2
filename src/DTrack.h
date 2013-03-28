@@ -79,6 +79,7 @@ class DTrack {
         
         // adds the current track groove to the phrase
         void update_groove();
+        void reset();
         vector<Step> generate_empty_phr(int size);
         vector<Step> generate_phr(vector<int> & vels, vector<float> & groove);
     

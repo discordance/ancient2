@@ -266,8 +266,9 @@ void Ancient::threadedFunction()
         }
         vector< vector<Evt> > result = Seq::generate_events(&m_tracks, m_groove, pitches, max_ticks);
         m_seq->update(result);
+        
+        notify(m_seq->get_quav());
         unlock();
-        //stopThread();
         ofSleepMillis(20);
     } 
 }

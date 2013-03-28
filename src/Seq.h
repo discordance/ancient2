@@ -11,6 +11,9 @@
 #include <vector>
 #include <map>
 #include <mach/mach_time.h>
+#include <mach/thread_act.h>
+#include <mach/thread_policy.h>
+#include <sched.h> 
 #include "PennerEasing/Sine.h"
 #include "ofxMidi.h"
 #include "utils/ofLog.h"
@@ -69,12 +72,24 @@ class Seq : public ofxMidiListener, public ofThread
         void kill_events(int chan);
         void kill_events(int chan, int pitch);
         void do_nudge();
+    
+        // thread
+        void threadedFunction();
+        void sendMidiClock(int status);
+    
+        //a4
+        void sendA4NoteOn(int pitch, int vel);
+        void sendA4NoteOff(int pitch, int vel);
+        
+        int set_realtime(int period, int computation, int constraint);
         
         // midi
-        ofxMidiIn   m_midiIn;
+        
+        ofxMidiIn   m_virtual_midiIn;
         ofxMidiOut  m_virtual_midiOut; // for internal routing
         ofxMidiOut  m_sync_out;
         ofxMidiOut  m_hard_midiOut; // for hardware routing
+        ofxMidiOut  m_hard_a4USBIn;
         ofxMidiOut  m_network_out;
         ofxMidiMessage m_midiMessage;
         
@@ -114,12 +129,13 @@ class Seq : public ofxMidiListener, public ofThread
         // mach time
         double m_mach_multiplier;
     
-        // thread
-        void threadedFunction();
-        void sendMidiClock(int status);
+        // analog four notes routing
+        bool m_a4_send;
     
         //testing
         vector<bool> m_gonsets;
+    
+        Poco::Thread * m_poco_thread;
 };
 
 
