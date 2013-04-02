@@ -31,7 +31,7 @@ Seq::Seq(){
     // mach time
     mach_timebase_info_data_t tinfo;
     mach_timebase_info(&tinfo);
-    m_mach_multiplier = (double)tinfo.numer / tinfo.denom;
+    m_mach_multiplier = ((double)tinfo.numer / (double)tinfo.denom);
     m_mach_multiplier = 1.0 / m_mach_multiplier; // to nano seconds factor
     
     m_gonsets = vector<bool>(m_max_ticks/8, false);
@@ -138,14 +138,6 @@ void Seq::set_playing(bool status)
     else
     {
         startThread();
-        /*
-        pthread_t threadID = (pthread_t) m_poco_thread->tid();
-        struct sched_param param;
-        int policy;
-        policy = SCHED_RR;
-        param.sched_priority = sched_get_priority_max(SCHED_RR);
-         */
-        //std::cout << "ret " << pthread_setschedparam(threadID, policy, &param) << std::endl;
     }
 }
 
@@ -199,11 +191,14 @@ vector<float> Seq::classic_swing(float swing)
     if(swing >= 1){ swing = 0.99; }
     if(swing <= -1){ swing = -0.99; }
     vector<float> groove;
+    float gauss = 0;
     for(int i = 0; i < SEQ_LOOP_SIZE ; ++i)
     {
+        if(swing != 0){ gauss = ofxGaussian() * 0.06 +0.02;};
+        
         if(i % 2 != 0)
         {
-            groove.push_back(swing);
+            groove.push_back(swing+gauss);
         }
         else
         {
@@ -217,10 +212,16 @@ vector<float> Seq::cycle_swing(float swing)
 {
     if(swing >= 1){ swing = 0.99; }
     if(swing <= -1){ swing = -0.99; }
+    int modl = 2;
+    if(swing < 0)
+    {
+        modl = 1;
+    }
+    
     vector<float> groove;
     for(int i = 0; i < SEQ_LOOP_SIZE ; ++i)
     {
-        if(i % 2 != 0)
+        if(i % modl != 0)
         {
             float grv = (i%8)/8.;
             grv *= 0.9;
@@ -397,54 +398,64 @@ int Seq::get_quav()
 void Seq::threadedFunction()
 {
     // set realtime
-    uint64_t nanos = 2902490;
-    uint64_t absolute = (uint64_t)(nanos * m_mach_multiplier);
+    uint64_t absolute = (uint64_t)(500000 * m_mach_multiplier); //2902490
     uint64_t diff = 0;
-    
+    uint64_t nanos = 0;
+    uint64_t sleepTimeInTicks = 0;// - diff;
+    uint64_t time = 0;
+    uint64_t until = 0;
+    vector<Evt> *line;
+    double sec_to_wait = 0;
+    int at = 0;
+    long ss = 0;
+    uint64_t start = 0;
+    OSSpinLock spin_lock = OS_SPINLOCK_INIT;
     set_realtime(absolute, absolute*0.5, absolute * 0.85);
     
     sendMidiClock(1);
     while( isThreadRunning() != 0 )
     {
-       //
-        if( lock() )
+        if(OSSpinLockTry(&spin_lock))
         {
-            long ss = ofGetElapsedTimeMicros();
-            uint64_t start = mach_absolute_time();
-            //if((m_ticks+m_midi_delay) % (int)(m_resolution*0.25) == 0)
-            //{
-            //    m_ancient->notify( get_quav() );
-            //}
+            start = mach_absolute_time();
             
-            int at = (m_ticks+m_midi_delay)%m_max_ticks;
+            at = (m_ticks+m_midi_delay)%m_max_ticks;
             if(at < 0)
             {
                 at = 0;
             }
-            vector<Evt> *line = &m_events.at(at);
+            
+            line = &m_events.at(at);
             
             ++m_ticks;
             
             // send events
-            send_events(line);
-            if(m_ticks % (m_resolution/24) == 0 )
+            
+            if(m_ticks % (m_resolution/SEQ_MIDI_RES) == 0 )
             {
                 sendMidiClock(0); // yiiiia
+                //cout << (60000000.0/(ofGetElapsedTimeMicros() - ss)/24) << endl;
+                ss = ofGetElapsedTimeMicros();
             }
+            if(m_ticks % (m_resolution/(SEQ_MIDI_RES/4)) == 0 )
+            {
+                sendSpp(m_ticks/(m_resolution/(SEQ_MIDI_RES/4)));
+            }
+           // cout <<  << endl;
+            send_events(line);
             
             // time and wait
-            double sec_to_wait = 60/(double)m_bpm;
+            sec_to_wait = 60/(double)m_bpm;
             sec_to_wait *= m_reso_multiplier;
-            uint64_t nanos = sec_to_wait*1000000000;
-            uint64_t sleepTimeInTicks = (uint64_t)(nanos * m_mach_multiplier) - diff;
-            uint64_t time = mach_absolute_time();
+            nanos = sec_to_wait*1000000000;
+            time = mach_absolute_time();
+            sleepTimeInTicks = (uint64_t)(nanos * m_mach_multiplier) - diff - (time-start);
             
-            mach_wait_until(time + sleepTimeInTicks);
-            //diff = mach_absolute_time() - (time + sleepTimeInTicks);
-            //cout << ofGetElapsedTimeMicros() - ss << endl;
-            //cout << diff << endl;
-            unlock();
-            
+            until = (time + (sleepTimeInTicks));
+            mach_wait_until(until);
+            diff = mach_absolute_time() - until;
+
+            OSSpinLockUnlock(&spin_lock);
         }
     }
     sendMidiClock(2);
@@ -494,14 +505,12 @@ void Seq::newMidiMessage(ofxMidiMessage& msg)
         // time
         if (msg.status == 248 && m_started)
         {
-            
-            // send events
-            send_events(line);
-            
             // update ticks
             m_ticks++;
             
             sendMidiClock(0);
+            // send events
+            send_events(line);
             // compute the bpm
             //m_bpm = 60000.0/(ofGetElapsedTimeMillis()-m_clock_past_time)/24;
         }
@@ -546,6 +555,7 @@ void Seq::add_event(vector< vector<Evt> > & evts, int start, int end, int track,
 
 void Seq::sendMidiClock(int status)
 {
+    
     vector<unsigned char> bytes;
     if(status == 2)
     {
@@ -574,9 +584,30 @@ void Seq::sendMidiClock(int status)
     }
 }
 
+void Seq::sendSpp(int position)
+{
+    vector<unsigned char> bytes;
+    bytes.push_back(MIDI_SONG_POS_POINTER);
+    bytes.push_back(position);
+    
+    m_sync_out.sendMidiBytes(bytes);
+    if(m_hard_midiOut.isOpen())
+    {
+        m_hard_midiOut.sendMidiBytes(bytes);
+    }
+    if(m_hard_a4USBIn.isOpen())
+    {
+        m_hard_a4USBIn.sendMidiBytes(bytes);
+    }
+    if(m_network_out.isOpen())
+    {
+        m_network_out.sendMidiBytes(bytes);
+    }
+}
+
 void Seq::send_events(vector<Evt>* evts)
 {
-    long st = ofGetElapsedTimeMicros();
+    //long st = ofGetElapsedTimeMicros();
     vector<Evt>::iterator ev;
     if(!evts->size())
     {
@@ -614,7 +645,6 @@ void Seq::send_events(vector<Evt>* evts)
             }
         }
     }
-    //cout << ofGetElapsedTimeMicros() - st << endl;
 }
 
 void Seq::sendA4NoteOn(int pitch, int vel)

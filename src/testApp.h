@@ -1,11 +1,11 @@
 #pragma once
 
 #include "ofMain.h"
+
 // gui
 #include "hEvents.h"
 #include "hObject.h"
 #include "hWidget.h"
-
 // test
 #include "ofxXmlSettings.h"
 #include "PennerEasing/Sine.h"

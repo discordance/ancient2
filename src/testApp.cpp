@@ -789,7 +789,7 @@ void testApp::keyPressed(int key)
             break;
             
         case 44: // comma
-            m_conf.euclid_density = 0.08;
+            m_conf.euclid_density = 0.0;
             update_evolve();
             break;
         case 46: // dot
@@ -1033,11 +1033,17 @@ void testApp::drawTracks()
 
 void testApp::refresh_presets()
 {
-    ofFile file;
+    ofFile file;    
+    ofDirectory preset_dir;
+    preset_dir.open("~/Documents/Ancient2Presets");
+    if(!preset_dir.exists())
+    {
+        preset_dir.create();
+    }
+    
     if(file.open(ofToDataPath("preset")))
     {
-        ofDirectory preset_dir;
-        preset_dir.open(ofToDataPath("preset"));
+        //preset_dir.open(ofToDataPath("preset"));
         preset_dir.allowExt("xml");
         preset_dir.listDir();
         hListBox* box = (hListBox*)m_ui_elements["list_presets"];

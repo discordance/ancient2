@@ -13,9 +13,9 @@
 #include <mach/mach_time.h>
 #include <mach/thread_act.h>
 #include <mach/thread_policy.h>
-#include <sched.h> 
-#include "PennerEasing/Sine.h"
+//#include "PennerEasing/Sine.h"
 #include "ofxMidi.h"
+#include "ofxGaussian.h"
 #include "utils/ofLog.h"
 #include "utils/ofUtils.h"
 class Ancient;
@@ -76,6 +76,7 @@ class Seq : public ofxMidiListener, public ofThread
         // thread
         void threadedFunction();
         void sendMidiClock(int status);
+        void sendSpp(int position);
     
         //a4
         void sendA4NoteOn(int pitch, int vel);
