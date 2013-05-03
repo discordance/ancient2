@@ -647,6 +647,7 @@ void testApp::el_onSave(hEventArgs& args)
         
         ofxXmlSettings preset;
         preset.setValue("preset:global:name", box->getLabel());
+        preset.setValue("preset:global:tempo", (float)m_bpm);
         preset.setValue("preset:global:swing_val", m_swing);
         preset.pushTag("preset");
         preset.pushTag("global");
@@ -718,6 +719,8 @@ void testApp::el_onLoad(hEventArgs& args)
                 m_ancient.set_jaccard_variation(m_jakvar_ratio);
                 
                 m_swing = m_loaded_preset.getValue("preset:global:swing_val",0.);
+                m_bpm = m_loaded_preset.getValue("preset:global:tempo",0.);
+                m_seq.set_bpm(m_bpm);
                 m_loaded_preset.pushTag("preset");
                 m_loaded_preset.pushTag("tracks");
                 m_ancient.load_preset(&m_loaded_preset);
