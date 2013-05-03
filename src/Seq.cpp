@@ -141,6 +141,12 @@ void Seq::set_playing(bool status)
     }
 }
 
+void Seq::set_a4_mode(bool status)
+{
+    m_a4_send = status;
+    cout << status << endl;
+}
+
 int Seq::get_max_ticks()
 {
     return m_max_ticks;
@@ -561,7 +567,6 @@ void Seq::add_event(vector< vector<Evt> > & evts, int start, int end, int track,
 
 void Seq::sendMidiClock(int status)
 {
-    
     vector<unsigned char> bytes;
     if(status == 2)
     {
@@ -611,9 +616,56 @@ void Seq::sendSpp(int position)
     }
 }
 
+void Seq::send_event(vector<Evt>::iterator ev)
+{
+    if(m_a4_send)
+    {
+        if(!m_mutes[ev->track])
+        {
+            if(ev->status)
+            {
+                sendA4NoteOn(ev->pitch,  ev->vel);
+            }
+            else
+            {
+                sendA4NoteOff(ev->pitch,  ev->vel);
+            }
+        }
+        if(ev->status)
+        {
+            m_virtual_midiOut.sendNoteOn(ev->channel, ev->pitch, ev->vel);
+            sendHardOutNoteOn(ev->channel, ev->pitch, ev->vel);
+            sendNetworkNoteOn(ev->channel, ev->pitch, ev->vel);
+        }
+        else
+        {
+            m_virtual_midiOut.sendNoteOff(ev->channel, ev->pitch, ev->vel);
+            sendHardOutNoteOff(ev->channel, ev->pitch, ev->vel);
+            sendNetworkNoteOff(ev->channel, ev->pitch, ev->vel);
+        }
+    }
+    else
+    {
+        if(!m_mutes[ev->track])
+        {
+            if(ev->status)
+            {
+                m_virtual_midiOut.sendNoteOn(ev->channel, ev->pitch, ev->vel);
+                sendHardOutNoteOn(ev->channel, ev->pitch, ev->vel);
+                sendNetworkNoteOn(ev->channel, ev->pitch, ev->vel);
+            }
+            else
+            {
+                m_virtual_midiOut.sendNoteOff(ev->channel, ev->pitch, ev->vel);
+                sendHardOutNoteOff(ev->channel, ev->pitch, ev->vel);
+                sendNetworkNoteOff(ev->channel, ev->pitch, ev->vel);
+            }
+        }
+    }
+}
+
 void Seq::send_events(vector<Evt>* evts)
 {
-    //long st = ofGetElapsedTimeMicros();
     vector<Evt>::iterator ev;
     if(!evts->size())
     {
@@ -621,35 +673,37 @@ void Seq::send_events(vector<Evt>* evts)
     }
     for(ev = evts->begin(); ev != evts->end(); ++ev )
     {
-        if(!m_mutes[ev->track])
-        {
-            if(ev->status)
-            {
-                m_virtual_midiOut.sendNoteOn(ev->channel, ev->pitch, ev->vel);
-                if(m_hard_midiOut.isOpen())
-                {
-                    m_hard_midiOut.sendNoteOn(ev->channel, ev->pitch, ev->vel);
-                }
-                if(m_network_out.isOpen())
-                {
-                    m_network_out.sendNoteOn(ev->channel, ev->pitch, ev->vel);
-                }
-                sendA4NoteOn(ev->pitch,  ev->vel);
-            }
-            else
-            {
-                m_virtual_midiOut.sendNoteOff(ev->channel, ev->pitch, ev->vel);
-                if(m_hard_midiOut.isOpen())
-                {
-                    m_hard_midiOut.sendNoteOff(ev->channel, ev->pitch, ev->vel);
-                }
-                if(m_network_out.isOpen())
-                {
-                    m_network_out.sendNoteOff(ev->channel, ev->pitch, ev->vel);
-                }
-                sendA4NoteOff(ev->pitch,  ev->vel);
-            }
-        }
+        send_event(ev);
+    }
+}
+
+void Seq::sendHardOutNoteOn(int chan, int pitch, int vel)
+{
+    if(m_hard_midiOut.isOpen())
+    {
+        m_hard_midiOut.sendNoteOn(chan, pitch, vel);
+    }
+}
+void Seq::sendHardOutNoteOff(int chan, int pitch, int vel)
+{
+    if(m_hard_midiOut.isOpen())
+    {
+        m_hard_midiOut.sendNoteOff(chan, pitch, vel);
+    }
+}
+void Seq::sendNetworkNoteOn(int chan, int pitch, int vel)
+{
+    if(m_network_out.isOpen())
+    {
+        m_network_out.sendNoteOn(chan, pitch, vel);
+    }
+}
+
+void Seq::sendNetworkNoteOff(int chan, int pitch, int vel)
+{
+    if(m_network_out.isOpen())
+    {
+        m_network_out.sendNoteOff(chan, pitch, vel);
     }
 }
 

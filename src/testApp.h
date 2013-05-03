@@ -6,6 +6,8 @@
 #include "hEvents.h"
 #include "hObject.h"
 #include "hWidget.h"
+#include "hGui_all.h"
+
 // test
 #include "ofxXmlSettings.h"
 #include "PennerEasing/Sine.h"
@@ -62,6 +64,7 @@ class testApp : public ofBaseApp, public hObject {
         void el_onPresetName(hEventArgs& args);
         void el_onSave(hEventArgs& args);
         void el_onLoad(hEventArgs& args);
+        void el_onA4(hEventArgs& args);
     
         // constants
         static int const ON_VAR_COLOR = 0xAAAAAA;//
@@ -69,6 +72,7 @@ class testApp : public ofBaseApp, public hObject {
         static int const ON_GREY_COLOR = 0xDDDDDD;
         static int const ON_MAIN_COLOR = 0x000000;
         static int const ON_DARK_COLOR = 0x333333;
+        static int const ON_A4_COLOR = 0x69B1FF;
     
     protected:
         // sequencer
@@ -86,6 +90,7 @@ class testApp : public ofBaseApp, public hObject {
         int m_selected_track;
         bool m_synced;
         bool m_playing;
+        bool m_a4_mode;
         int  m_mid_delay;
         int  m_bpm;
         float m_swing;
@@ -94,6 +99,7 @@ class testApp : public ofBaseApp, public hObject {
         float m_jakvar_ratio;
         map<int,bool> m_mutes;
         map<int, bool> m_keys;
+        hGui * m_gui;
         
         // conf of current track
         ConfTrack m_conf;

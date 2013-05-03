@@ -44,6 +44,7 @@ class Seq : public ofxMidiListener, public ofThread
         void set_ancient(Ancient * anc);
         void toggle_mute(int track, bool status);
         void set_synced(bool status);
+        void set_a4_mode(bool status);
         void set_bpm(int bpm);
     
         void set_playing(bool status);
@@ -69,6 +70,7 @@ class Seq : public ofxMidiListener, public ofThread
         void reset_events();
         
         void send_events(vector<Evt> *evts);
+        void send_event(vector<Evt>::iterator ev);
         void kill_events(int chan);
         void kill_events(int chan, int pitch);
         void do_nudge();
@@ -81,8 +83,13 @@ class Seq : public ofxMidiListener, public ofThread
         //a4
         void sendA4NoteOn(int pitch, int vel);
         void sendA4NoteOff(int pitch, int vel);
+        void sendHardOutNoteOn(int chan, int pitch, int vel);
+        void sendHardOutNoteOff(int chan, int pitch, int vel);
+        void sendNetworkNoteOn(int chan, int pitch, int vel);
+        void sendNetworkNoteOff(int chan, int pitch, int vel);
         
         int set_realtime(int period, int computation, int constraint);
+    
         
         // midi
         

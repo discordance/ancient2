@@ -1,5 +1,5 @@
 #include "testApp.h"
-#include "hGui_all.h"
+
 
 //--------------------------------------------------------------
 void testApp::setup()
@@ -21,6 +21,7 @@ void testApp::setup()
     m_xorvar_ratio = 0.;
     m_jakvar_ratio = 0.;
     m_var_hold = false;
+    m_a4_mode = false;
     m_selected_track = 0;
     
     // init ancient
@@ -43,6 +44,7 @@ void testApp::setup()
 
     // gui
     hGui * gui = hGui::getInstance();
+    m_gui = gui;
     
     // create and initialize the events engine.
 	hEvents * evts = hEvents::getInstance();
@@ -84,6 +86,15 @@ void testApp::setup()
     evts->addListener("onPlay", this, &testApp::el_onPlay);
     ctrl_play->setMessage("testApp.onPlay");
     hLabel * label_start = gui->addLabel("", panel_transport, HGUI_RIGHT, gui->margin3 ,0, "play");
+    
+    // a4
+    hCheckBox* ctrl_a4 = gui->addCheckBox("a4_ctrl", panel_transport, HGUI_NEXT_COL, gui->margin3*2, gui->margin1*2);
+    ctrl_a4->setSelected(false);
+    ctrl_a4->setBoolVar(&m_a4_mode);
+    m_ui_elements["a4_ctrl"] = ctrl_a4;
+    evts->addListener("onA4", this, &testApp::el_onA4);
+    ctrl_a4->setMessage("testApp.onA4");
+    hLabel * label_a4 = gui->addLabel("", panel_transport, HGUI_RIGHT, gui->margin3 ,0, "a4");
     
     hCheckBox* ctrl_sync = gui->addCheckBox("sync_ctrl", panel_transport, HGUI_NEXT_ROW, gui->margin3, gui->margin3);
     ctrl_sync->setSelected(false);
@@ -181,7 +192,7 @@ void testApp::setup()
     gui->addPanel("", mainPanel, HGUI_TOP_LEFT, 0, panel_global->getHeight() + (gui->margin1*2), panelW-176, 137, true);
     
     hPanel * panel_euclid = gui->addPanel("", panel_generate, HGUI_TOP_LEFT, gui->margin1, gui->margin1, panelW/2 - gui->margin1, panel_generate->getHeight()-gui->margin1*2, true);
-    hLabel * label_euclid = gui->addLabel("", panel_euclid, HGUI_TOP_LEFT, 2, 0, "EUCLIDEAN");
+    hLabel * label_euclid = gui->addLabel("", panel_euclid, HGUI_TOP_LEFT, 2, 0, "PARAMETERS");
     
     hSlider* slider_evenness = gui->addSlider("evenness_slider", panel_euclid, HGUI_TOP_LEFT, gui->margin3, gui->margin1*2, 100);
     slider_evenness->setRange(0., 1., 2. );
@@ -333,6 +344,7 @@ void testApp::setup()
         ctrl_mute->setBoolVar(&m_mutes[i]);
         ctrl_mute->setMessage("testApp.onMute");
         m_ui_elements["mute_"+ofToString(i)+"_panel"] = pane;
+        m_ui_elements["mute_"+ofToString(i)+"_check"] = ctrl_mute;
         
         if(m_selected_track == i)
         {
@@ -596,6 +608,30 @@ void testApp::el_onPresetName(hEventArgs& args)
     //}
 }
 
+void testApp::el_onA4(hEventArgs& args)
+{
+    m_seq.set_a4_mode(m_a4_mode);
+    hCheckBox* ctrl_mute;
+    if(m_a4_mode)
+    {
+        m_gui->sliderColor = ON_A4_COLOR;
+        for(int i = 0; i < 8; ++i)
+        {
+            ctrl_mute = (hCheckBox*)m_ui_elements["mute_"+ofToString(i)+"_check"];
+            ctrl_mute->setColor(ON_A4_COLOR);
+        }
+    }
+    else
+    {
+        m_gui->sliderColor = ON_SECOND_COLOR;
+        for(int i = 0; i < 8; ++i)
+        {
+            ctrl_mute = (hCheckBox*)m_ui_elements["mute_"+ofToString(i)+"_check"];
+            ctrl_mute->setColor(ON_SECOND_COLOR);
+        }
+    }
+}
+
 void testApp::el_onSave(hEventArgs& args)
 {
     hButton * b;
@@ -650,7 +686,6 @@ void testApp::el_onSave(hEventArgs& args)
         refresh_presets();
     }
 }
-
 
 void testApp::el_onLoad(hEventArgs& args)
 {
