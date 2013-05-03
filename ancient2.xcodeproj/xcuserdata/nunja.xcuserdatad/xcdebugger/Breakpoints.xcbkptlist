@@ -8,25 +8,12 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "src/Seq.cpp"
-         timestampString = "386607588.194531"
+         timestampString = "389022584.558815"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "302"
-         endingLineNumber = "302"
+         startingLineNumber = "306"
+         endingLineNumber = "306"
          landmarkName = "Seq::generate_events(vector&lt;DTrack&gt; *tracks, vector&lt;float&gt; &amp; groove, map&lt; string, vector&lt;int&gt; &gt; &amp; pitches, int max_ticks)"
-         landmarkType = "5">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "src/testApp.cpp"
-         timestampString = "386613008.009401"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1038"
-         endingLineNumber = "1038"
-         landmarkName = "testApp::refresh_presets()"
          landmarkType = "5">
       </FileBreakpoint>
    </FileBreakpoints>

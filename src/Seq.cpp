@@ -49,11 +49,11 @@ Seq::Seq(){
     }
     
     // detect MOTU
-    if(!m_hard_midiOut.openPort("UltraLite mk3 MIDI Port"))
+    if(!m_hard_midiOut.openPort("UltraLite mk3 MIDI Port") &&
+       !m_hard_midiOut.openPort("Fireface 400 (7CA) Port 2"))
     {
         m_hard_midiOut.closePort();
     }
-
     // detect analog four
     if(!m_hard_a4USBIn.openPort("Elektron Analog Four"))
     {
@@ -198,7 +198,7 @@ vector<float> Seq::classic_swing(float swing)
         
         if(i % 2 != 0)
         {
-            groove.push_back(swing+gauss);
+            groove.push_back(swing);
         }
         else
         {
@@ -269,6 +269,10 @@ vector< vector<Evt> > Seq::generate_events(vector<DTrack> *tracks, vector<float>
         // get current
         vector<Step>* current = track->get_current();
         int ps = current->size(); // phrase size
+        if(!ps)
+        {
+            continue;
+        }
         //vector<Step>::iterator step;
         map<int, vector<int> > evts; // events map for the track to correct it
         for(int i = 0; i < SEQ_LOOP_SIZE; ++i)
@@ -437,10 +441,12 @@ void Seq::threadedFunction()
                 //cout << (60000000.0/(ofGetElapsedTimeMicros() - ss)/24) << endl;
                 ss = ofGetElapsedTimeMicros();
             }
+            /*
             if(m_ticks % (m_resolution/(SEQ_MIDI_RES/4)) == 0 )
             {
                 sendSpp(m_ticks/(m_resolution/(SEQ_MIDI_RES/4)));
             }
+             */
            // cout <<  << endl;
             send_events(line);
             
@@ -597,7 +603,7 @@ void Seq::sendSpp(int position)
     }
     if(m_hard_a4USBIn.isOpen())
     {
-        m_hard_a4USBIn.sendMidiBytes(bytes);
+        //m_hard_a4USBIn.sendMidiBytes(bytes);
     }
     if(m_network_out.isOpen())
     {

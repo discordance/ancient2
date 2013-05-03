@@ -640,20 +640,14 @@ void testApp::el_onSave(hEventArgs& args)
             track->add_to_preset(&preset);
         }
         
-        ofFile file;
-        if(!file.open(ofToDataPath("preset")))
-        {
-            ofDirectory::createDirectory(ofToDataPath("preset"));
-        }
-        
         if(box->getLabel() != "")
         {
-            preset.saveFile("preset/"+box->getLabel()+".xml");
+            ofDirectory preset_dir;
+            preset_dir.open("~/Documents/Ancient2Presets");
+            preset.saveFile(preset_dir.getAbsolutePath()+"/"+box->getLabel()+".xml");
         }
         box->clearLabel(); // clear to avoid conneries
         refresh_presets();
-        //cout << ofToDataPath("presets/"+box->getLabel()+".xml") << endl;
-        // save global
     }
 }
 
@@ -673,7 +667,9 @@ void testApp::el_onLoad(hEventArgs& args)
         string filename = box->getSelectedElementLabel();
         if(filename != "")
         {
-            filename = ofToDataPath("preset/"+filename + ".xml");
+            ofDirectory preset_dir;
+            preset_dir.open("~/Documents/Ancient2Presets");
+            filename = preset_dir.getAbsolutePath() + "/" + filename + ".xml";
             ofFile ff;
             ff.open(filename);
             if(m_loaded_preset.loadFile(filename))
@@ -1040,33 +1036,28 @@ void testApp::refresh_presets()
     {
         preset_dir.create();
     }
-    
-    if(file.open(ofToDataPath("preset")))
+
+    preset_dir.allowExt("xml");
+    preset_dir.listDir();
+    hListBox* box = (hListBox*)m_ui_elements["list_presets"];
+    box->clear();
+    box->addItems(3, "");
+    //go through and print out all the paths
+    for(int i = 0; i < preset_dir.numFiles(); i++)
     {
-        //preset_dir.open(ofToDataPath("preset"));
-        preset_dir.allowExt("xml");
-        preset_dir.listDir();
-        hListBox* box = (hListBox*)m_ui_elements["list_presets"];
-        box->clear();
-        box->addItems(3, "");
-        //go through and print out all the paths
-        for(int i = 0; i < preset_dir.numFiles(); i++)
+        file = preset_dir.getFile(i);
+        string name = file.getFileName();
+        int lastindex = name.find_last_of(".");
+        string rawname = name.substr(0, lastindex);
+        if(i+1 <= 3)
         {
-            file = preset_dir.getFile(i);
-            string name = file.getFileName();
-            int lastindex = name.find_last_of(".");
-            string rawname = name.substr(0, lastindex);
-            if(i+1 <= 3)
-            {
-                box->setElementLabel(i+1, rawname);
-            }
-            else
-            {
-                box->addData(rawname);
-            }
+            box->setElementLabel(i+1, rawname);
+        }
+        else
+        {
+            box->addData(rawname);
         }
     }
-
 }
 
 void testApp::update_conf(ConfTrack conf)
