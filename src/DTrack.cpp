@@ -21,7 +21,7 @@ DTrack::DTrack(int track_id, int track_size)
     m_track_onsets = 0;
     m_track_rotation = 0.;
     m_track_evenness = 1.;
-    m_track_groove = vector<float>(4,0.); // @TODO find an extension algo
+    m_track_groove = vector<float>(8,0.); // @TODO find an extension algo
     //vector<Step> m_track_current; // current form of the track after transforms
     m_velocity_mode = Euclid::VEL_STATIC;
     m_velocity_min = 0;
@@ -33,6 +33,11 @@ DTrack::DTrack(int track_id, int track_size)
     m_euclid_permutation = 0.;
     m_euclid_evolution_rate = 0.2;
     m_euclid_permutation_rate = 1.;
+    
+    m_groove_cycle = 2;
+    m_groove_ratio = 0.;
+    
+    m_track_seed = 0;
     
     // current default
     /*
@@ -62,6 +67,9 @@ void DTrack::set_conf(ConfTrack conf)
     m_euclid_permutation = conf.euclid_permutation;
     m_euclid_evolution_rate = conf.euclid_evolution_rate;
     m_euclid_permutation_rate = conf.euclid_permutation_rate;
+    m_groove_cycle = conf.groove_cycle;
+    m_groove_ratio = conf.groove_ratio;
+    m_track_seed = conf.track_seed;
 }
 
 ConfTrack DTrack::get_conf()
@@ -80,6 +88,9 @@ ConfTrack DTrack::get_conf()
     conf.euclid_permutation = m_euclid_permutation;
     conf.euclid_evolution_rate = m_euclid_evolution_rate;
     conf.euclid_permutation_rate = m_euclid_permutation_rate;
+    conf.groove_cycle = m_groove_cycle;
+    conf.groove_ratio = m_groove_ratio;
+    conf.track_seed = m_track_seed;
     return conf;
 }
 
@@ -117,6 +128,10 @@ void DTrack::load_preset(ofxXmlSettings * settings)
     conf.euclid_permutation = settings->getValue("euclid_permutation",0.);
     conf.euclid_evolution_rate = settings->getValue("euclid_evolution_rate",0.);
     conf.euclid_permutation_rate = settings->getValue("euclid_permutation_rate",0.);
+    conf.groove_cycle = settings->getValue("groove_cycle",2);
+    conf.groove_ratio = settings->getValue("groove_ratio",0.);
+    conf.track_seed = settings->getValue("seed",0);
+    
     set_conf(conf);
     
     settings->pushTag("velocities");
@@ -180,6 +195,7 @@ void DTrack::load_preset(ofxXmlSettings * settings)
         Step st;
         st.vel = settings->getValue("vel", 0);
         st.dur = settings->getValue("dur", 0);
+        st.drift = settings->getValue("drift", 0.);
         st.chance = settings->getValue("chance", 0.);
         curr.push_back(st);
         settings->popTag();
@@ -209,6 +225,9 @@ void DTrack::add_to_preset(ofxXmlSettings * settings)
     settings->setValue("euclid_permutation",0.);
     settings->setValue("euclid_evolution_rate",conf.euclid_evolution_rate);
     settings->setValue("euclid_permutation_rate",conf.euclid_permutation_rate);
+    settings->setValue("groove_cycle",conf.groove_cycle);
+    settings->setValue("groove_ratio",conf.groove_ratio);
+    settings->setValue("seed",conf.track_seed);
     
     vector<int>::iterator int_erator;
     vector<bool>::iterator bool_erator;
@@ -263,6 +282,7 @@ void DTrack::add_to_preset(ofxXmlSettings * settings)
         settings->pushTag("step",step-curr->begin());
         settings->setValue("vel", step->vel);
         settings->setValue("dur", step->dur);
+        settings->setValue("drift", step->drift);
         settings->setValue("chance", step->chance);
         settings->popTag();
     }
@@ -273,6 +293,9 @@ void DTrack::add_to_preset(ofxXmlSettings * settings)
 void DTrack::generate(ConfTrack conf)
 {
     set_conf(conf);
+    
+    // set seed !!!
+    srand(m_track_seed);
     
     if(!conf.track_onsets) // no need if no onsets haha
     {
@@ -286,7 +309,7 @@ void DTrack::generate(ConfTrack conf)
     }
     else
     {
-        m_vanilla_beat = Euclid::gen_permuted_intervals(m_track_size, m_track_onsets);
+        m_vanilla_beat = Euclid::gen_permuted_intervals(m_track_size, m_track_onsets, conf.track_evenness);
     }
     
     Euclid::rotate_beat(m_vanilla_beat, m_track_rotation);
@@ -328,6 +351,9 @@ void DTrack::generate(ConfTrack conf)
     // assemble vels and beat
     // @ TODO permutation rate and evolution rate
     vector<int> vels = Euclid::assemble(m_vanilla_beat, m_velocities);
+    
+    generate_groove(conf.groove_cycle, conf.groove_ratio);
+    
     m_track_current = generate_phr(vels, m_track_groove);
     evolve(m_euclid_density, m_euclid_permutation);
 }
@@ -519,10 +545,28 @@ void DTrack::evolve(float level, float permute)
             }
         }
     }
-    
     m_track_current = generate_phr(vels, m_track_groove);
     m_track_prev_current = m_track_current;
      
+}
+
+void DTrack::generate_groove(int cycles, float ratio)
+{
+    vector<float> grv;
+    float drift = 0;
+    for(int i = 0; i < 8; ++i)
+    {
+        if(i%cycles == 0)
+        {
+            drift = ratio;
+        }
+        else
+        {
+            drift = 0.;
+        }
+        grv.push_back(drift);
+    }
+    m_track_groove = grv;
 }
 
 void DTrack::update_groove()
@@ -530,7 +574,7 @@ void DTrack::update_groove()
     vector<Step>::iterator step;
     for(step = m_track_current.begin(); step != m_track_current.end(); ++step)
     {
-        step->drift = m_track_groove.at((step - m_track_current.begin())%4);
+        step->drift = m_track_groove.at((step - m_track_current.begin())%8);
     }
 }
 
@@ -545,7 +589,7 @@ vector<Step> DTrack::generate_phr(vector<int> & vels, vector<float> & groove)
         st.vel = *vel;
         st.dur = 1;
         st.lock = FALSE;
-        st.drift = groove.at((vel - vels.begin())%4);
+        st.drift = groove.at((vel - vels.begin())%8);
         st.ctrl = map<int,float>();
         st.chance = 1.;
         

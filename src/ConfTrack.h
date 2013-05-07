@@ -20,6 +20,7 @@ struct ConfTrack {
     int track_onsets; // conf: disk + iface
     float track_rotation; // conf: disk + iface
     float track_evenness;
+    int track_seed;
     unsigned int velocity_mode; // conf: disk + iface
     int velocity_min;
     int velocity_max;
@@ -32,6 +33,10 @@ struct ConfTrack {
     float euclid_permutation; // conf: disk + iface
     float euclid_evolution_rate; // conf: disk + iface
     float euclid_permutation_rate; // conf: disk + iface
+    
+    // groove properties
+    int groove_cycle;
+    float groove_ratio;
 };
 
 #endif

@@ -43,6 +43,7 @@ class DTrack {
         void set_jaccard_variation(float thres, bool mode = false);
         void evolve(float level, float permute);
         
+        
     protected:
         
         // PROPERTIES STORED ON DISK
@@ -76,8 +77,14 @@ class DTrack {
         float m_euclid_permutation; // conf: disk + iface 
         float m_euclid_evolution_rate; // conf: disk + iface 
         float m_euclid_permutation_rate; // conf: disk + iface
+    
+        int m_track_seed;
+    
+        int m_groove_cycle;
+        float m_groove_ratio;
         
         // adds the current track groove to the phrase
+        void generate_groove(int cycles, float ratio);
         void update_groove();
         void reset();
         vector<Step> generate_empty_phr(int size);

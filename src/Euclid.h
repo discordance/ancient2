@@ -78,6 +78,7 @@ class Euclid {
     
         // normal gaussian rand
         static float normal(float mean, float stdev);
+        static int seedRand(int i);
         
     private:
         // utils

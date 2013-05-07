@@ -291,7 +291,18 @@ vector< vector<Evt> > Seq::generate_events(vector<DTrack> *tracks, vector<float>
                 vector<int> evt;
                 int t_dur = (cstep.dur*mult)-1;
                 int cstick = i * mult; // current start tick
-                float drift_val = groove.at(i);
+                float drift_val = 0;// = groove.at(i);
+
+                if(cstep.drift == 0)
+                {
+                    drift_val = groove.at(i);
+                }
+                else
+                {
+                    //cout << cstep.drift << endl;
+                    drift_val = cstep.drift;
+                }
+                
                 int drift = mult*(1+drift_val) - mult; // TEST
                 cstick += drift;
                 int cetick = cstick + t_dur;
@@ -532,15 +543,25 @@ void Seq::newMidiMessage(ofxMidiMessage& msg)
 
 void Seq::kill_events(int chan)
 {
-    for (int i = 0; i < 128; i++)
+    // less events, less hardcore
+    for (int i = 30; i < 50; i++)
     {
         m_virtual_midiOut.sendNoteOff(chan,i,0);
+        if(m_hard_midiOut.isOpen()){ m_hard_midiOut.sendNoteOff(chan,i,0);};
+        if(m_network_out.isOpen()){ m_network_out.sendNoteOff(chan,i,0); };
+        //a4
+        sendA4NoteOff(i,0);
+        
     }
 }
 
 void Seq::kill_events(int chan, int pitch)
 {
     m_virtual_midiOut.sendNoteOff(chan, pitch ,0);
+    if(m_hard_midiOut.isOpen()){ m_hard_midiOut.sendNoteOff(chan,pitch,0);};
+    if(m_network_out.isOpen()){ m_network_out.sendNoteOff(chan,pitch,0); };
+    // a4
+    sendA4NoteOff(pitch,0);
 }
 
 void Seq::add_event(vector< vector<Evt> > & evts, int start, int end, int track, int pitch, int vel)

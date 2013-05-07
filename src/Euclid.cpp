@@ -8,33 +8,11 @@
 
 #include "Euclid.h"
 
-namespace Solution3
+
+int Euclid::seedRand(int i)
 {
-    template<class T>
-    struct CompareDeref
-    {
-        bool operator()( const T& a, const T& b ) const
-        { return *a < *b; }
-    };
-    
-    
-    template<class T, class U>
-    struct Pair2nd
-    {
-        const U& operator()( const std::pair<T,U>& a ) const
-        { return a.second; }
-    };
-    
-    
-    template<class IterIn, class IterOut>
-    void sort_idxtbl( IterIn first, IterIn last, IterOut out )
-    {
-        std::multimap<IterIn, int, CompareDeref<IterIn> > v;
-        for( int i=0; first != last; ++i, ++first )
-            v.insert( std::make_pair( first, i ) );
-        std::transform( v.begin(), v.end(), out,
-                       Pair2nd<IterIn const,int>() );
-    }
+    //std::srand(5);
+    return std::rand()%i;
 }
 
 /**
@@ -98,6 +76,7 @@ vector<bool> Euclid::gen_permuted_intervals(int size, int onsets, float evenness
     }
     
     // shuffle
+    //srand(5);
     random_shuffle(ivals.begin(), ivals.end());
     res = Euclid::get_beat(ivals, size);
     return res;

@@ -34,6 +34,7 @@ void testApp::setup()
     m_conf.track_rotation = 0.;
     m_conf.track_size = 16;
     m_conf.track_evenness = 1.;
+    m_conf.track_seed = 0;
     m_conf.velocity_max = 13;
     m_conf.velocity_min = 0;
     m_conf.euclid_bias = 0.;
@@ -41,6 +42,8 @@ void testApp::setup()
     m_conf.euclid_permutation = 0.;
     m_conf.euclid_evolution_rate = 0.2;
     m_conf.euclid_permutation_rate = 1.;
+    m_conf.groove_cycle = 2;
+    m_conf.groove_ratio = 0.;
 
     // gui
     hGui * gui = hGui::getInstance();
@@ -231,6 +234,21 @@ void testApp::setup()
     slider_permutation_rate->setFloatVar(&m_conf.euclid_permutation_rate);
     hLabel * label_permutation_rate = gui->addLabel("", panel_euclid, HGUI_RIGHT, gui->margin3 , 0, "permutation rate");
     
+    hSlider* slider_seed = gui->addSlider("seed_slider", panel_euclid, HGUI_NEXT_ROW, slider_evolution_rate->getX()-20,  gui->margin3, 100);
+    slider_seed->setRange(0, 128);
+    slider_seed->setIntVar(&m_conf.track_seed);
+    hLabel * label_slider_seed = gui->addLabel("", panel_euclid, HGUI_RIGHT, gui->margin3 , 0, "seed");
+    
+    hSlider* slider_groove_cycle = gui->addSlider("groove_cycle_slider", panel_euclid, HGUI_NEXT_ROW, slider_evolution_rate->getX()-20,  gui->margin3, 100);
+    slider_groove_cycle->setRange(2, 8);
+    slider_groove_cycle->setIntVar(&m_conf.groove_cycle);
+    hLabel * label_slider_groove_cycle = gui->addLabel("", panel_euclid, HGUI_RIGHT, gui->margin3 , 0, "groove_cycle");
+    
+    hSlider* slider_groove_ratio = gui->addSlider("groove_ratio_slider", panel_euclid, HGUI_NEXT_ROW, slider_evolution_rate->getX()-20,  gui->margin3, 100);
+    slider_groove_ratio->setRange(-0.99, 0.99);
+    slider_groove_ratio->setFloatVar(&m_conf.groove_ratio);
+    hLabel * label_slider_groove_ratio = gui->addLabel("", panel_euclid, HGUI_RIGHT, gui->margin3 , 0, "groove_ratio");
+    
     evts->addListener("onGenerate", this, &testApp::el_onGenerate);
     
     slider_evenness->setMessage("testApp.onGenerate");
@@ -240,6 +258,9 @@ void testApp::setup()
     slider_bias->setMessage("testApp.onGenerate");
     slider_permutation_rate->setMessage("testApp.onGenerate");
     slider_evolution_rate->setMessage("testApp.onGenerate");
+    slider_seed->setMessage("testApp.onGenerate");
+    slider_groove_cycle->setMessage("testApp.onGenerate");
+    slider_groove_ratio->setMessage("testApp.onGenerate");
     
     hPanel * panel_velocity = gui->addPanel("", panel_generate, HGUI_NEXT_COL, gui->margin1, gui->margin1, panelW/4 - gui->margin1, panel_generate->getHeight()-gui->margin1*2, true);
     hLabel * label_velocity = gui->addLabel("", panel_velocity, HGUI_TOP_LEFT, 2, 0, "VELOCITY");
@@ -1113,6 +1134,9 @@ void testApp::update_conf(ConfTrack conf)
     m_conf.euclid_permutation = conf.euclid_permutation;
     m_conf.euclid_evolution_rate = conf.euclid_evolution_rate;
     m_conf.euclid_permutation_rate = conf.euclid_permutation_rate;
+    m_conf.track_seed = conf.track_seed;
+    m_conf.groove_cycle = conf.groove_cycle;
+    m_conf.groove_ratio = conf.groove_ratio;
 }
 
 

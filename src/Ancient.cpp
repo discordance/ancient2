@@ -155,46 +155,12 @@ void Ancient::set_seq(Seq *seq)
     m_seq->set_ancient(this);
     //m_seq->update_drum_tracks(&m_tracks);
 }
-
-// protected --------------------------------------
-/*
-void Ancient::assign_pitchmap(vector<int> pitchmap)
-{
-    if(m_tracks.size())
-    {
-        for(vector<Trak>::iterator track = m_tracks.begin(); track != m_tracks.end(); ++track)
-        {
-            int ct = track - m_tracks.begin();
-            if(pitchmap.size()-1 >= ct)
-            {
-                track->set_pitch(pitchmap[ct]);
-            }
-        }
-    }   
-}
- */
-
-/*
-void Ancient::assign_typemap(vector<int> typemap)
-{
-    if(m_tracks.size())
-    {
-        for(vector<Trak>::iterator track = m_tracks.begin(); track != m_tracks.end(); ++track)
-        {
-            int ct = track - m_tracks.begin();
-            if(typemap.size()-1 >= ct)
-            {
-                track->m_mode = typemap[ct];
-            }
-        }
-    }
-}
-*/
 //--------------------------
 void Ancient::threadedFunction()
 {
     while( isThreadRunning() != 0 )
     {
+        bool update_needed = false;
         if( lock() )
         {
             std::vector<DTrack>::iterator track;
@@ -244,8 +210,10 @@ void Ancient::threadedFunction()
                         groove.push_back(m_preset->getValue("i", 0., i));
                     }
                     m_groove = groove;
+                    
                     ofSendMessage("preset_loaded");
                 }
+                update_needed = true;
             }
             
             // generate
@@ -255,6 +223,7 @@ void Ancient::threadedFunction()
                 m_generations.erase(m_generations.begin());
                 m_tracks.at(conf.track_id).generate(conf);
             }
+            update_needed = true;
         }
         map< string, vector<int> > pitches;
         int max_ticks;
@@ -264,8 +233,12 @@ void Ancient::threadedFunction()
             max_ticks = m_seq->get_max_ticks();
             m_seq->unlock();
         }
-        vector< vector<Evt> > result = Seq::generate_events(&m_tracks, m_groove, pitches, max_ticks);
-        m_seq->update(result);
+        if(update_needed)
+        {
+            vector< vector<Evt> > result = Seq::generate_events(&m_tracks, m_groove, pitches, max_ticks);
+            m_seq->update(result);
+            update_needed = false;
+        }
         
         notify(m_seq->get_quav());
         unlock();
