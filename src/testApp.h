@@ -7,6 +7,7 @@
 #include "hObject.h"
 #include "hWidget.h"
 #include "hGui_all.h"
+#include "VRand.h"
 
 // test
 #include "ofxXmlSettings.h"
