@@ -16,13 +16,13 @@ Seq::Seq(){
     m_started = false;
     m_midi_delay = 0;
     m_ticks = 0;
-    m_bpm = 120;
+    m_bpm = 114.95;
     
     // not synced by default
     m_synced_seq = false;
     m_resolution = SEQ_HI_RES; //SEQ_HI_RES
     m_reso_multiplier = (double)1.0/m_resolution;
-    m_max_ticks = (m_resolution / 4) * SEQ_LOOP_SIZE;
+    m_max_ticks  = (m_resolution / 4) * SEQ_LOOP_SIZE;
     m_max_steps = SEQ_LOOP_SIZE;
     
     // record patterns on a4
@@ -484,7 +484,7 @@ void Seq::threadedFunction()
     sendMidiClock(2);
 }
 
-
+// ext sync
 void Seq::newMidiMessage(ofxMidiMessage& msg)
 {
     if(!m_synced_seq){ return; } // not synced
@@ -509,7 +509,7 @@ void Seq::newMidiMessage(ofxMidiMessage& msg)
         {
             m_started = true;
             m_ticks = 0;
-            sendMidiClock(1);
+            //sendMidiClock(1);
         }
         // stop
         if (msg.status == 252)
@@ -518,7 +518,7 @@ void Seq::newMidiMessage(ofxMidiMessage& msg)
             m_ticks = 0;
             // send all channels / noteoffs
             kill_events(10);
-            sendMidiClock(2);
+            //sendMidiClock(2);
         }
         //pause (reaper)
         if (msg.status == 251)
@@ -531,7 +531,7 @@ void Seq::newMidiMessage(ofxMidiMessage& msg)
             // update ticks
             m_ticks++;
             
-            sendMidiClock(0);
+            //sendMidiClock(0);
             // send events
             send_events(line);
             // compute the bpm

@@ -61,7 +61,7 @@ void Ancient::notify(int quav)
     m_bar = floor(quav/16);
     m_beat = floor(quav/4);
     
-    if(m_beat % 2 != 0)
+    if(m_beat % 8 == 0)
     {
         if(m_hold_variation && !m_on_variation)
         {
@@ -123,10 +123,17 @@ void Ancient::set_swing(float swg)
     m_swing = swg;
     m_tasks.push_back("swing");
 }
-void Ancient::set_groove(vector<float> groove)
+
+void Ancient::generate_pink(float corr)
 {
-    m_groove = groove;
-    m_tasks.push_back("groove");
+    vector<float> master = RandUtils::get_pink_serie(64,0.2);
+    for(int i = 0; i < m_tracks.size(); ++i)
+    {
+        vector<float> res;
+        RandUtils::correlateRnd(corr, 0.6, master, res);
+        m_track_pink.push_back(res);
+    }   
+    m_tasks.push_back("pink");
 }
 
 void Ancient::set_evolution(float level, float variat)
@@ -168,10 +175,20 @@ void Ancient::threadedFunction()
             {
                 string task = m_tasks.at(0);
                 m_tasks.erase(m_tasks.begin());
-                // update variation for all tracks
                 
+                vector< vector<float> > tr_pink;
+
+                // all tracks
                 for(track = m_tracks.begin(); track != m_tracks.end(); ++track) 
                 {
+                    if(task == "pink")
+                    {
+                        if(m_track_pink.size())
+                        {
+                            track->set_groove(m_track_pink.at(track-m_tracks.begin()));
+                        }
+                    }
+                    
                     if(task == "jacc_var")
                     {    
                         track->set_jaccard_variation(m_jacc_variation);
@@ -182,7 +199,7 @@ void Ancient::threadedFunction()
                     }
                     else if(task == "swing")
                     {
-                        m_groove =Seq::classic_swing(m_swing);
+                        m_groove = Seq::classic_swing(m_swing);
                     }
                     else if(task == "evolve")
                     {

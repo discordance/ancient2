@@ -386,7 +386,7 @@ void DTrack::set_groove(vector<float> groove)
 
 void DTrack::set_xor_variation(float thres, bool mode)
 {
-    if(!has_events())
+    if(!has_events() || m_euclid_evolution_rate <= 0.)
     {
         return;
     }
@@ -455,7 +455,7 @@ void DTrack::set_xor_variation(float thres, bool mode)
 
 void DTrack::set_jaccard_variation(float thres, bool mode)
 {
-    if(!has_events())
+    if(!has_events() || m_euclid_evolution_rate <= 0.)
     {
         return;
     }
@@ -515,41 +515,45 @@ void DTrack::evolve(float level, float permute)
     vector<int> vels = Euclid::assemble(permuted, m_velocities);
     
     float lrate = 0.;
-    if(level < 0.5)
+    if(m_euclid_evolution_rate)
     {
-        lrate = ofMap(level,0.5,0.,0.,1.);
-        lrate = Sine::easeIn(lrate, 0., lrate, 1.);
-        lrate = 1- lrate;
-        // alternation
-        for(vector<bool>::iterator alt = alter_permuted.begin(); alt != alter_permuted.end(); ++alt)
+        if(level < 0.5)
         {
-            int ct = alt - alter_permuted.begin();
-            if (*alt)
+            lrate = ofMap(level,0.5,0.,0.,1.);
+            lrate = Sine::easeIn(lrate, 0., lrate, 1.);
+            lrate = 1- lrate;
+            // alternation
+            for(vector<bool>::iterator alt = alter_permuted.begin(); alt != alter_permuted.end(); ++alt)
             {
-                vels.at(ct) = vels.at(ct) * lrate;
+                int ct = alt - alter_permuted.begin();
+                if (*alt)
+                {
+                    vels.at(ct) = vels.at(ct) * lrate;
+                }
             }
         }
-    }
-    if(level > 0.5)
-    {
-        lrate = ofMap(level,0.5,1.,0.,1.);
-        
-        lrate = Sine::easeIn(lrate, 0., lrate, 1.);
-        
-        for(vector<bool>::iterator shad = shad_permuted.begin(); shad != shad_permuted.end(); ++shad)
+        if(level > 0.5)
         {
-            int ct = shad - shad_permuted.begin();
-            if(*shad)
+            lrate = ofMap(level,0.5,1.,0.,1.);
+            
+            lrate = Sine::easeIn(lrate, 0., lrate, 1.);
+            
+            for(vector<bool>::iterator shad = shad_permuted.begin(); shad != shad_permuted.end(); ++shad)
             {
-                vels.at(ct) = m_velocity_max * lrate * 0.9; // attenuate
+                int ct = shad - shad_permuted.begin();
+                if(*shad)
+                {
+                    vels.at(ct) = m_velocity_max * lrate * 0.9; // attenuate
+                }
             }
         }
+
     }
-    m_track_current = generate_phr(vels, m_track_groove);
+        m_track_current = generate_phr(vels, m_track_groove);
     m_track_prev_current = m_track_current;
      
 }
-
+ 
 void DTrack::generate_groove(int cycles, float ratio)
 {
     vector<float> grv;
@@ -574,7 +578,7 @@ void DTrack::update_groove()
     vector<Step>::iterator step;
     for(step = m_track_current.begin(); step != m_track_current.end(); ++step)
     {
-        step->drift = m_track_groove.at((step - m_track_current.begin())%8);
+        step->drift = m_track_groove.at((step - m_track_current.begin())%m_track_groove.size());
     }
 }
 

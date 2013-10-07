@@ -21,6 +21,7 @@
 		335b3ec9493302d41ac879457d11d521 /* hGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1fb00a178f84f5d45adfa9e40170f7b8 /* hGui.cpp */; };
 		337d2ec7aa8bdca7d6597bdf6fd620ce /* hTScrollBar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 68511cae82dff28d56bcfad9750420d3 /* hTScrollBar.cpp */; };
 		3F1ADC8F179571110037F2BE /* VRand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F1ADC8D179571110037F2BE /* VRand.cpp */; };
+		3F1ADC931795789E0037F2BE /* RandUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F1ADC911795789E0037F2BE /* RandUtils.cpp */; };
 		3F262A7416527EBD00195C69 /* Euclid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F262A7216527EBD00195C69 /* Euclid.cpp */; };
 		3F332B72166A40CD00814FE4 /* Back.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F332B5B166A40CD00814FE4 /* Back.cpp */; };
 		3F332B73166A40CD00814FE4 /* Bounce.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F332B5D166A40CD00814FE4 /* Bounce.cpp */; };
@@ -170,6 +171,8 @@
 		3628e44fe5c7f90e46bcfda9900ac07d /* hTable.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = hTable.cpp; path = ../../../addons/ofxhUtils/src/hTable/hTable.cpp; sourceTree = SOURCE_ROOT; };
 		3F1ADC8D179571110037F2BE /* VRand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VRand.cpp; sourceTree = "<group>"; };
 		3F1ADC8E179571110037F2BE /* VRand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VRand.h; sourceTree = "<group>"; };
+		3F1ADC911795789E0037F2BE /* RandUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RandUtils.cpp; sourceTree = "<group>"; };
+		3F1ADC921795789E0037F2BE /* RandUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RandUtils.h; sourceTree = "<group>"; };
 		3F1D1723165E34E7007F2072 /* ConfTrack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ConfTrack.h; sourceTree = "<group>"; };
 		3F262A7216527EBD00195C69 /* Euclid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Euclid.cpp; sourceTree = "<group>"; };
 		3F262A7316527EBD00195C69 /* Euclid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Euclid.h; sourceTree = "<group>"; };
@@ -424,6 +427,17 @@
 				86d2677079a3af4a5a88e29a7243e442 /* oscpack */,
 			);
 			name = libs;
+			sourceTree = "<group>";
+		};
+		3F1ADC90179573520037F2BE /* Rnd */ = {
+			isa = PBXGroup;
+			children = (
+				3F1ADC8D179571110037F2BE /* VRand.cpp */,
+				3F1ADC8E179571110037F2BE /* VRand.h */,
+				3F1ADC911795789E0037F2BE /* RandUtils.cpp */,
+				3F1ADC921795789E0037F2BE /* RandUtils.h */,
+			);
+			name = Rnd;
 			sourceTree = "<group>";
 		};
 		3F332B5A166A40CC00814FE4 /* PennerEasing */ = {
@@ -713,6 +727,7 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				3F1ADC90179573520037F2BE /* Rnd */,
 				3F332B5A166A40CC00814FE4 /* PennerEasing */,
 				3F80039B1648108B006F8AAB /* Ancient.cpp */,
 				3F80039C1648108B006F8AAB /* Ancient.h */,
@@ -732,8 +747,6 @@
 				3FBCDCFC166410A80004441F /* KeyModifier.mm */,
 				3FBCDCFD166410A80004441F /* KeyModifier.h */,
 				3F444F1916A6060A00B73928 /* Evt.h */,
-				3F1ADC8D179571110037F2BE /* VRand.cpp */,
-				3F1ADC8E179571110037F2BE /* VRand.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -1024,6 +1037,7 @@
 				3F332B7C166A40CD00814FE4 /* Sine.cpp in Sources */,
 				3FC04C2F170B27F200C90B78 /* ofxGaussian.cpp in Sources */,
 				3F1ADC8F179571110037F2BE /* VRand.cpp in Sources */,
+				3F1ADC931795789E0037F2BE /* RandUtils.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

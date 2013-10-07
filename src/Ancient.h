@@ -13,6 +13,7 @@
 #include "Gaia.h"
 #include "Euclid.h"
 #include "DTrack.h"
+#include "RandUtils.h"
 class Seq; 
 #include "Seq.h"
 #include "Evt.h"
@@ -28,7 +29,7 @@ class Ancient : public ofThread
         void set_seq(Seq *seq);
         void set_evolution(float level, float variat);
         void set_swing(float swg);
-        void set_groove(vector<float> groove);
+        void generate_pink(float corr);
         void set_xor_variation(float ratio);
         void set_jaccard_variation(float thres);
         void set_hold_variation(bool hold);
@@ -52,7 +53,9 @@ class Ancient : public ofThread
         float m_jacc_variation;
         float m_level;
         float m_variat;
+        vector< vector<float> > m_track_pink;
         ofxXmlSettings * m_preset;
+        
         
         // states
         bool m_on_variation;
@@ -72,5 +75,6 @@ class Ancient : public ofThread
         void add_event(vector< vector<Evt> > & events, int start, int end, int track, int pitch, int vel);
         void correct_and_update(vector< vector<Evt> > & events, map<int, vector<int> > & evt_map, int track, int pitch);
          */
+        
 };
 #endif

@@ -145,7 +145,8 @@ void testApp::setup()
     
     // swing
     hButton* button_reset_swing = gui->addButton("reset_swing_button", panel_groove_var, HGUI_TOP_LEFT, gui->margin3, gui->margin1*2, 30, "reset");
-    hButton* button_random_swing = gui->addButton("random_swing_button", panel_groove_var, HGUI_NEXT_COL, gui->margin3, gui->margin1*2, 30, "randm");
+    hButton* button_random_swing = gui->addButton("random_swing_button", panel_groove_var, HGUI_NEXT_COL, gui->margin3, gui->margin1*2, 30, "pink");
+    m_ui_elements["pink_ctrl"] = button_random_swing;
     hSlider* slider_swing = gui->addSlider("swing_slider", panel_groove_var, HGUI_RIGHT, gui->margin3, 0, 100);
     button_reset_swing->setHeight(slider_swing->getHeight());
     button_random_swing->setHeight(slider_swing->getHeight());
@@ -156,6 +157,9 @@ void testApp::setup()
     
     evts->addListener("onSwing", this, &testApp::el_onSwing);
     slider_swing->setMessage("testApp.onSwing");
+    
+    evts->addListener("onPinkSwing", this, &testApp::el_onPinkSwing);
+    button_random_swing->setMessage("testApp.onPinkSwing");
     
     // variations
     
@@ -381,7 +385,7 @@ void testApp::setup()
     gui->editBackColor = ON_GREY_COLOR;
     gui->editTextColor = ON_MAIN_COLOR;
     
-    
+   
 }
 
 //--------------------------------------------------------------
@@ -411,6 +415,21 @@ void testApp::draw()
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //--------------------------------------------------------------
+
+void testApp::el_onPinkSwing(hEventArgs &args)
+{
+    
+    if(args.values.size() > 0)
+    {
+        hButton * b;
+        b = (hButton*)m_ui_elements["pink_ctrl"];
+        if(b->isPressed())
+        {
+            m_ancient.generate_pink(0.5);
+        }
+    }
+}
+
 void testApp::el_onPlay(hEventArgs &args)
 {
     if(args.values.size() > 0)
@@ -537,7 +556,7 @@ void testApp::el_onSjak(hEventArgs& args)
 void testApp::el_onHjak(hEventArgs& args)
 {
     if(args.values.size() > 0)
-    {
+    {        
         hButton * b;
         b = (hButton*)m_ui_elements["hard_jak_ctrl"];
         if(b->isPressed())

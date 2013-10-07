@@ -7,7 +7,6 @@
 #include "hObject.h"
 #include "hWidget.h"
 #include "hGui_all.h"
-#include "VRand.h"
 
 // test
 #include "ofxXmlSettings.h"
@@ -42,6 +41,9 @@ class testApp : public ofBaseApp, public hObject {
         void el_onSync(hEventArgs& args);
         void el_onBpm(hEventArgs& args);
         void el_onMidDelay(hEventArgs& args);
+    
+        void el_onPinkSwing(hEventArgs& args);
+    
         void el_onSwing(hEventArgs& args);
         // vars
         void el_onVarHold(hEventArgs& args);

@@ -31,7 +31,7 @@ class Seq : public ofxMidiListener, public ofThread
     
         static const int SEQ_LOOP_SIZE = 64;
         static const int SEQ_MIDI_RES = 24;
-        static const int SEQ_HI_RES = 960;
+        static const int SEQ_HI_RES = 480;
         
         Seq();
         float get_bpm();
