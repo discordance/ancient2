@@ -86,6 +86,7 @@ public:
         conf.euclid_permutation_rate = 1.;
         conf.groove_cycle = 2;
         conf.groove_ratio = 0.;
+        conf.velocity_mode = RandUtils::rnd(1)*4;
         
         return conf;
     }
