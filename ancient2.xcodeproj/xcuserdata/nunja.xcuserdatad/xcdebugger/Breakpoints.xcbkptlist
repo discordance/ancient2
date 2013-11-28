@@ -16,18 +16,5 @@
          landmarkName = "Seq::generate_events(vector&lt;DTrack&gt; *tracks, vector&lt;float&gt; &amp; groove, map&lt; string, vector&lt;int&gt; &gt; &amp; pitches, int max_ticks)"
          landmarkType = "5">
       </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "src/Ancient.cpp"
-         timestampString = "395680636.97179"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "175"
-         endingLineNumber = "175"
-         landmarkName = "Ancient::threadedFunction()"
-         landmarkType = "5">
-      </FileBreakpoint>
    </FileBreakpoints>
 </Bucket>

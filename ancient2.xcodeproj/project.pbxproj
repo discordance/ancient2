@@ -44,6 +44,7 @@
 		3FC04C2D170B27F200C90B78 /* install.xml in Resources */ = {isa = PBXBuildFile; fileRef = 3FC04C28170B27F200C90B78 /* install.xml */; };
 		3FC04C2E170B27F200C90B78 /* README in Resources */ = {isa = PBXBuildFile; fileRef = 3FC04C29170B27F200C90B78 /* README */; };
 		3FC04C2F170B27F200C90B78 /* ofxGaussian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3FC04C2B170B27F200C90B78 /* ofxGaussian.cpp */; };
+		3FC52CE81847BC0500EDB9CB /* RefreshEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3FC52CE61847BC0500EDB9CB /* RefreshEvent.cpp */; };
 		3aefe4fa8ad5c72671ad07f877fdd77f /* ofxRtMidiOut.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 712b183bc00ebffb1eea5ab8d509f735 /* ofxRtMidiOut.cpp */; };
 		41793c46597559680575c09919a9ff25 /* hDrawingPrimitives.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 496b3644713709a427a7b487037e50e1 /* hDrawingPrimitives.cpp */; };
 		50073c420a990c77ba72e6b5dab39996 /* hStatusBar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = c772069564985816b78306fa67f1758b /* hStatusBar.cpp */; };
@@ -208,6 +209,7 @@
 		3F80039916481042006F8AAB /* Gaia.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Gaia.h; sourceTree = "<group>"; };
 		3F80039B1648108B006F8AAB /* Ancient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Ancient.cpp; sourceTree = "<group>"; };
 		3F80039C1648108B006F8AAB /* Ancient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ancient.h; sourceTree = "<group>"; };
+		3F9C6CEB1847BA64003524ED /* RefreshEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RefreshEvent.h; sourceTree = "<group>"; };
 		3FA9DE3416988E3500332733 /* ancient.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = ancient.icns; sourceTree = "<group>"; };
 		3FB11C24165BA59400493DEA /* DTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DTrack.cpp; sourceTree = "<group>"; };
 		3FB11C25165BA59400493DEA /* DTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DTrack.h; sourceTree = "<group>"; };
@@ -217,6 +219,7 @@
 		3FC04C29170B27F200C90B78 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		3FC04C2B170B27F200C90B78 /* ofxGaussian.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxGaussian.cpp; sourceTree = "<group>"; };
 		3FC04C2C170B27F200C90B78 /* ofxGaussian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxGaussian.h; sourceTree = "<group>"; };
+		3FC52CE61847BC0500EDB9CB /* RefreshEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RefreshEvent.cpp; sourceTree = "<group>"; };
 		3b361208cd4107e479f04e7bce6d93aa /* NetworkingUtils.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = NetworkingUtils.cpp; path = ../../../addons/ofxOsc/libs/oscpack/src/ip/posix/NetworkingUtils.cpp; sourceTree = SOURCE_ROOT; };
 		3dd359247f3ed1550d8bb5c9d4d84f9c /* ofxMidiIn.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxMidiIn.cpp; path = ../../../addons/ofxMidi/src/ofxMidiIn.cpp; sourceTree = SOURCE_ROOT; };
 		4091b73657ae5b8d2bf19f7d4977c6a0 /* hTabBoxItem.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = hTabBoxItem.cpp; path = ../../../addons/ofxhGui/src/hTabBoxItem.cpp; sourceTree = SOURCE_ROOT; };
@@ -747,6 +750,8 @@
 				3FBCDCFC166410A80004441F /* KeyModifier.mm */,
 				3FBCDCFD166410A80004441F /* KeyModifier.h */,
 				3F444F1916A6060A00B73928 /* Evt.h */,
+				3F9C6CEB1847BA64003524ED /* RefreshEvent.h */,
+				3FC52CE61847BC0500EDB9CB /* RefreshEvent.cpp */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -1038,6 +1043,7 @@
 				3FC04C2F170B27F200C90B78 /* ofxGaussian.cpp in Sources */,
 				3F1ADC8F179571110037F2BE /* VRand.cpp in Sources */,
 				3F1ADC931795789E0037F2BE /* RandUtils.cpp in Sources */,
+				3FC52CE81847BC0500EDB9CB /* RefreshEvent.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

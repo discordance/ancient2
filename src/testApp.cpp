@@ -44,6 +44,18 @@ void testApp::setup()
     m_conf.euclid_permutation_rate = 1.;
     m_conf.groove_cycle = 2;
     m_conf.groove_ratio = 0.;
+    
+    // rnd
+    m_rand_division = 16;
+    m_rand_density = 0.5;
+    
+    
+    // init draw velocities
+    vector< vector<int> > vels(8, vector<int>(16));
+    m_current_velocities = vels;
+    // refresh event // listen to any of the events for the game
+    ofAddListener(RefreshEvent::events, this, &testApp::onRefresh);
+    
 
     // gui
     hGui * gui = hGui::getInstance();
@@ -327,6 +339,21 @@ void testApp::setup()
     slider_evolve->setMessage("testApp.onEvolve");
     slider_permute->setMessage("testApp.onEvolve");
     
+    
+    //rnd
+    hLabel * label_full_rand = gui->addLabel("", panel_subevolve, HGUI_TOP_LEFT, 2, 55, "RAND");
+    hSlider* slider_rand_division = gui->addSlider("rand_division_slider", panel_subevolve, HGUI_TOP_LEFT, gui->margin3, 70, 100);
+    slider_rand_division->setRange(2, 32);
+    slider_rand_division->setIntVar(&m_rand_division);
+    hSlider* slider_rand_density = gui->addSlider("rand_density_slider", panel_subevolve, HGUI_TOP_LEFT, gui->margin3, 90, 100);
+    slider_rand_density->setRange(0., 1.);
+    slider_rand_density->setFloatVar(&m_rand_density);
+    hButton* button_rand = gui->addButton("button_rand", panel_subevolve, HGUI_TOP_LEFT, 110, 90, 30, "RAND");
+    button_rand->setHeight(slider_swing->getHeight());
+    evts->addListener("onFullRand", this, &testApp::el_onFullRand);
+    button_rand->setMessage("onFullRand");
+    
+    m_ui_elements["full_rand_ctrl"] = button_rand;
     
     // Library and presets
     hTextBox * box_preset_name = gui->addTextBox("preset_name_box", panel_library,  HGUI_TOP_LEFT,  gui->margin3, gui->margin1*2, 70, "");
@@ -646,6 +673,20 @@ void testApp::el_onPresetName(hEventArgs& args)
         //hTextBox * box = (hTextBox*)m_ui_elements["preset_name_box"];
         //cout << box->getLabel() << endl;
     //}
+}
+
+void testApp::el_onFullRand(hEventArgs& args)
+{
+   
+    hButton * b;
+    b = (hButton*)m_ui_elements["full_rand_ctrl"];
+    if(b->isPressed())
+    {
+        for(int i = 0; i < 8; ++i){
+            m_ancient.generate(RandUtils::random_track(i,m_rand_division,m_rand_density));
+           
+        }  
+    }
 }
 
 void testApp::el_onA4(hEventArgs& args)
@@ -1034,6 +1075,11 @@ void testApp::windowResized(int w, int h){
 
 }
 
+void testApp::onRefresh(RefreshEvent &e){
+
+    m_current_velocities = e.velocities;
+}
+
 //--------------------------------------------------------------
 void testApp::gotMessage(ofMessage msg)
 {
@@ -1076,7 +1122,7 @@ void testApp::drawTracks()
         ofFill();
         ofRect(pane->getX(), yy, pane->getWidth(), hh);
         
-        vector<int> vels = m_ancient.get_track_velocities(i);
+        //vector<int> vels = m_ancient.get_track_velocities(i);
         
         for(int j = 0; j < 64; ++j)
         {
@@ -1091,7 +1137,7 @@ void testApp::drawTracks()
             else { ofSetHexColor(0xFFFFFF); }
             
             ofRect(pane->getX()+pane->getWidth()-6, yy + (5*j) + 2, 4, 4);
-            
+            vector<int> vels = m_current_velocities.at(i);
             // draw vels
             if(vels.size())
             {

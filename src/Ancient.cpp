@@ -43,7 +43,7 @@ ConfTrack Ancient::get_track_conf(int idx)
 {
     return m_tracks.at(idx).get_conf();
 }
-
+/*
 vector<int> Ancient::get_track_velocities(int idx)
 {
     vector<int> vels;
@@ -54,6 +54,7 @@ vector<int> Ancient::get_track_velocities(int idx)
     }
     return vels;
 }
+ */
 
 void Ancient::notify(int quav)
 {
@@ -94,7 +95,6 @@ void Ancient::init()
 void Ancient::generate(ConfTrack conf)
 {
     m_generations.push_back(conf);
-    //startThread();
 }
 
 void Ancient::load_preset(ofxXmlSettings * settings)
@@ -168,9 +168,16 @@ void Ancient::threadedFunction()
     while( isThreadRunning() != 0 )
     {
         bool update_needed = false;
-        if( lock() )
+        vector< vector<int> > vels;
+        std::vector<DTrack>::iterator track;
+        if( lock())
         {
-            std::vector<DTrack>::iterator track;
+            // refresh velocities
+            for(track = m_tracks.begin(); track != m_tracks.end(); ++track)
+            {
+                vels.push_back(track->get_velocities());
+            }
+            
             if(m_tasks.size())
             {
                 string task = m_tasks.at(0);
@@ -242,6 +249,13 @@ void Ancient::threadedFunction()
             }
             update_needed = true;
         }
+        
+        static RefreshEvent refresh_e;
+        refresh_e.message = "refresh";
+        refresh_e.velocities = vels;
+        // refresh vels;
+        ofNotifyEvent(RefreshEvent::events, refresh_e);
+        
         map< string, vector<int> > pitches;
         int max_ticks;
         if(m_seq->lock())
@@ -259,7 +273,7 @@ void Ancient::threadedFunction()
         
         notify(m_seq->get_quav());
         unlock();
-        ofSleepMillis(20);
+        ofSleepMillis(5);
     } 
 }
     

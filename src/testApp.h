@@ -17,6 +17,7 @@
 #include "Euclid.h"
 #include "ConfTrack.h"
 #include "KeyModifier.h"
+#include "RefreshEvent.h"
 
 class testApp : public ofBaseApp, public hObject {
 
@@ -68,6 +69,8 @@ class testApp : public ofBaseApp, public hObject {
         void el_onSave(hEventArgs& args);
         void el_onLoad(hEventArgs& args);
         void el_onA4(hEventArgs& args);
+        void el_onFullRand(hEventArgs& args);
+        void onRefresh(RefreshEvent &e);
     
         // constants
         static int const ON_VAR_COLOR = 0xAAAAAA;//
@@ -103,7 +106,12 @@ class testApp : public ofBaseApp, public hObject {
         map<int,bool> m_mutes;
         map<int, bool> m_keys;
         hGui * m_gui;
-        
+        vector< vector<int> > m_current_velocities;
+    
+        // rnd
+        int m_rand_division;
+        float m_rand_density;
+    
         // conf of current track
         ConfTrack m_conf;
         ofxXmlSettings m_loaded_preset;

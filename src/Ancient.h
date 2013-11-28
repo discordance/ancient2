@@ -14,6 +14,7 @@
 #include "Euclid.h"
 #include "DTrack.h"
 #include "RandUtils.h"
+#include "RefreshEvent.h"
 class Seq; 
 #include "Seq.h"
 #include "Evt.h"
@@ -38,7 +39,7 @@ class Ancient : public ofThread
         void notify(int quav); // be informed that a bar is going on
         vector<DTrack> * get_tracks();
         ConfTrack get_track_conf(int idx);
-        vector<int> get_track_velocities(int idx);
+        //vector<int> get_track_velocities(int idx);
         vector<float> get_groove();
         int m_bar, m_beat, m_quav;
     
