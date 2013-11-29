@@ -22,6 +22,7 @@ void testApp::setup()
     m_jakvar_ratio = 0.;
     m_var_hold = false;
     m_a4_mode = false;
+    m_sysex_mode = true;
     m_selected_track = 0;
     
     // init ancient
@@ -110,10 +111,15 @@ void testApp::setup()
     evts->addListener("onA4", this, &testApp::el_onA4);
     ctrl_a4->setMessage("testApp.onA4");
     hLabel * label_a4 = gui->addLabel("", panel_transport, HGUI_RIGHT, gui->margin3 ,0, "a4");
+   
+    
     
     hCheckBox* ctrl_sync = gui->addCheckBox("sync_ctrl", panel_transport, HGUI_NEXT_ROW, gui->margin3, gui->margin3);
     ctrl_sync->setSelected(false);
     ctrl_sync->setBoolVar(&m_synced);
+    
+    
+    
 
     hLabel * label_sync = gui->addLabel("", panel_transport, HGUI_RIGHT, gui->margin3 ,0, "sync");
     // store
@@ -121,6 +127,12 @@ void testApp::setup()
     // event listener
     evts->addListener("onSync", this, &testApp::el_onSync);
     ctrl_sync->setMessage("testApp.onSync");
+    
+    // sysex
+    hCheckBox* ctrl_sysex = gui->addCheckBox("sysex_ctrl", panel_transport, HGUI_RIGHT, gui->margin3*2+2, 0);
+    ctrl_sysex->setBoolVar(&m_sysex_mode);
+    m_ui_elements["sysex_ctrl"] = ctrl_sysex;
+     hLabel * label_sysex = gui->addLabel("", panel_transport, HGUI_RIGHT, gui->margin3 ,0, "sysex");
     
     // bpm
     hSlider* slider_bpm = gui->addSlider("bpm_slider", panel_transport, HGUI_NEXT_ROW, gui->margin3, gui->margin3, 100);
@@ -684,8 +696,10 @@ void testApp::el_onFullRand(hEventArgs& args)
     {
         for(int i = 0; i < 8; ++i){
             m_ancient.generate(RandUtils::random_track(i,m_rand_division,m_rand_density));
-           
-        }  
+        }
+        if(m_sysex_mode){
+            m_seq.sendPatternChange("rnd");
+        }
     }
 }
 
@@ -805,6 +819,12 @@ void testApp::el_onLoad(hEventArgs& args)
                 m_loaded_preset.pushTag("preset");
                 m_loaded_preset.pushTag("tracks");
                 m_ancient.load_preset(&m_loaded_preset);
+                
+                // notify sysex
+                if(m_sysex_mode){
+                    m_seq.sendPatternChange(box->getSelectedElementLabel());
+                }
+                
             }
             else
             {

@@ -97,6 +97,7 @@ class testApp : public ofBaseApp, public hObject {
         bool m_synced;
         bool m_playing;
         bool m_a4_mode;
+        bool m_sysex_mode;
         int  m_mid_delay;
         int  m_bpm;
         float m_swing;
@@ -107,6 +108,7 @@ class testApp : public ofBaseApp, public hObject {
         map<int, bool> m_keys;
         hGui * m_gui;
         vector< vector<int> > m_current_velocities;
+        
     
         // rnd
         int m_rand_division;

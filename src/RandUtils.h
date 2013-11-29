@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <vector>
+#include <mach/mach_time.h>
 #include "utils/ofUtils.h"
 #include "VRand.h"
 #include "ConfTrack.h"
@@ -62,7 +63,7 @@ public:
     
     static ConfTrack random_track(int track_id, int division, float density)
     {
-        srand(ofGetElapsedTimeMicros());
+        srand(mach_absolute_time());
         ConfTrack conf = ConfTrack();
         conf.track_id = track_id;
         

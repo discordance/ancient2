@@ -47,6 +47,9 @@ class Seq : public ofxMidiListener, public ofThread
         void set_a4_mode(bool status);
         void set_bpm(int bpm);
     
+        void sendPatternChange(string name);
+        
+    
         void set_playing(bool status);
         void update(vector< vector<Evt> > & events);
         //void set_groove_point();
@@ -63,6 +66,8 @@ class Seq : public ofxMidiListener, public ofThread
         static vector< vector<Evt> > generate_events(vector<DTrack> *tracks, vector<float> & groove, map< string, vector<int> > & pitches, int max_ticks);
         static void add_event(vector< vector<Evt> > & evts, int start, int end, int track, int pitch, int vel);
         static void correct_and_update(vector< vector<Evt> > & evts, map<int, vector<int> >& evt_map, int track, int pitch, int max_ticks);
+    
+        
     
     protected:
     
@@ -87,7 +92,8 @@ class Seq : public ofxMidiListener, public ofThread
         void sendHardOutNoteOff(int chan, int pitch, int vel);
         void sendNetworkNoteOn(int chan, int pitch, int vel);
         void sendNetworkNoteOff(int chan, int pitch, int vel);
-        
+        void send_sysex(vector<unsigned char> info);
+    
         int set_realtime(int period, int computation, int constraint);
     
         
@@ -99,6 +105,7 @@ class Seq : public ofxMidiListener, public ofThread
         ofxMidiOut  m_hard_midiOut; // for hardware routing
         ofxMidiOut  m_hard_a4USBIn;
         ofxMidiOut  m_network_out;
+        ofxMidiOut  m_iac_out;
         ofxMidiMessage m_midiMessage;
         
         // nudge

@@ -59,6 +59,12 @@ Seq::Seq(){
     {
         m_hard_a4USBIn.closePort();
     }
+    // detect IAC
+    if(!m_iac_out.openPort("IAC Bus 1"))
+    {
+        m_iac_out.closePort();
+        cout << "No sysex without IAC" << endl;
+    }
     
     // midi init
     m_virtual_midiIn.openVirtualPort("Ancient2 SYNC IN");
@@ -67,8 +73,10 @@ Seq::Seq(){
     // virtual port
     m_virtual_midiOut.openVirtualPort("Ancient2 NOTES OUT");
     
+    
     // sync out;
     m_sync_out.openVirtualPort("Ancient2 SYNC OUT");
+    //m_sync_out->ignore
 	
 	// add testApp as a listener
 	m_virtual_midiIn.addListener(this);
@@ -584,6 +592,39 @@ void Seq::add_event(vector< vector<Evt> > & evts, int start, int end, int track,
     event_line_on->push_back(on);
     vector<Evt>* event_line_off = &evts.at(end%evts.size());
     event_line_off->push_back(off);
+}
+
+void Seq::sendPatternChange(string name)
+{
+    vector<unsigned char> v( name.begin(), name.end() );
+    send_sysex(v);
+}
+
+// sysex through IAC
+void Seq::send_sysex(vector<unsigned char> info)
+{
+    vector<unsigned char> sysexMsg;
+    sysexMsg.push_back(MIDI_SYSEX);
+    sysexMsg.push_back(0x47);
+    sysexMsg.push_back(0x00);
+    sysexMsg.push_back(0x00);
+    sysexMsg.push_back(0x42);
+    sysexMsg.push_back(0x12);
+    sysexMsg.push_back(0x00);
+    
+    //sysexMsg.push_back(0x00);
+    for (vector<unsigned char>::iterator it = info.begin(); it != info.end(); ++it) {
+        sysexMsg.push_back(*it);
+    }
+    
+    sysexMsg.push_back(MIDI_SYSEX_END);
+    
+    if(m_iac_out.isOpen())
+    {
+        m_iac_out.sendMidiBytes(sysexMsg);
+        cout << "sysex sent" << endl;
+    }
+    
 }
 
 void Seq::sendMidiClock(int status)
